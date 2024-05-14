@@ -1,5 +1,5 @@
 # email-service
-email-service is a versatile npm package designed to simplify the integration and standardization of email communications across multiple Email Service Providers (ESPs). Whether you're sending transactional messages, marketing emails, or simple notifications, Unified Email Sender provides a streamlined, unified API to handle email operations with ease.
+email-service is a versatile npm package designed to simplify the integration and standardization of email communications across multiple Email Service Providers (ESPs).
 
 ## Motivations
 The development of Unified Email Sender is driven by the need to simplify and standardize the integration of email sending services in modern applications while remaining agnostic to Email Service Providers (ESPs). In a technological environment where businesses might switch providers based on cost, performance, or specific feature requirements, a flexible and well-integrated solution is essential.
