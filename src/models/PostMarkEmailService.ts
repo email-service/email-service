@@ -14,6 +14,7 @@ export class PostMarkEmailService implements IEmailService {
 	async sendMail(options: EmailPayload): Promise<sendMailResponse> {
 		try {
 			const body = {
+				MessageStream: this.transporter.stream,
 				From: options.from,
 				To: options.to,
 				Subject: options.subject,
