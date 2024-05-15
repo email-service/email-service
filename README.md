@@ -2,7 +2,7 @@
 
 >Please be advised that this npm package is currently under development (alpha). It is not yet ready for production use. We plan to release version 1.0 by the end of June. Until then, we recommend not using this package in any critical or production environments. Thank you for your understanding and patience.
 
-[Developer documentation](https://github.com/email-service/email-service/blob/main/LICENSE.md)
+[Developer documentation](https://github.com/email-service/email-service/blob/main/USERGUIDE.md)
 
 # email-service
 email-service is a versatile npm package designed to simplify the integration and standardization of email communications across multiple Email Service Providers (ESPs).
