@@ -1,5 +1,5 @@
 import { EmailPayload } from "../types/email.type";
-import { ConfigNodeMailer, IEmailService } from "../types/emailDispatcher.type";
+import { ConfigNodeMailer, IEmailService, SendMailResponse } from "../types/emailDispatcher.type";
 import nodemailer from 'nodemailer'
 
 
@@ -20,7 +20,7 @@ export class NodeMailerEmailService implements IEmailService {
 		//console.log('Instance of NodeMailerEmailService', this)
 	}
 
-	async sendMail(options: EmailPayload): Promise<{ success: boolean, error?: any }> {
+	async sendMail(options: EmailPayload): Promise<SendMailResponse> {
 		try {
 			const message = await this.transporter.sendMail(options);
 			console.log('message', message)
@@ -33,10 +33,10 @@ export class NodeMailerEmailService implements IEmailService {
 			console.log('Message sent successfully!', message.messageId);
 
 			// only needed when using pooled connections
-			return { success: true };
+			return { ok: true };
 		} catch (error) {
 			console.log('Error occurred', error);
-			return { success: false, error };
+			return { ok: false, error };
 		}
 	}
 

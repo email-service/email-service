@@ -1,12 +1,12 @@
-import type { EmailPayload } from "./email.type";
+import type { EmailPayload  } from "./email.type";
 
 export type IEmailService = {
-	sendMail(options: EmailPayload): Promise<{ success: boolean, error?: any }>;
+	sendMail(options: EmailPayload): Promise<SendMailResponse>;
 }
 
-export type sendMailResponse = {
-	success: true,
-	retour: {
+export type SendMailResponse = {
+	ok: true,
+	retour?: {
 		to: string,
 		submittedAt: string,
 		messageId: string,
@@ -15,26 +15,17 @@ export type sendMailResponse = {
 	}
 }
 	|
-{ success: false, error: unknown }
+{ ok: false, error: unknown }
 
 
 export type ConfigPostmark = {
 	esp: 'postmark',
 	name: string,
 	host: string,
-	port: number,
 	stream: string,
 	apiKey: string
 }
 
-export type ConfigSendgrid = {
-	esp: 'sendgrid',
-	name: string,
-	host: string,
-	port: number,
-	stream: string,
-	apiKey: string
-}
 
 export type ConfigBrevo = {
 	esp: 'brevo',
@@ -55,4 +46,4 @@ export type ConfigNodeMailer = {
 	}
 }
 
-export type Config = ConfigPostmark | ConfigSendgrid | ConfigBrevo | ConfigNodeMailer
+export type Config = ConfigPostmark  | ConfigBrevo | ConfigNodeMailer

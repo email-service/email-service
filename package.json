@@ -1,6 +1,6 @@
 {
   "name": "@email-service/email-service",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "email-service is a versatile npm package designed to simplify the integration and standardization of email communications across multiple Email Service Providers (ESPs).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,6 +23,12 @@
     "emailserviceproviders"
   ],
   "author": "Romain Demoustier",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/email-service/email-service"
+  },
+  "homepage": "https://github.com/email-service/email-service",
+  "documentation": "https://github.com/email-service/email-service/blob/main/USERGUIDE.md",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.12.12",

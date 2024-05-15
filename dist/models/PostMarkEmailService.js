@@ -19,6 +19,7 @@ class PostMarkEmailService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const body = {
+                    MessageStream: this.transporter.stream,
                     From: options.from,
                     To: options.to,
                     Subject: options.subject,
@@ -45,7 +46,7 @@ class PostMarkEmailService {
                 console.log("retour", retour);
                 if (retour.ErrorCode === 0) {
                     return {
-                        success: true,
+                        ok: true,
                         retour: {
                             to: retour.To,
                             submittedAt: retour.SubmittedAt, //Pour acceepter les dates sous forme de string
@@ -57,12 +58,12 @@ class PostMarkEmailService {
                 }
                 else {
                     console.log('Error occurred');
-                    return { success: false, error: retour.Message };
+                    return { ok: false, error: retour.Message };
                 }
             }
             catch (error) {
                 console.log('Error occurred', error);
-                return { success: false, error };
+                return { ok: false, error };
             }
         });
     }

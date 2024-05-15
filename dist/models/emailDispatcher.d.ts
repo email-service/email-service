@@ -4,12 +4,36 @@ export declare class EmailDispatcher {
     private emailService;
     constructor(service: Config);
     sendEmail(email: EmailPayload): Promise<{
+        ok: true;
+        retour?: {
+            to: string;
+            submittedAt: string;
+            messageId: string;
+            errorCode: number;
+            message: string;
+        } | undefined;
+    } | {
+        ok: false;
+        error: unknown;
+    } | {
         success: boolean;
-        error?: any;
+        error: string;
     }>;
     static sendEmail(esp: Config, email: EmailPayload): Promise<{
+        ok: true;
+        retour?: {
+            to: string;
+            submittedAt: string;
+            messageId: string;
+            errorCode: number;
+            message: string;
+        } | undefined;
+    } | {
+        ok: false;
+        error: unknown;
+    } | {
         success: boolean;
-        error?: any;
+        error: string;
     }>;
     close(): void;
 }

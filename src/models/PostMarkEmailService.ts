@@ -1,5 +1,5 @@
 import { EmailPayload } from "../types/email.type";
-import { ConfigPostmark, IEmailService, sendMailResponse } from "../types/emailDispatcher.type";
+import { ConfigPostmark, IEmailService, SendMailResponse } from "../types/emailDispatcher.type";
 
 
 
@@ -11,7 +11,7 @@ export class PostMarkEmailService implements IEmailService {
 		console.log('Instance of PostMarkEmailService', this)
 	}
 
-	async sendMail(options: EmailPayload): Promise<sendMailResponse> {
+	async sendMail(options: EmailPayload): Promise<SendMailResponse> {
 		try {
 			const body = {
 				MessageStream: this.transporter.stream,
@@ -22,7 +22,7 @@ export class PostMarkEmailService implements IEmailService {
 				TextBody: options.text,
 				Tag: 'email-service',
 				// Tag: options.tag,
-				 ReplyTo: 'server@simu.immo',
+				ReplyTo: 'server@simu.immo',
 				// Headers: options.headers,
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
@@ -43,7 +43,7 @@ export class PostMarkEmailService implements IEmailService {
 			console.log("retour", retour)
 			if (retour.ErrorCode === 0) {
 				return {
-					success: true,
+					ok: true,
 					retour: {
 						to: retour.To,
 						submittedAt: retour.SubmittedAt, //Pour acceepter les dates sous forme de string
@@ -55,13 +55,13 @@ export class PostMarkEmailService implements IEmailService {
 			}
 			else {
 				console.log('Error occurred');
-				return { success: false, error: retour.Message }
+				return { ok: false, error: retour.Message }
 			}
 
 
 		} catch (error) {
 			console.log('Error occurred', error);
-			return { success: false, error };
+			return { ok: false, error };
 		}
 	}
 

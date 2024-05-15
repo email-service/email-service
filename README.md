@@ -1,3 +1,9 @@
+**Warning: Package Under Development**
+
+>Please be advised that this npm package is currently under development (alpha). It is not yet ready for production use. We plan to release version 1.0 by the end of June. Until then, we recommend not using this package in any critical or production environments. Thank you for your understanding and patience.
+
+[Developer documentation](https://github.com/email-service/email-service/blob/main/LICENSE.md)
+
 # email-service
 email-service is a versatile npm package designed to simplify the integration and standardization of email communications across multiple Email Service Providers (ESPs).
 
@@ -15,8 +21,6 @@ The development of Unified Email Sender is driven by the need to simplify and st
 **Simplified Maintenance**: Centralized management of ESPs reduces the complexity of code maintenance and updates, allowing teams to focus on enhancing application functionalities rather than troubleshooting integration issues.
 
 With email-service, enterprises and developers gain operational efficiency and agility, ensuring reliable and effective email communication tailored to their evolving needs. This package is designed for those looking to optimize their communication infrastructure without being tied to a single email service provider, thus embodying a truly agnostic and future-proof solution for email sending.
-
-
 
 ## Features:
 

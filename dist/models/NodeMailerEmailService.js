@@ -39,11 +39,11 @@ class NodeMailerEmailService {
                 }
                 console.log('Message sent successfully!', message.messageId);
                 // only needed when using pooled connections
-                return { success: true };
+                return { ok: true };
             }
             catch (error) {
                 console.log('Error occurred', error);
-                return { success: false, error };
+                return { ok: false, error };
             }
         });
     }
