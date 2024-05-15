@@ -37,23 +37,19 @@ const htmlContent = `
 const emailPayload = {
   from: 'test@example.com',
   to: 'recipient@example.com',
-  subject: 'Your MagicLink',
-  text: 'Body of the message',
+  subject: 'Your subect',
   html: htmlContent,
 };
 
-async function sendEmail() {
-  const emailResponse = await emailService.sendMail(emailPayload);
-  emailService.close();
+const emailResponse = await emailService.sendMail(emailPayload);
 
   if (emailResponse.ok) {
     console.log('Email sent successfully!');
   } else {
     console.log('Failed to send email:', emailResponse.error);
   }
-}
-
-sendEmail();
+  
+emailService.close() 
 ```
 # Notes
 
