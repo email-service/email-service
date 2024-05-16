@@ -32,7 +32,7 @@ class EmailDispatcher {
             if (this.emailService)
                 return yield this.emailService.sendMail(email);
             else
-                return ({ success: false, error: 'No email service configured' });
+                return ({ ok: false, error: 'No email service configured' });
         });
     }
     static sendEmail(esp, email) {

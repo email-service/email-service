@@ -1,5 +1,5 @@
 import type { EmailPayload } from "../types/email.type";
-import type { Config, IEmailService } from "../types/emailDispatcher.type";
+import type { Config, IEmailService, SendMailResponse } from "../types/emailDispatcher.type";
 import { NodeMailerEmailService } from "./NodeMailerEmailService";
 import { PostMarkEmailService } from "./PostMarkEmailService";
 
@@ -23,10 +23,10 @@ export class EmailDispatcher {
 		}
 	}
 
-	async sendEmail(email: EmailPayload) {
+	async sendEmail(email: EmailPayload) :Promise<SendMailResponse>{
 		if (this.emailService)
 			return await this.emailService.sendMail(email);
-		else return ({ success: false, error: 'No email service configured' })
+		else return ({ ok: false, error: 'No email service configured' })
 	}
 
 	static async sendEmail(esp: Config, email: EmailPayload) {

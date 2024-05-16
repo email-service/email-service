@@ -1,21 +1,25 @@
-import type { EmailPayload  } from "./email.type";
+import type { EmailPayload } from "./email.type";
 
 export type IEmailService = {
 	sendMail(options: EmailPayload): Promise<SendMailResponse>;
 }
 
-export type SendMailResponse = {
-	ok: true,
-	retour?: {
-		to: string,
-		submittedAt: string,
-		messageId: string,
-		errorCode: number,
-		message: string
+export type SendMailResponse =
+	{
+		ok: true,
+		retour?: {
+			to: string,
+			submittedAt: string,
+			messageId: string,
+			errorCode: number,
+			message: string
+		}
 	}
-}
 	|
-{ ok: false, error: unknown }
+	{
+		ok: false,
+		error: any
+	}
 
 
 export type ConfigPostmark = {
@@ -46,4 +50,4 @@ export type ConfigNodeMailer = {
 	}
 }
 
-export type Config = ConfigPostmark  | ConfigBrevo | ConfigNodeMailer
+export type Config = ConfigPostmark | ConfigBrevo | ConfigNodeMailer

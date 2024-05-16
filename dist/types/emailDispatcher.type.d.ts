@@ -13,7 +13,7 @@ export type SendMailResponse = {
     };
 } | {
     ok: false;
-    error: unknown;
+    error: any;
 };
 export type ConfigPostmark = {
     esp: 'postmark';
