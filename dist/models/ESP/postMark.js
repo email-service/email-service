@@ -10,7 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostMarkEmailService = void 0;
-class PostMarkEmailService extends ESP {
+const error_1 = require("../../utils/error");
+const esp_1 = require("../esp");
+class PostMarkEmailService extends esp_1.ESP {
     constructor(service) {
         super(service);
     }
@@ -26,8 +28,13 @@ class PostMarkEmailService extends ESP {
                     TextBody: options.text,
                     Tag: 'email-test',
                     // Tag: options.tag,
-                    ReplyTo: 'server@simu.immo',
-                    // Headers: options.headers,
+                    ReplyTo: 'server@question.direct',
+                    //Headers: options.headers,
+                    Metadata: options.meta,
+                    // TrackOpens: options.trackOpens,
+                    // TrackLinks: options.trackLinks,
+                    // Metadata: options.metadata,
+                    // Attachments: options.attachments
                     Headers: [{ name: 'X-QD-Meta', value: JSON.stringify(options.meta)
                         }]
                 };
@@ -43,8 +50,8 @@ class PostMarkEmailService extends ESP {
                 console.log("retour", retour);
                 if (retour.ErrorCode === 0) {
                     return {
-                        ok: true,
-                        retour: {
+                        success: true,
+                        data: {
                             to: retour.To,
                             submittedAt: retour.SubmittedAt, //Pour acceepter les dates sous forme de string
                             messageId: retour.MessageID,
@@ -55,12 +62,11 @@ class PostMarkEmailService extends ESP {
                 }
                 else {
                     console.log('Error occurred');
-                    return { ok: false, error: retour.Message };
+                    return { success: false, error: retour.Message };
                 }
             }
             catch (error) {
-                console.log('Error occurred', error);
-                return { ok: false, error };
+                return { success: false, error: (0, error_1.errorManagement)(error) };
             }
         });
     }

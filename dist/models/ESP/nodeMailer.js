@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NodeMailerEmailService = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const esp_1 = require("../esp");
+const error_1 = require("../../utils/error");
 class NodeMailerEmailService extends esp_1.ESP {
     constructor(service) {
         super(service);
@@ -27,11 +28,10 @@ class NodeMailerEmailService extends esp_1.ESP {
                 if (message.error) {
                     return process.exit(1);
                 }
-                return { success: true, retour: message };
+                return { success: true, data: message };
             }
             catch (error) {
-                console.warn('Error occurred', error);
-                return { success: false, error };
+                return { success: false, error: (0, error_1.errorManagement)(error) };
             }
         });
     }

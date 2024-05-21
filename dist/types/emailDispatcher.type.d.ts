@@ -1,10 +1,12 @@
 import type { EmailPayload } from "./email.type";
+import { StandardError } from "./error.type";
 export type IEmailService = {
-    sendMail(options: EmailPayload): Promise<SendMailResponse>;
+    sendMail(options: EmailPayload): Promise<StandardResponse>;
+    webHook(req: any): Promise<StandardResponse>;
 };
-export type SendMailResponse = {
-    ok: true;
-    retour?: {
+export type StandardResponse = {
+    success: true;
+    data: {
         to: string;
         submittedAt: string;
         messageId: string;
@@ -12,8 +14,8 @@ export type SendMailResponse = {
         message: string;
     };
 } | {
-    ok: false;
-    error: any;
+    success: false;
+    error: StandardError;
 };
 export type ConfigPostmark = {
     esp: 'postmark';

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BrevoEmailService = void 0;
+const error_1 = require("../../utils/error");
 const esp_1 = require("../esp");
 class BrevoEmailService extends esp_1.ESP {
     constructor(service) {
@@ -50,7 +51,7 @@ class BrevoEmailService extends esp_1.ESP {
                 if (response.ok) {
                     return {
                         success: true,
-                        retour
+                        data: retour
                     };
                 }
                 else {
@@ -59,14 +60,13 @@ class BrevoEmailService extends esp_1.ESP {
                 }
             }
             catch (error) {
-                console.log('Error occurred', error);
-                return { success: false, error };
+                return { success: false, error: (0, error_1.errorManagement)(error) };
             }
         });
     }
     webHook(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            return { success: true };
+            return { success: true, data: req.body };
         });
     }
 }

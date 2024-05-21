@@ -1,25 +1,17 @@
-<<<<<<< Updated upstream:src/models/PostMarkEmailService.ts
-import { EmailPayload } from "../types/email.type";
-import { ConfigPostmark, IEmailService, SendMailResponse } from "../types/emailDispatcher.type";
-=======
 import { EmailPayload } from "../../types/email.type";
 import { ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
+import { errorManagement } from "../../utils/error";
 import { ESP } from "../esp";
->>>>>>> Stashed changes:src/models/ESP/postMark.ts
 
 
 
-export class PostMarkEmailService extends ESP implements IEmailService {
+export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailService {
 	
 	constructor(service: ConfigPostmark) {
 		super(service)
 	}
 
-<<<<<<< Updated upstream:src/models/PostMarkEmailService.ts
-	async sendMail(options: EmailPayload): Promise<SendMailResponse> {
-=======
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
->>>>>>> Stashed changes:src/models/ESP/postMark.ts
 		try {
 			const body = {
 				MessageStream: this.transporter.stream,
@@ -30,14 +22,9 @@ export class PostMarkEmailService extends ESP implements IEmailService {
 				TextBody: options.text,
 				Tag: 'email-test',
 				// Tag: options.tag,
-<<<<<<< Updated upstream:src/models/PostMarkEmailService.ts
-				ReplyTo: 'server@simu.immo',
-				// Headers: options.headers,
-=======
 				 ReplyTo: 'server@question.direct',
 				 //Headers: options.headers,
 				 Metadata : options.meta,
->>>>>>> Stashed changes:src/models/ESP/postMark.ts
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
 				// Metadata: options.metadata,
@@ -61,8 +48,8 @@ export class PostMarkEmailService extends ESP implements IEmailService {
 			console.log("retour", retour)
 			if (retour.ErrorCode === 0) {
 				return {
-					ok: true,
-					retour: {
+					success: true,
+					data: {
 						to: retour.To,
 						submittedAt: retour.SubmittedAt, //Pour acceepter les dates sous forme de string
 						messageId: retour.MessageID,
@@ -73,13 +60,12 @@ export class PostMarkEmailService extends ESP implements IEmailService {
 			}
 			else {
 				console.log('Error occurred');
-				return { ok: false, error: retour.Message }
+				return { success: false, error: retour.Message }
 			}
 
 
 		} catch (error) {
-			console.log('Error occurred', error);
-			return { ok: false, error };
+			return { success: false, error: errorManagement(error) };
 		}
 	}
 

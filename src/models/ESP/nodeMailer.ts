@@ -2,10 +2,11 @@ import { EmailPayload } from "../../types/email.type";
 import { ConfigNodeMailer, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
 import nodemailer from 'nodemailer'
 import { ESP } from "../esp";
+import { errorManagement } from "../../utils/error";
 
 
 
-export class NodeMailerEmailService extends ESP implements IEmailService {
+export class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEmailService {
 	private nodemailerTransporter: nodemailer.Transporter;
 	constructor(service: ConfigNodeMailer) {
 		super(service)
@@ -19,10 +20,9 @@ export class NodeMailerEmailService extends ESP implements IEmailService {
 			if (message.error) {
 				return process.exit(1);
 			}
-			return { success: true , retour : message};
+			return { success: true , data : message};
 		} catch (error) {
-			console.warn('Error occurred', error);
-			return { success: false, error };
+			return { success: false, error: errorManagement(error) };
 		}
 	}
 

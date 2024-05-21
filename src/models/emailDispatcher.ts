@@ -1,14 +1,8 @@
 import type { EmailPayload } from "../types/email.type";
-<<<<<<< Updated upstream
-import type { Config, IEmailService, SendMailResponse } from "../types/emailDispatcher.type";
-import { NodeMailerEmailService } from "./NodeMailerEmailService";
-import { PostMarkEmailService } from "./PostMarkEmailService";
-=======
-import type { Config, IEmailService } from "../types/emailDispatcher.type";
+import type { Config, IEmailService, StandardResponse } from "../types/emailDispatcher.type";
 import { BrevoEmailService } from "./ESP/brevo";
 import { NodeMailerEmailService } from "./ESP/nodeMailer";
 import { PostMarkEmailService } from "./ESP/postMark";
->>>>>>> Stashed changes
 
 export class EmailDispatcher {
 	private emailService: IEmailService | undefined;
@@ -19,27 +13,27 @@ export class EmailDispatcher {
 				this.emailService = new PostMarkEmailService(service);
 				break;
 
-			case 'nodeMailer':
+			case 'nodemailer':
 				this.emailService = new NodeMailerEmailService(service);
 				break;
 
 			case 'brevo':
 				this.emailService = new BrevoEmailService(service);
 				break;
-				
+
 			default:
 				throw new Error('Invalid ESP');
 				break;
 		}
 	}
 
-	async sendEmail(email: EmailPayload) :Promise<SendMailResponse>{
+	async sendEmail(email: EmailPayload): Promise<StandardResponse> {
 		if (this.emailService)
 			return await this.emailService.sendMail(email);
-		else return ({ ok: false, error: 'No email service configured' })
+		else return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } })
 	}
 
-	static async sendEmail(esp: Config, email: EmailPayload) {
+	static async sendEmail(esp: Config, email: EmailPayload): Promise<StandardResponse> {
 		const emailDispatcher = new EmailDispatcher(esp);
 		return await emailDispatcher.sendEmail(email);
 	}
@@ -48,19 +42,19 @@ export class EmailDispatcher {
 		// Nothing, as we are  using only for nodemailer
 	}
 
-	static async webHook( req: any) {
+	static async webHook(req: any): Promise<StandardResponse> {
 		if (req.esp) {
 			const emailDispatcher = new EmailDispatcher(req.esp);
 			return await emailDispatcher.webHook(req);
 		} else {
-			return ({ success: false, error: 'No email service configured' })
+			return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } })
 		}
 	}
 
-	async webHook(req: any) {
+	async webHook(req: any): Promise<StandardResponse> {
 		if (this.emailService)
 			return await this.emailService.webHook(req);
-		else return ({ success: false, error: 'No email service configured' })
+		else return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } })
 	}
 
 }

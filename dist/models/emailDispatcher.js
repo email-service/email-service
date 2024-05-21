@@ -10,19 +10,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmailDispatcher = void 0;
-const NodeMailerEmailService_1 = require("./NodeMailerEmailService");
-const PostMarkEmailService_1 = require("./PostMarkEmailService");
+const brevo_1 = require("./ESP/brevo");
+const nodeMailer_1 = require("./ESP/nodeMailer");
+const postMark_1 = require("./ESP/postMark");
 class EmailDispatcher {
     constructor(service) {
         switch (service.esp) {
             case 'postmark':
-                this.emailService = new PostMarkEmailService_1.PostMarkEmailService(service);
+                this.emailService = new postMark_1.PostMarkEmailService(service);
                 break;
-            case 'nodeMailer':
-                this.emailService = new NodeMailerEmailService_1.NodeMailerEmailService(service);
+            case 'nodemailer':
+                this.emailService = new nodeMailer_1.NodeMailerEmailService(service);
                 break;
             case 'brevo':
-                this.emailService = new BrevoEmailService(service);
+                this.emailService = new brevo_1.BrevoEmailService(service);
                 break;
             default:
                 throw new Error('Invalid ESP');
@@ -34,7 +35,7 @@ class EmailDispatcher {
             if (this.emailService)
                 return yield this.emailService.sendMail(email);
             else
-                return ({ ok: false, error: 'No email service configured' });
+                return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } });
         });
     }
     static sendEmail(esp, email) {
@@ -53,7 +54,7 @@ class EmailDispatcher {
                 return yield emailDispatcher.webHook(req);
             }
             else {
-                return ({ success: false, error: 'No email service configured' });
+                return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } });
             }
         });
     }
@@ -62,7 +63,7 @@ class EmailDispatcher {
             if (this.emailService)
                 return yield this.emailService.webHook(req);
             else
-                return ({ success: false, error: 'No email service configured' });
+                return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } });
         });
     }
 }

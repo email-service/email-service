@@ -1,11 +1,12 @@
 import { EmailPayload } from "../../types/email.type";
 import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
+import { errorManagement } from "../../utils/error";
 import { ESP } from "../esp";
 
 
 
-export class BrevoEmailService extends ESP implements IEmailService {
-	
+export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService {
+
 	constructor(service: ConfigBrevo) {
 		super(service)
 	}
@@ -28,8 +29,8 @@ export class BrevoEmailService extends ESP implements IEmailService {
 				// Metadata: options.metadata,
 				// Attachments: options.attachments
 
-				headers : {
-				'X-Mailin-custom' : JSON.stringify(options.meta)
+				headers: {
+					'X-Mailin-custom': JSON.stringify(options.meta)
 				}
 
 			}
@@ -37,7 +38,7 @@ export class BrevoEmailService extends ESP implements IEmailService {
 			const opts = {
 				method: 'POST', headers: {
 					'Content-Type': 'application/json',
-					'api-key': this.transporter.apiKey 
+					'api-key': this.transporter.apiKey
 				},
 				body: JSON.stringify(body)
 			};
@@ -47,29 +48,29 @@ export class BrevoEmailService extends ESP implements IEmailService {
 			const retour = await response.json()
 
 			console.log("retour", retour)
-			 if (response.ok ) {
-			 	return {
-			 		success: true,
-			 		retour}
-			 	}
-			
-			 else {
-			 	console.log('Error occurred in Brevo');
-			 	return { success: false, error: retour }
-			 }
+			if (response.ok) {
+				return {
+					success: true,
+					data: retour
+				}
+			}
 
-		
+			else {
+				console.log('Error occurred in Brevo');
+				return { success: false, error: retour }
+			}
+
+
 
 
 		} catch (error) {
-			console.log('Error occurred', error);
-			return { success: false, error };
+			return { success: false, error: errorManagement(error) };
 		}
 	}
 
 	async webHook(req: any): Promise<StandardResponse> {
 
-		return { success: true }
+		return { success: true, data: req.body }
 	}
 
 }
