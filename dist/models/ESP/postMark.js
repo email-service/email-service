@@ -10,10 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostMarkEmailService = void 0;
-class PostMarkEmailService {
+class PostMarkEmailService extends ESP {
     constructor(service) {
-        this.transporter = service;
-        console.log('Instance of PostMarkEmailService', this);
+        super(service);
     }
     sendMail(options) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -25,14 +24,12 @@ class PostMarkEmailService {
                     Subject: options.subject,
                     HtmlBody: options.html,
                     TextBody: options.text,
-                    Tag: 'email-service',
+                    Tag: 'email-test',
                     // Tag: options.tag,
                     ReplyTo: 'server@simu.immo',
                     // Headers: options.headers,
-                    // TrackOpens: options.trackOpens,
-                    // TrackLinks: options.trackLinks,
-                    // Metadata: options.metadata,
-                    // Attachments: options.attachments
+                    Headers: [{ name: 'X-QD-Meta', value: JSON.stringify(options.meta)
+                        }]
                 };
                 const opts = {
                     method: 'POST', headers: {
@@ -65,6 +62,11 @@ class PostMarkEmailService {
                 console.log('Error occurred', error);
                 return { ok: false, error };
             }
+        });
+    }
+    webHook(req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            throw new Error("Method not implemented.");
         });
     }
 }

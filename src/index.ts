@@ -1,5 +1,9 @@
 
+<<<<<<< Updated upstream
   
+=======
+// src/index.ts
+>>>>>>> Stashed changes
 
 import { EmailDispatcher } from "./models/emailDispatcher";
 import type { EmailPayload } from "./types/email.type";

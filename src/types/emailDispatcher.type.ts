@@ -1,6 +1,7 @@
 import type { EmailPayload } from "./email.type";
 
 export type IEmailService = {
+<<<<<<< Updated upstream
 	sendMail(options: EmailPayload): Promise<SendMailResponse>;
 }
 
@@ -14,6 +15,20 @@ export type SendMailResponse =
 			errorCode: number,
 			message: string
 		}
+=======
+	sendMail(options: EmailPayload): Promise<StandardResponse>;
+	webHook(req: any): Promise<StandardResponse>;
+}
+
+export type StandardResponse = {
+	success: true,
+	retour: {
+		to: string,
+		submittedAt: string,
+		messageId: string,
+		errorCode: number,
+		message: string
+>>>>>>> Stashed changes
 	}
 	|
 	{
@@ -35,12 +50,11 @@ export type ConfigBrevo = {
 	esp: 'brevo',
 	name: string,
 	host: string,
-	port: number,
 	apiKey: string
 }
 
 export type ConfigNodeMailer = {
-	esp: 'nodeMailer',
+	esp: 'nodemailer',
 	name: string,
 	host: string,
 	port: number,
@@ -50,4 +64,8 @@ export type ConfigNodeMailer = {
 	}
 }
 
+<<<<<<< Updated upstream
 export type Config = ConfigPostmark | ConfigBrevo | ConfigNodeMailer
+=======
+export type Config = ConfigPostmark  | ConfigBrevo | ConfigNodeMailer
+>>>>>>> Stashed changes

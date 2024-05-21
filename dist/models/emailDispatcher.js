@@ -14,13 +14,15 @@ const NodeMailerEmailService_1 = require("./NodeMailerEmailService");
 const PostMarkEmailService_1 = require("./PostMarkEmailService");
 class EmailDispatcher {
     constructor(service) {
-        console.log('service.esp', service.esp);
         switch (service.esp) {
             case 'postmark':
                 this.emailService = new PostMarkEmailService_1.PostMarkEmailService(service);
                 break;
             case 'nodeMailer':
                 this.emailService = new NodeMailerEmailService_1.NodeMailerEmailService(service);
+                break;
+            case 'brevo':
+                this.emailService = new BrevoEmailService(service);
                 break;
             default:
                 throw new Error('Invalid ESP');
@@ -43,6 +45,25 @@ class EmailDispatcher {
     }
     close() {
         // Nothing, as we are  using only for nodemailer
+    }
+    static webHook(req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.esp) {
+                const emailDispatcher = new EmailDispatcher(req.esp);
+                return yield emailDispatcher.webHook(req);
+            }
+            else {
+                return ({ success: false, error: 'No email service configured' });
+            }
+        });
+    }
+    webHook(req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.emailService)
+                return yield this.emailService.webHook(req);
+            else
+                return ({ success: false, error: 'No email service configured' });
+        });
     }
 }
 exports.EmailDispatcher = EmailDispatcher;

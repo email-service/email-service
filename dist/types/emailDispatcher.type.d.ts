@@ -26,11 +26,10 @@ export type ConfigBrevo = {
     esp: 'brevo';
     name: string;
     host: string;
-    port: number;
     apiKey: string;
 };
 export type ConfigNodeMailer = {
-    esp: 'nodeMailer';
+    esp: 'nodemailer';
     name: string;
     host: string;
     port: number;

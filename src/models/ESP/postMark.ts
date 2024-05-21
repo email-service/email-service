@@ -1,17 +1,25 @@
+<<<<<<< Updated upstream:src/models/PostMarkEmailService.ts
 import { EmailPayload } from "../types/email.type";
 import { ConfigPostmark, IEmailService, SendMailResponse } from "../types/emailDispatcher.type";
+=======
+import { EmailPayload } from "../../types/email.type";
+import { ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
+import { ESP } from "../esp";
+>>>>>>> Stashed changes:src/models/ESP/postMark.ts
 
 
 
-export class PostMarkEmailService implements IEmailService {
-	private transporter: ConfigPostmark
+export class PostMarkEmailService extends ESP implements IEmailService {
+	
 	constructor(service: ConfigPostmark) {
-		this.transporter = service
-
-		console.log('Instance of PostMarkEmailService', this)
+		super(service)
 	}
 
+<<<<<<< Updated upstream:src/models/PostMarkEmailService.ts
 	async sendMail(options: EmailPayload): Promise<SendMailResponse> {
+=======
+	async sendMail(options: EmailPayload): Promise<StandardResponse> {
+>>>>>>> Stashed changes:src/models/ESP/postMark.ts
 		try {
 			const body = {
 				MessageStream: this.transporter.stream,
@@ -20,14 +28,24 @@ export class PostMarkEmailService implements IEmailService {
 				Subject: options.subject,
 				HtmlBody: options.html,
 				TextBody: options.text,
-				Tag: 'email-service',
+				Tag: 'email-test',
 				// Tag: options.tag,
+<<<<<<< Updated upstream:src/models/PostMarkEmailService.ts
 				ReplyTo: 'server@simu.immo',
 				// Headers: options.headers,
+=======
+				 ReplyTo: 'server@question.direct',
+				 //Headers: options.headers,
+				 Metadata : options.meta,
+>>>>>>> Stashed changes:src/models/ESP/postMark.ts
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
 				// Metadata: options.metadata,
 				// Attachments: options.attachments
+
+
+				Headers :[ {name :'X-QD-Meta' , value : JSON.stringify(options.meta)
+				}]
 			}
 
 			const opts = {
@@ -63,6 +81,11 @@ export class PostMarkEmailService implements IEmailService {
 			console.log('Error occurred', error);
 			return { ok: false, error };
 		}
+	}
+
+
+	async webHook(req: any): Promise<StandardResponse> {
+		throw new Error("Method not implemented.");
 	}
 
 }
