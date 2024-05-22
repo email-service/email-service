@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmailDispatcher = void 0;
 const brevo_1 = require("./ESP/brevo");
+const emailService_1 = require("./ESP/emailService");
 const nodeMailer_1 = require("./ESP/nodeMailer");
 const postMark_1 = require("./ESP/postMark");
 class EmailDispatcher {
@@ -24,6 +25,9 @@ class EmailDispatcher {
                 break;
             case 'brevo':
                 this.emailService = new brevo_1.BrevoEmailService(service);
+                break;
+            case 'emailserviceviewer':
+                this.emailService = new emailService_1.ViewerEmailService(service);
                 break;
             default:
                 throw new Error('Invalid ESP');
@@ -47,23 +51,39 @@ class EmailDispatcher {
     close() {
         // Nothing, as we are  using only for nodemailer
     }
-    static webHook(req) {
+    static webHook(esp, req) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (req.esp) {
-                const emailDispatcher = new EmailDispatcher(req.esp);
-                return yield emailDispatcher.webHook(req);
+            if (esp) {
+                const config = { esp: 'emailserviceviewer' };
+                switch (esp) {
+                    case 'Postmark':
+                        config.esp = 'postmark';
+                        break;
+                    case 'nodemailer':
+                        return ({ success: false, error: { status: 500, name: 'NO_NODEMAILER', message: 'No webhook traitement for nodemailer' } });
+                        break;
+                    case 'SendinBlue Webhook':
+                        config.esp = 'brevo';
+                        break;
+                    case 'emailserviceviewer':
+                        config.esp = 'emailserviceviewer';
+                        break;
+                    default:
+                        return ({ success: false, error: { status: 500, name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } });
+                        break;
+                }
+                // @ts-ignore
+                const emailESP = new EmailDispatcher(config);
+                if (emailESP.emailService) {
+                    return yield emailESP.emailService.webHookManagement(req);
+                }
+                else {
+                    return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } });
+                }
             }
             else {
                 return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } });
             }
-        });
-    }
-    webHook(req) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.emailService)
-                return yield this.emailService.webHook(req);
-            else
-                return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } });
         });
     }
 }

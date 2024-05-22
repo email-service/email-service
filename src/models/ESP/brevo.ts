@@ -1,5 +1,6 @@
 import { EmailPayload } from "../../types/email.type";
 import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
+import { StandardError } from "../../types/error.type";
 import { errorManagement } from "../../utils/error";
 import { ESP } from "../esp";
 
@@ -22,7 +23,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				textContent: options.text,
 
 				tags: ['tag-test'],
-				replyTo: { email: 'server@maluro.com' },
+				replyTo: { email: options.from },
 				// Headers: options.headers,
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
@@ -51,13 +52,20 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 			if (response.ok) {
 				return {
 					success: true,
-					data: retour
+					data:  {
+						to: options.to,
+						submittedAt: new Date().toISOString(), //Pour acceepter les dates sous forme de string
+						messageId: retour.messageId
+					}
 				}
 			}
 
 			else {
-				console.log('Error occurred in Brevo');
-				return { success: false, error: retour }
+				const errorCode: { [key: string]: StandardError } = {
+					unauthorized: { status: 401, name : 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
+					invalid_parameter: { status: 422, name : 'EMAIL_INVALID', message: 'email not valid' }
+				};
+				return { success: false, error: errorCode[retour.code] || retour.message }
 			}
 
 
@@ -68,13 +76,13 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 		}
 	}
 
-	async webHook(req: any): Promise<StandardResponse> {
-
-		return { success: true, data: req.body }
+	
+	async webHookManagement(req: any): Promise<StandardResponse> {
+		return { success: false, error: { status: 500, name: 'TO_DEVELOP', message: 'WIP : Work in progress for brevo' } }
+		
 	}
 
 }
-
 
 
 //transporter.close();

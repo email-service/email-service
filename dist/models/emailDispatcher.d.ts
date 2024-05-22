@@ -6,6 +6,5 @@ export declare class EmailDispatcher {
     sendEmail(email: EmailPayload): Promise<StandardResponse>;
     static sendEmail(esp: Config, email: EmailPayload): Promise<StandardResponse>;
     close(): void;
-    static webHook(req: any): Promise<StandardResponse>;
-    webHook(req: any): Promise<StandardResponse>;
+    static webHook(esp: string, req: any): Promise<StandardResponse>;
 }

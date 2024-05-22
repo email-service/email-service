@@ -35,7 +35,8 @@ class PostMarkEmailService extends esp_1.ESP {
                     // TrackLinks: options.trackLinks,
                     // Metadata: options.metadata,
                     // Attachments: options.attachments
-                    Headers: [{ name: 'X-QD-Meta', value: JSON.stringify(options.meta)
+                    Headers: [{
+                            name: 'X-QD-Meta', value: JSON.stringify(options.meta)
                         }]
                 };
                 const opts = {
@@ -54,25 +55,24 @@ class PostMarkEmailService extends esp_1.ESP {
                         data: {
                             to: retour.To,
                             submittedAt: retour.SubmittedAt, //Pour acceepter les dates sous forme de string
-                            messageId: retour.MessageID,
-                            errorCode: retour.ErrorCode,
-                            message: retour.Message,
+                            messageId: retour.MessageID
                         }
                     };
                 }
-                else {
-                    console.log('Error occurred');
-                    return { success: false, error: retour.Message };
-                }
+                const errorCode = {
+                    10: { status: 401, name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
+                    300: { status: 422, name: 'EMAIL_INVALID', message: 'email not valid' }
+                };
+                return { success: false, error: errorCode[retour.ErrorCode] || retour.Message };
             }
             catch (error) {
                 return { success: false, error: (0, error_1.errorManagement)(error) };
             }
         });
     }
-    webHook(req) {
+    webHookManagement(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            throw new Error("Method not implemented.");
+            return { success: false, error: { status: 500, name: 'TO_DEVELOP', message: 'WIP : Work in progress for postMark' } };
         });
     }
 }

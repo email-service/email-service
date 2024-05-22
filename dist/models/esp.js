@@ -20,7 +20,7 @@ class ESP {
             return ({ success: false, error: { status: 500, name: 'NO_METHOD', message: 'This function do never to be call, contact the developper' } });
         });
     }
-    webHook(req) {
+    webHookManagement(req) {
         return __awaiter(this, void 0, void 0, function* () {
             return ({ success: false, error: { status: 500, name: 'NO_METHOD', message: 'This function do never to be call, contact the developper' } });
         });

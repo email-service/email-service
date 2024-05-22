@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BrevoEmailService = void 0;
+exports.ViewerEmailService = void 0;
 const error_1 = require("../../utils/error");
 const esp_1 = require("../esp");
-class BrevoEmailService extends esp_1.ESP {
+class ViewerEmailService extends esp_1.ESP {
     constructor(service) {
         super(service);
     }
@@ -20,50 +20,39 @@ class BrevoEmailService extends esp_1.ESP {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const body = {
-                    sender: { email: options.from },
-                    to: [{ email: options.to }],
+                    from: options.from,
+                    to: options.to,
                     subject: options.subject,
-                    htmlContent: options.html,
-                    textContent: options.text,
-                    tags: ['tag-test'],
-                    replyTo: { email: options.from },
-                    // Headers: options.headers,
+                    htmlBody: options.html,
+                    textBody: options.text,
+                    tag: 'email-test',
+                    // Tag: options.tag,
+                    replyTo: 'server@question.direct',
+                    //Headers: options.headers,
+                    metadata: options.meta,
                     // TrackOpens: options.trackOpens,
                     // TrackLinks: options.trackLinks,
                     // Metadata: options.metadata,
                     // Attachments: options.attachments
-                    headers: {
-                        'X-Mailin-custom': JSON.stringify(options.meta)
-                    }
                 };
                 const opts = {
                     method: 'POST', headers: {
                         'Content-Type': 'application/json',
-                        'api-key': this.transporter.apiKey
+                        'X-Mail-Service-Viewer-Token': this.transporter.apiToken
                     },
                     body: JSON.stringify(body)
                 };
-                console.log('opts', opts);
                 const response = yield fetch(this.transporter.host, opts);
-                console.log('response', response);
                 const retour = yield response.json();
                 console.log("retour", retour);
-                if (response.ok) {
+                if (retour.success)
                     return {
                         success: true,
-                        data: {
-                            to: options.to,
-                            submittedAt: new Date().toISOString(), //Pour acceepter les dates sous forme de string
-                            messageId: retour.messageId
-                        }
+                        data: retour
                     };
-                }
                 else {
-                    const errorCode = {
-                        unauthorized: { status: 401, name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
-                        invalid_parameter: { status: 422, name: 'EMAIL_INVALID', message: 'email not valid' }
-                    };
-                    return { success: false, error: errorCode[retour.code] || retour.message };
+                    console.log('Error occurred');
+                    return { success: false, error: retour.Message };
                 }
             }
             catch (error) {
@@ -73,9 +62,9 @@ class BrevoEmailService extends esp_1.ESP {
     }
     webHookManagement(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            return { success: false, error: { status: 500, name: 'TO_DEVELOP', message: 'WIP : Work in progress for brevo' } };
+            return { success: false, error: { status: 500, name: 'TO_DEVELOP', message: 'WIP : Work in progress for email-service-viewer' } };
         });
     }
 }
-exports.BrevoEmailService = BrevoEmailService;
+exports.ViewerEmailService = ViewerEmailService;
 //transporter.close();

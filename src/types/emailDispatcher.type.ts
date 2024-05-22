@@ -3,18 +3,17 @@ import { StandardError } from "./error.type";
 
 export type IEmailService = {
 	sendMail(options: EmailPayload): Promise<StandardResponse>;
-	webHook(req: any): Promise<StandardResponse>;
+	webHookManagement(req: any): Promise<StandardResponse>;
 }
 
+export type ESP = 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer';
 
 export type StandardResponse = {
 	success: true,
 	data: {
 		to: string,
 		submittedAt: string,
-		messageId: string,
-		errorCode: number,
-		message: string
+		messageId: string
 	}
 }
 	|
@@ -51,4 +50,17 @@ export type ConfigNodeMailer = {
 	}
 }
 
-export type Config = ConfigPostmark | ConfigBrevo | ConfigNodeMailer
+
+export type ConfigEmailServiceViewer = {
+	esp: 'emailserviceviewer',
+	name: string,
+	host: string,
+	apiToken: string
+}
+
+
+export type ConfigMinimal = {
+	esp: 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer',
+}
+
+export type Config = ConfigPostmark | ConfigBrevo | ConfigNodeMailer | ConfigEmailServiceViewer 

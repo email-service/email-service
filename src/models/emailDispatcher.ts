@@ -1,6 +1,7 @@
 import type { EmailPayload } from "../types/email.type";
-import type { Config, IEmailService, StandardResponse } from "../types/emailDispatcher.type";
+import type { Config, ConfigMinimal, ESP, IEmailService, StandardResponse } from "../types/emailDispatcher.type";
 import { BrevoEmailService } from "./ESP/brevo";
+import { ViewerEmailService } from "./ESP/emailService";
 import { NodeMailerEmailService } from "./ESP/nodeMailer";
 import { PostMarkEmailService } from "./ESP/postMark";
 
@@ -19,6 +20,10 @@ export class EmailDispatcher {
 
 			case 'brevo':
 				this.emailService = new BrevoEmailService(service);
+				break;
+
+			case 'emailserviceviewer':
+				this.emailService = new ViewerEmailService(service);
 				break;
 
 			default:
@@ -42,19 +47,35 @@ export class EmailDispatcher {
 		// Nothing, as we are  using only for nodemailer
 	}
 
-	static async webHook(req: any): Promise<StandardResponse> {
-		if (req.esp) {
-			const emailDispatcher = new EmailDispatcher(req.esp);
-			return await emailDispatcher.webHook(req);
-		} else {
-			return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } })
+	static async webHook(esp: string, req: any): Promise<StandardResponse> {
+		if (esp) {
+			const config: ConfigMinimal = { esp: 'emailserviceviewer' };
+			switch (esp) {
+				case 'Postmark':
+					config.esp = 'postmark';
+					break;
+
+				case 'nodemailer':
+					return ({ success: false, error: { status: 500, name: 'NO_NODEMAILER', message: 'No webhook traitement for nodemailer' } })
+					break;
+
+				case 'SendinBlue Webhook':
+					config.esp = 'brevo';
+					break;
+
+				case 'emailserviceviewer':
+					config.esp = 'emailserviceviewer';
+					break;
+
+				default:
+					return ({ success: false, error: { status: 500, name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } })
+					break;
+			}
+			// @ts-ignore
+			const emailESP = new EmailDispatcher(config);
+			if (emailESP.emailService) { return await emailESP.emailService.webHookManagement(req) }
+			else { return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } }) }
 		}
+		else { return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } }) }
 	}
-
-	async webHook(req: any): Promise<StandardResponse> {
-		if (this.emailService)
-			return await this.emailService.webHook(req);
-		else return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } })
-	}
-
 }

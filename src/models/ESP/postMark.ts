@@ -1,12 +1,13 @@
 import { EmailPayload } from "../../types/email.type";
-import { ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
+import { ConfigMinimal, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
+import { StandardError } from "../../types/error.type";
 import { errorManagement } from "../../utils/error";
 import { ESP } from "../esp";
 
 
 
 export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailService {
-	
+
 	constructor(service: ConfigPostmark) {
 		super(service)
 	}
@@ -22,16 +23,17 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				TextBody: options.text,
 				Tag: 'email-test',
 				// Tag: options.tag,
-				 ReplyTo: 'server@question.direct',
-				 //Headers: options.headers,
-				 Metadata : options.meta,
+				ReplyTo: 'server@question.direct',
+				//Headers: options.headers,
+				Metadata: options.meta,
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
 				// Metadata: options.metadata,
 				// Attachments: options.attachments
 
 
-				Headers :[ {name :'X-QD-Meta' , value : JSON.stringify(options.meta)
+				Headers: [{
+					name: 'X-QD-Meta', value: JSON.stringify(options.meta)
 				}]
 			}
 
@@ -52,16 +54,16 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 					data: {
 						to: retour.To,
 						submittedAt: retour.SubmittedAt, //Pour acceepter les dates sous forme de string
-						messageId: retour.MessageID,
-						errorCode: retour.ErrorCode,
-						message: retour.Message,
+						messageId: retour.MessageID
 					}
 				}
 			}
-			else {
-				console.log('Error occurred');
-				return { success: false, error: retour.Message }
-			}
+			const errorCode: { [key: number]: StandardError } = {
+				10: { status: 401, name : 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
+				300: { status: 422, name : 'EMAIL_INVALID', message: 'email not valid' }
+			};
+
+			return { success: false, error: errorCode[retour.ErrorCode] || retour.Message };
 
 
 		} catch (error) {
@@ -70,8 +72,9 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 	}
 
 
-	async webHook(req: any): Promise<StandardResponse> {
-		throw new Error("Method not implemented.");
+	async webHookManagement(req: any): Promise<StandardResponse> {
+		return { success: false, error: { status: 500, name: 'TO_DEVELOP', message: 'WIP : Work in progress for postMark' } }
+
 	}
 
 }
