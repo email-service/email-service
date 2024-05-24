@@ -49,6 +49,7 @@ export class EmailDispatcher {
 
 	static async webHook(esp: string, req: any): Promise<StandardResponse> {
 		if (esp) {
+			console.log("esp", esp)
 			const config: ConfigMinimal = { esp: 'emailserviceviewer' };
 			switch (esp) {
 				case 'Postmark':
@@ -63,7 +64,7 @@ export class EmailDispatcher {
 					config.esp = 'brevo';
 					break;
 
-				case 'emailserviceviewer':
+				case 'email-service-viewer':
 					config.esp = 'emailserviceviewer';
 					break;
 

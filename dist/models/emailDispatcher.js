@@ -54,6 +54,7 @@ class EmailDispatcher {
     static webHook(esp, req) {
         return __awaiter(this, void 0, void 0, function* () {
             if (esp) {
+                console.log("esp", esp);
                 const config = { esp: 'emailserviceviewer' };
                 switch (esp) {
                     case 'Postmark':
@@ -65,7 +66,7 @@ class EmailDispatcher {
                     case 'SendinBlue Webhook':
                         config.esp = 'brevo';
                         break;
-                    case 'emailserviceviewer':
+                    case 'email-service-viewer':
                         config.esp = 'emailserviceviewer';
                         break;
                     default:
