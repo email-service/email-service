@@ -46,7 +46,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			};
 			const response = await fetch(this.transporter.host, opts)
 			const retour = await response.json()
-
+			console.log('response', response)
 			console.log("retour", retour)
 			if (retour.ErrorCode === 0) {
 				return {
@@ -61,10 +61,18 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			}
 			const errorCode: { [key: number]: StandardError } = {
 				10: { name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
-				300: { name: 'EMAIL_INVALID', message: 'email not valid' }
+				300: { name: 'EMAIL_INVALID', message: 'email not valid' },
+				1235 : {name : 'STREAM_ERROR', message : 'Stream not found'}
 			};
 
-			return { success: false, status: response.status, error: errorCode[retour.ErrorCode] || retour.Message };
+			const errorResult: StandardError = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', message: 'Not processed' }
+			errorResult.cause = { code: retour.ErrorCode, message: retour.Message }
+
+			return {
+				success: false, status: response.status,
+				error: errorResult
+			}
+
 
 
 		} catch (error) {

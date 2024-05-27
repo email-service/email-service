@@ -48,6 +48,7 @@ class PostMarkEmailService extends esp_1.ESP {
                 };
                 const response = yield fetch(this.transporter.host, opts);
                 const retour = yield response.json();
+                console.log('response', response);
                 console.log("retour", retour);
                 if (retour.ErrorCode === 0) {
                     return {
@@ -62,9 +63,15 @@ class PostMarkEmailService extends esp_1.ESP {
                 }
                 const errorCode = {
                     10: { name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
-                    300: { name: 'EMAIL_INVALID', message: 'email not valid' }
+                    300: { name: 'EMAIL_INVALID', message: 'email not valid' },
+                    1235: { name: 'STREAM_ERROR', message: 'Stream not found' }
                 };
-                return { success: false, status: response.status, error: errorCode[retour.ErrorCode] || retour.Message };
+                const errorResult = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', message: 'Not processed' };
+                errorResult.cause = { code: retour.ErrorCode, message: retour.Message };
+                return {
+                    success: false, status: response.status,
+                    error: errorResult
+                };
             }
             catch (error) {
                 return { success: false, status: 500, error: (0, error_1.errorManagement)(error) };
