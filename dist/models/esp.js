@@ -17,12 +17,12 @@ class ESP {
     }
     sendMail(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            return ({ success: false, error: { status: 500, name: 'NO_METHOD', message: 'This function do never to be call, contact the developper' } });
+            return ({ success: false, status: 500, error: { name: 'NO_METHOD', message: 'This function do never to be call, contact the developper' } });
         });
     }
     webHookManagement(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            return ({ success: false, error: { status: 500, name: 'NO_METHOD', message: 'This function do never to be call, contact the developper' } });
+            return ({ success: false, status: 500, error: { name: 'NO_METHOD', message: 'This function do never to be call, contact the developper' } });
         });
     }
 }

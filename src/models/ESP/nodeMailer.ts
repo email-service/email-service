@@ -12,7 +12,7 @@ export class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEm
 		super(service)
 		this.nodemailerTransporter = nodemailer.createTransport(service)
 	}
-	
+
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
 		try {
@@ -20,9 +20,9 @@ export class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEm
 			if (message.error) {
 				return process.exit(1);
 			}
-			return { success: true , data : message};
+			return { success: true, status: 200, data: message };
 		} catch (error) {
-			return { success: false, error: errorManagement(error) };
+			return { success: false, status: 500, error: errorManagement(error) };
 		}
 	}
 

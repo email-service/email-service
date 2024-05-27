@@ -51,6 +51,7 @@ class BrevoEmailService extends esp_1.ESP {
                 if (response.ok) {
                     return {
                         success: true,
+                        status: 200,
                         data: {
                             to: options.to,
                             submittedAt: new Date().toISOString(), //Pour acceepter les dates sous forme de string
@@ -60,20 +61,20 @@ class BrevoEmailService extends esp_1.ESP {
                 }
                 else {
                     const errorCode = {
-                        unauthorized: { status: 401, name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
-                        invalid_parameter: { status: 422, name: 'EMAIL_INVALID', message: 'email not valid' }
+                        unauthorized: { name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
+                        invalid_parameter: { name: 'EMAIL_INVALID', message: 'email not valid' }
                     };
-                    return { success: false, error: errorCode[retour.code] || retour.message };
+                    return { success: false, status: response.status, error: errorCode[retour.code] || retour.message };
                 }
             }
             catch (error) {
-                return { success: false, error: (0, error_1.errorManagement)(error) };
+                return { success: false, status: 500, error: (0, error_1.errorManagement)(error) };
             }
         });
     }
     webHookManagement(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            return { success: false, error: { status: 500, name: 'TO_DEVELOP', message: 'WIP : Work in progress for brevo' } };
+            return { success: false, status: 500, error: { name: 'TO_DEVELOP', message: 'WIP : Work in progress for brevo' } };
         });
     }
 }

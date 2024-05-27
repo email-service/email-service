@@ -44,24 +44,25 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 			if (retour.success)
 				return {
 					success: true,
+					status: 200,
 					data: retour
 				}
 			else {
 				console.log('Error occurred');
-				return { success: false, error: retour.Message }
+				return { success: false, status: response.status, error: retour.Message }
 			}
 
 
 		} catch (error) {
-			return { success: false, error: errorManagement(error) };
+			return { success: false, status: 500, error: errorManagement(error) };
 		}
 	}
 
 
-	
+
 	async webHookManagement(req: any): Promise<StandardResponse> {
-		return { success: false, error: { status: 500, name: 'TO_DEVELOP', message: 'WIP : Work in progress for email-service-viewer' } }
-		
+		return { success: false, status: 500,error: {  name: 'TO_DEVELOP', message: 'WIP : Work in progress for email-service-viewer' } }
+
 	}
 
 }

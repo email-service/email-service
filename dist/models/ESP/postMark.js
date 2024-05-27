@@ -52,6 +52,7 @@ class PostMarkEmailService extends esp_1.ESP {
                 if (retour.ErrorCode === 0) {
                     return {
                         success: true,
+                        status: response.status,
                         data: {
                             to: retour.To,
                             submittedAt: retour.SubmittedAt, //Pour acceepter les dates sous forme de string
@@ -60,19 +61,19 @@ class PostMarkEmailService extends esp_1.ESP {
                     };
                 }
                 const errorCode = {
-                    10: { status: 401, name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
-                    300: { status: 422, name: 'EMAIL_INVALID', message: 'email not valid' }
+                    10: { name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
+                    300: { name: 'EMAIL_INVALID', message: 'email not valid' }
                 };
-                return { success: false, error: errorCode[retour.ErrorCode] || retour.Message };
+                return { success: false, status: response.status, error: errorCode[retour.ErrorCode] || retour.Message };
             }
             catch (error) {
-                return { success: false, error: (0, error_1.errorManagement)(error) };
+                return { success: false, status: 500, error: (0, error_1.errorManagement)(error) };
             }
         });
     }
     webHookManagement(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            return { success: false, error: { status: 500, name: 'TO_DEVELOP', message: 'WIP : Work in progress for postMark' } };
+            return { success: false, status: 500, error: { name: 'TO_DEVELOP', message: 'WIP : Work in progress for postMark' } };
         });
     }
 }

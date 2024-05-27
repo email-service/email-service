@@ -10,6 +10,7 @@ export type ESP = 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer';
 
 export type StandardResponse = {
 	success: true,
+	status: number,
 	data: {
 		to: string,
 		submittedAt: string,
@@ -19,6 +20,7 @@ export type StandardResponse = {
 	|
 {
 	success: false,
+	status: number,
 	error: StandardError 
 }
 

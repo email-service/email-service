@@ -28,10 +28,10 @@ class NodeMailerEmailService extends esp_1.ESP {
                 if (message.error) {
                     return process.exit(1);
                 }
-                return { success: true, data: message };
+                return { success: true, status: 200, data: message };
             }
             catch (error) {
-                return { success: false, error: (0, error_1.errorManagement)(error) };
+                return { success: false, status: 500, error: (0, error_1.errorManagement)(error) };
             }
         });
     }

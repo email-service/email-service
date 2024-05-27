@@ -35,7 +35,7 @@ export class EmailDispatcher {
 	async sendEmail(email: EmailPayload): Promise<StandardResponse> {
 		if (this.emailService)
 			return await this.emailService.sendMail(email);
-		else return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } })
+		else return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } })
 	}
 
 	static async sendEmail(esp: Config, email: EmailPayload): Promise<StandardResponse> {
@@ -57,7 +57,7 @@ export class EmailDispatcher {
 					break;
 
 				case 'nodemailer':
-					return ({ success: false, error: { status: 500, name: 'NO_NODEMAILER', message: 'No webhook traitement for nodemailer' } })
+					return ({ success: false, status: 500, error: { name: 'NO_NODEMAILER', message: 'No webhook traitement for nodemailer' } })
 					break;
 
 				case 'SendinBlue Webhook':
@@ -69,14 +69,14 @@ export class EmailDispatcher {
 					break;
 
 				default:
-					return ({ success: false, error: { status: 500, name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } })
+					return ({ success: false, status: 500, error: { name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } })
 					break;
 			}
 			// @ts-ignore
 			const emailESP = new EmailDispatcher(config);
 			if (emailESP.emailService) { return await emailESP.emailService.webHookManagement(req) }
-			else { return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } }) }
+			else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
 		}
-		else { return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } }) }
+		else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
 	}
 }

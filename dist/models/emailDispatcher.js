@@ -39,7 +39,7 @@ class EmailDispatcher {
             if (this.emailService)
                 return yield this.emailService.sendMail(email);
             else
-                return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } });
+                return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } });
         });
     }
     static sendEmail(esp, email) {
@@ -61,7 +61,7 @@ class EmailDispatcher {
                         config.esp = 'postmark';
                         break;
                     case 'nodemailer':
-                        return ({ success: false, error: { status: 500, name: 'NO_NODEMAILER', message: 'No webhook traitement for nodemailer' } });
+                        return ({ success: false, status: 500, error: { name: 'NO_NODEMAILER', message: 'No webhook traitement for nodemailer' } });
                         break;
                     case 'SendinBlue Webhook':
                         config.esp = 'brevo';
@@ -70,7 +70,7 @@ class EmailDispatcher {
                         config.esp = 'emailserviceviewer';
                         break;
                     default:
-                        return ({ success: false, error: { status: 500, name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } });
+                        return ({ success: false, status: 500, error: { name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } });
                         break;
                 }
                 // @ts-ignore
@@ -79,11 +79,11 @@ class EmailDispatcher {
                     return yield emailESP.emailService.webHookManagement(req);
                 }
                 else {
-                    return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } });
+                    return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } });
                 }
             }
             else {
-                return ({ success: false, error: { status: 500, name: 'NO_ESP', message: 'No ESP service configured' } });
+                return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } });
             }
         });
     }

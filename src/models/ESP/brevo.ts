@@ -52,7 +52,8 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 			if (response.ok) {
 				return {
 					success: true,
-					data:  {
+					status: 200,
+					data: {
 						to: options.to,
 						submittedAt: new Date().toISOString(), //Pour acceepter les dates sous forme de string
 						messageId: retour.messageId
@@ -62,24 +63,24 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 
 			else {
 				const errorCode: { [key: string]: StandardError } = {
-					unauthorized: { status: 401, name : 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
-					invalid_parameter: { status: 422, name : 'EMAIL_INVALID', message: 'email not valid' }
+					unauthorized: { name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
+					invalid_parameter: { name: 'EMAIL_INVALID', message: 'email not valid' }
 				};
-				return { success: false, error: errorCode[retour.code] || retour.message }
+				return { success: false, status: response.status, error: errorCode[retour.code] || retour.message }
 			}
 
 
 
 
 		} catch (error) {
-			return { success: false, error: errorManagement(error) };
+			return { success: false, status: 500, error: errorManagement(error) };
 		}
 	}
 
-	
+
 	async webHookManagement(req: any): Promise<StandardResponse> {
-		return { success: false, error: { status: 500, name: 'TO_DEVELOP', message: 'WIP : Work in progress for brevo' } }
-		
+		return { success: false, status: 500, error: { name: 'TO_DEVELOP', message: 'WIP : Work in progress for brevo' } }
+
 	}
 
 }
