@@ -1,6 +1,6 @@
 import type { EmailPayload } from "../types/email.type";
-import type { Config, StandardResponse } from "../types/emailDispatcher.type";
-export declare class EmailDispatcher {
+import type { Config, StandardResponse } from "../types/emailServiceSelector.type";
+export declare class EmailServiceSelector {
     private emailService;
     constructor(service: Config);
     sendEmail(email: EmailPayload): Promise<StandardResponse>;
@@ -8,3 +8,4 @@ export declare class EmailDispatcher {
     close(): void;
     static webHook(esp: string, req: any): Promise<StandardResponse>;
 }
+export declare function getEmailService(service: Config): Promise<EmailServiceSelector>;

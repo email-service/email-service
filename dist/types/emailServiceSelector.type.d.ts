@@ -1,6 +1,7 @@
 import type { EmailPayload } from "./email.type";
-import { StandardError } from "./error.type";
+import { ESPStandardizedError, StandardError } from "./error.type";
 export type IEmailService = {
+    transporter: Config;
     sendMail(options: EmailPayload): Promise<StandardResponse>;
     webHookManagement(req: any): Promise<StandardResponse>;
 };
@@ -16,7 +17,7 @@ export type StandardResponse = {
 } | {
     success: false;
     status: number;
-    error: StandardError;
+    error: StandardError | ESPStandardizedError;
 };
 export type ConfigPostmark = {
     esp: 'postmark';
@@ -46,6 +47,7 @@ export type ConfigEmailServiceViewer = {
     name: string;
     host: string;
     apiToken: string;
+    webhook: string;
 };
 export type ConfigMinimal = {
     esp: 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer';

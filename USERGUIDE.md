@@ -44,9 +44,9 @@ const emailPayload = {
 const emailResponse = await emailService.sendMail(emailPayload);
 
   if (emailResponse.ok) {
-    console.log('Email sent successfully!');
+    console.log('******** ES ********  Email sent successfully!');
   } else {
-    console.log('Failed to send email:', emailResponse.error);
+    console.log('******** ES ********  Failed to send email:', emailResponse.error);
   }
   
 emailService.close() 

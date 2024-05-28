@@ -1,5 +1,5 @@
 import { EmailPayload } from "../../types/email.type";
-import { ConfigNodeMailer, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
+import { ConfigNodeMailer, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
 import { ESP } from "../esp";
 export declare class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEmailService {
     private nodemailerTransporter;

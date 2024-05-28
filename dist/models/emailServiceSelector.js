@@ -9,12 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EmailDispatcher = void 0;
+exports.getEmailService = exports.EmailServiceSelector = void 0;
 const brevo_1 = require("./ESP/brevo");
 const emailService_1 = require("./ESP/emailService");
 const nodeMailer_1 = require("./ESP/nodeMailer");
 const postMark_1 = require("./ESP/postMark");
-class EmailDispatcher {
+class EmailServiceSelector {
     constructor(service) {
         switch (service.esp) {
             case 'postmark':
@@ -44,8 +44,8 @@ class EmailDispatcher {
     }
     static sendEmail(esp, email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const emailDispatcher = new EmailDispatcher(esp);
-            return yield emailDispatcher.sendEmail(email);
+            const emailServiceSelector = new EmailServiceSelector(esp);
+            return yield emailServiceSelector.sendEmail(email);
         });
     }
     close() {
@@ -54,7 +54,7 @@ class EmailDispatcher {
     static webHook(esp, req) {
         return __awaiter(this, void 0, void 0, function* () {
             if (esp) {
-                console.log("esp", esp);
+                console.log("******** ES ********  esp", esp);
                 const config = { esp: 'emailserviceviewer' };
                 switch (esp) {
                     case 'Postmark':
@@ -74,7 +74,7 @@ class EmailDispatcher {
                         break;
                 }
                 // @ts-ignore
-                const emailESP = new EmailDispatcher(config);
+                const emailESP = new EmailServiceSelector(config);
                 if (emailESP.emailService) {
                     return yield emailESP.emailService.webHookManagement(req);
                 }
@@ -88,4 +88,10 @@ class EmailDispatcher {
         });
     }
 }
-exports.EmailDispatcher = EmailDispatcher;
+exports.EmailServiceSelector = EmailServiceSelector;
+function getEmailService(service) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new EmailServiceSelector(service);
+    });
+}
+exports.getEmailService = getEmailService;

@@ -1,5 +1,5 @@
 import { EmailPayload } from "../types/email.type"
-import type { Config, IEmailService, StandardResponse } from "../types/emailDispatcher.type"
+import type { Config, IEmailService, StandardResponse } from "../types/emailServiceSelector.type"
 
 export class ESP<T extends Config> implements IEmailService {
 
@@ -7,7 +7,7 @@ export class ESP<T extends Config> implements IEmailService {
 
 	constructor(service: T) {
 		this.transporter = service
-		console.log('New Instance of ', this.transporter.esp)
+		console.log('******** ES ********  New Instance of ', this.transporter.esp)
 	}
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {

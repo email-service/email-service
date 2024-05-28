@@ -1,9 +1,10 @@
 import type { EmailPayload } from "./email.type";
-import { StandardError } from "./error.type";
+import { ESPStandardizedError, StandardError } from "./error.type";
 
 export type IEmailService = {
-	sendMail(options: EmailPayload): Promise<StandardResponse>;
-	webHookManagement(req: any): Promise<StandardResponse>;
+	transporter : Config,
+	sendMail(options: EmailPayload): Promise<StandardResponse>,
+	webHookManagement(req: any): Promise<StandardResponse>,
 }
 
 export type ESP = 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer';
@@ -21,7 +22,7 @@ export type StandardResponse = {
 {
 	success: false,
 	status: number,
-	error: StandardError 
+	error: StandardError | ESPStandardizedError
 }
 
 
@@ -57,7 +58,8 @@ export type ConfigEmailServiceViewer = {
 	esp: 'emailserviceviewer',
 	name: string,
 	host: string,
-	apiToken: string
+	apiToken: string,
+	webhook: string
 }
 
 

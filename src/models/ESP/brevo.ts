@@ -1,9 +1,9 @@
 import { EmailPayload } from "../../types/email.type";
-import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
+import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
 import { StandardError } from "../../types/error.type";
 import { errorManagement } from "../../utils/error";
 import { ESP } from "../esp";
-
+import { errorCode } from "./brevo.errors";
 
 
 export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService {
@@ -43,9 +43,9 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				},
 				body: JSON.stringify(body)
 			};
-			console.log('opts', opts)
+			console.log('******** ES ********  opts', opts)
 			const response = await fetch(this.transporter.host, opts)
-			console.log('response', response)
+			console.log('******** ES ********  response', response)
 			const retour = await response.json()
 
 			console.log("retour", retour)
@@ -62,10 +62,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 			}
 
 			else {
-				const errorCode: { [key: string]: StandardError } = {
-					unauthorized: { name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
-					invalid_parameter: { name: 'EMAIL_INVALID', message: 'email not valid' }
-				};
+				
 				return { success: false, status: response.status, error: errorCode[retour.code] || retour.message }
 			}
 

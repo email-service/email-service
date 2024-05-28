@@ -1,6 +1,7 @@
 "use strict";
 // src/index.ts
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EmailDispatcher = void 0;
-const emailDispatcher_1 = require("./models/emailDispatcher");
-Object.defineProperty(exports, "EmailDispatcher", { enumerable: true, get: function () { return emailDispatcher_1.EmailDispatcher; } });
+exports.EmailServiceSelector = exports.getEmailService = void 0;
+const emailServiceSelector_1 = require("./models/emailServiceSelector");
+Object.defineProperty(exports, "getEmailService", { enumerable: true, get: function () { return emailServiceSelector_1.getEmailService; } });
+Object.defineProperty(exports, "EmailServiceSelector", { enumerable: true, get: function () { return emailServiceSelector_1.EmailServiceSelector; } });

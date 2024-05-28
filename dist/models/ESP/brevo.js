@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BrevoEmailService = void 0;
 const error_1 = require("../../utils/error");
 const esp_1 = require("../esp");
+const brevo_errors_1 = require("./brevo.errors");
 class BrevoEmailService extends esp_1.ESP {
     constructor(service) {
         super(service);
@@ -43,9 +44,9 @@ class BrevoEmailService extends esp_1.ESP {
                     },
                     body: JSON.stringify(body)
                 };
-                console.log('opts', opts);
+                console.log('******** ES ********  opts', opts);
                 const response = yield fetch(this.transporter.host, opts);
-                console.log('response', response);
+                console.log('******** ES ********  response', response);
                 const retour = yield response.json();
                 console.log("retour", retour);
                 if (response.ok) {
@@ -60,11 +61,7 @@ class BrevoEmailService extends esp_1.ESP {
                     };
                 }
                 else {
-                    const errorCode = {
-                        unauthorized: { name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
-                        invalid_parameter: { name: 'EMAIL_INVALID', message: 'email not valid' }
-                    };
-                    return { success: false, status: response.status, error: errorCode[retour.code] || retour.message };
+                    return { success: false, status: response.status, error: brevo_errors_1.errorCode[retour.code] || retour.message };
                 }
             }
             catch (error) {

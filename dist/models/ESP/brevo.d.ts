@@ -1,5 +1,5 @@
 import { EmailPayload } from "../../types/email.type";
-import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
+import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
 import { ESP } from "../esp";
 export declare class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService {
     constructor(service: ConfigBrevo);

@@ -5,5 +5,5 @@ export type EmailPayload = {
 	subject: string;
 	text: string;
 	html: string;
-	meta: object
+	meta: object;
 }

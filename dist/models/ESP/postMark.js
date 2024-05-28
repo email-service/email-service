@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostMarkEmailService = void 0;
 const error_1 = require("../../utils/error");
 const esp_1 = require("../esp");
+const postMark_errors_1 = require("./postMark.errors");
 class PostMarkEmailService extends esp_1.ESP {
     constructor(service) {
         super(service);
@@ -48,8 +49,8 @@ class PostMarkEmailService extends esp_1.ESP {
                 };
                 const response = yield fetch(this.transporter.host, opts);
                 const retour = yield response.json();
-                console.log('response', response);
-                console.log("retour", retour);
+                console.log('******** ES ********  response', response);
+                console.log("******** ES ********  retour", retour);
                 if (retour.ErrorCode === 0) {
                     return {
                         success: true,
@@ -61,12 +62,7 @@ class PostMarkEmailService extends esp_1.ESP {
                         }
                     };
                 }
-                const errorCode = {
-                    10: { name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
-                    300: { name: 'EMAIL_INVALID', message: 'email not valid' },
-                    1235: { name: 'STREAM_ERROR', message: 'Stream not found' }
-                };
-                const errorResult = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', message: 'Not processed' };
+                const errorResult = postMark_errors_1.errorCode[retour.ErrorCode] || { name: 'UNKNOWN', category: 'Account' };
                 errorResult.cause = { code: retour.ErrorCode, message: retour.Message };
                 return {
                     success: false, status: response.status,
@@ -81,6 +77,12 @@ class PostMarkEmailService extends esp_1.ESP {
     webHookManagement(req) {
         return __awaiter(this, void 0, void 0, function* () {
             return { success: false, status: 500, error: { name: 'TO_DEVELOP', message: 'WIP : Work in progress for postMark' } };
+        });
+    }
+    checkServer(name, apiKey) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Rechercher si le serveur existe
+            // Le créer s'il n'existe pas
         });
     }
 }

@@ -38,22 +38,25 @@ class ViewerEmailService extends esp_1.ESP {
                 const opts = {
                     method: 'POST', headers: {
                         'Content-Type': 'application/json',
-                        'X-Mail-Service-Viewer-Token': this.transporter.apiToken
+                        'X-Mail-Service-Viewer-Token': this.transporter.apiToken,
+                        'X-Mail-Service-Web-Hook': this.transporter.webhook
                     },
                     body: JSON.stringify(body)
                 };
                 const response = yield fetch(this.transporter.host, opts);
+                if (!response.ok)
+                    return { success: false, status: response.status, error: { name: response.statusText, category: 'server', cause: { uri: this.transporter.host, options: opts } } };
                 const retour = yield response.json();
-                console.log("retour", retour);
+                console.log("******** ES ********  retour", retour);
                 if (retour.success)
                     return {
                         success: true,
                         status: 200,
-                        data: retour
+                        data: retour.data
                     };
                 else {
-                    console.log('Error occurred');
-                    return { success: false, status: response.status, error: retour.Message };
+                    console.log('******** ES ********  Error occurred');
+                    return { success: false, status: retour.status, error: retour.error };
                 }
             }
             catch (error) {

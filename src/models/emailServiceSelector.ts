@@ -1,11 +1,11 @@
 import type { EmailPayload } from "../types/email.type";
-import type { Config, ConfigMinimal, ESP, IEmailService, StandardResponse } from "../types/emailDispatcher.type";
+import type { Config, ConfigMinimal, ESP, IEmailService, StandardResponse } from "../types/emailServiceSelector.type";
 import { BrevoEmailService } from "./ESP/brevo";
 import { ViewerEmailService } from "./ESP/emailService";
 import { NodeMailerEmailService } from "./ESP/nodeMailer";
 import { PostMarkEmailService } from "./ESP/postMark";
 
-export class EmailDispatcher {
+export class EmailServiceSelector {
 	private emailService: IEmailService | undefined;
 
 	constructor(service: Config) {
@@ -39,8 +39,8 @@ export class EmailDispatcher {
 	}
 
 	static async sendEmail(esp: Config, email: EmailPayload): Promise<StandardResponse> {
-		const emailDispatcher = new EmailDispatcher(esp);
-		return await emailDispatcher.sendEmail(email);
+		const emailServiceSelector = new EmailServiceSelector(esp);
+		return await emailServiceSelector.sendEmail(email);
 	}
 
 	close() {
@@ -49,7 +49,7 @@ export class EmailDispatcher {
 
 	static async webHook(esp: string, req: any): Promise<StandardResponse> {
 		if (esp) {
-			console.log("esp", esp)
+			console.log("******** ES ********  esp", esp)
 			const config: ConfigMinimal = { esp: 'emailserviceviewer' };
 			switch (esp) {
 				case 'Postmark':
@@ -73,10 +73,15 @@ export class EmailDispatcher {
 					break;
 			}
 			// @ts-ignore
-			const emailESP = new EmailDispatcher(config);
+			const emailESP = new EmailServiceSelector(config);
 			if (emailESP.emailService) { return await emailESP.emailService.webHookManagement(req) }
 			else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
 		}
 		else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
 	}
+}
+
+
+export async function  getEmailService(service: Config) :Promise<EmailServiceSelector> {
+	return new EmailServiceSelector(service)
 }

@@ -1,8 +1,9 @@
 import { EmailPayload } from "../../types/email.type";
-import { ConfigMinimal, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
-import { StandardError } from "../../types/error.type";
+import { ConfigMinimal, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
+import { ESPStandardizedError, StandardError } from "../../types/error.type";
 import { errorManagement } from "../../utils/error";
 import { ESP } from "../esp";
+import { errorCode } from "./postMark.errors";
 
 
 
@@ -46,8 +47,8 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			};
 			const response = await fetch(this.transporter.host, opts)
 			const retour = await response.json()
-			console.log('response', response)
-			console.log("retour", retour)
+			console.log('******** ES ********  response', response)
+			console.log("******** ES ********  retour", retour)
 			if (retour.ErrorCode === 0) {
 				return {
 					success: true,
@@ -59,13 +60,8 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 					}
 				}
 			}
-			const errorCode: { [key: number]: StandardError } = {
-				10: { name: 'UNAUTHORIZED', message: 'Unauthorized APIKey not valid' },
-				300: { name: 'EMAIL_INVALID', message: 'email not valid' },
-				1235 : {name : 'STREAM_ERROR', message : 'Stream not found'}
-			};
 
-			const errorResult: StandardError = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', message: 'Not processed' }
+			const errorResult: ESPStandardizedError = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', category : 'Account' }
 			errorResult.cause = { code: retour.ErrorCode, message: retour.Message }
 
 			return {
@@ -73,16 +69,21 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				error: errorResult
 			}
 
-
-
 		} catch (error) {
 			return { success: false, status: 500, error: errorManagement(error) };
 		}
 	}
 
-
 	async webHookManagement(req: any): Promise<StandardResponse> {
 		return { success: false, status: 500, error: { name: 'TO_DEVELOP', message: 'WIP : Work in progress for postMark' } }
+
+	}
+
+	async checkServer(name:string, apiKey : string) {
+// Rechercher si le serveur existe
+
+// Le créer s'il n'existe pas
+
 
 	}
 

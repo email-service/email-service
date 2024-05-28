@@ -1,9 +1,7 @@
 import { EmailPayload } from "../../types/email.type";
-import { ConfigEmailServiceViewer, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailDispatcher.type";
+import { ConfigEmailServiceViewer, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
 import { errorManagement } from "../../utils/error";
 import { ESP } from "../esp";
-
-
 
 export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements IEmailService {
 
@@ -33,23 +31,25 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 			const opts = {
 				method: 'POST', headers: {
 					'Content-Type': 'application/json',
-					'X-Mail-Service-Viewer-Token': this.transporter.apiToken
+					'X-Mail-Service-Viewer-Token': this.transporter.apiToken,
+					'X-Mail-Service-Web-Hook': this.transporter.webhook
 				},
 				body: JSON.stringify(body)
 			};
 			const response = await fetch(this.transporter.host, opts)
+			if (!response.ok) return  { success: false, status: response.status, error: {name : response.statusText, category : 'server', cause : {uri : this.transporter.host, options : opts}} }
 			const retour = await response.json()
 
-			console.log("retour", retour)
+			console.log("******** ES ********  retour", retour)
 			if (retour.success)
 				return {
 					success: true,
 					status: 200,
-					data: retour
+					data: retour.data
 				}
 			else {
-				console.log('Error occurred');
-				return { success: false, status: response.status, error: retour.Message }
+				console.log('******** ES ********  Error occurred');
+				return { success: false, status: retour.status, error: retour.error }
 			}
 
 
