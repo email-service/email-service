@@ -1,5 +1,5 @@
-import type { EmailPayload } from "./email.type";
-import { ESPStandardizedError, StandardError } from "./error.type";
+import type { EmailPayload } from "./email.type.js";
+import { ESPStandardizedError, StandardError } from "./error.type.js";
 
 export type IEmailService = {
 	transporter : Config,

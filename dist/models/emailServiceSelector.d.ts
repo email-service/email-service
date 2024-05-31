@@ -1,5 +1,5 @@
-import type { EmailPayload } from "../types/email.type";
-import type { Config, StandardResponse } from "../types/emailServiceSelector.type";
+import type { EmailPayload } from "../types/email.type.js";
+import type { Config, StandardResponse } from "../types/emailServiceSelector.type.js";
 export declare class EmailServiceSelector {
     private emailService;
     constructor(service: Config);

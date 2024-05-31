@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorCode = void 0;
-exports.errorCode = {
+export const errorCode = {
     // Authentication
     10: { name: 'UNAUTHORIZED', category: 'Authentification' },
     // Service

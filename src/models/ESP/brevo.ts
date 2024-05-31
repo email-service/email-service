@@ -1,9 +1,9 @@
-import { EmailPayload } from "../../types/email.type";
-import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
-import { StandardError } from "../../types/error.type";
-import { errorManagement } from "../../utils/error";
-import { ESP } from "../esp";
-import { errorCode } from "./brevo.errors";
+import { EmailPayload } from "../../types/email.type.js";
+import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
+import { StandardError } from "../../types/error.type.js";
+import { errorManagement } from "../../utils/error.js";
+import { ESP } from "../esp.js";
+import { errorCode } from "./brevo.errors.js";
 
 
 export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService {
@@ -47,8 +47,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 			const response = await fetch(this.transporter.host, opts)
 			console.log('******** ES ********  response', response)
 			const retour = await response.json()
-
-			console.log("retour", retour)
+			console.log("******** ES ********  retour", retour)
 			if (response.ok) {
 				return {
 					success: true,

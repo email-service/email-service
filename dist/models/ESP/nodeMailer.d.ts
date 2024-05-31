@@ -1,6 +1,6 @@
-import { EmailPayload } from "../../types/email.type";
-import { ConfigNodeMailer, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
-import { ESP } from "../esp";
+import { EmailPayload } from "../../types/email.type.js";
+import { ConfigNodeMailer, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
+import { ESP } from "../esp.js";
 export declare class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEmailService {
     private nodemailerTransporter;
     constructor(service: ConfigNodeMailer);

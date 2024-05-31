@@ -1,2 +1,2 @@
-import { StandardError } from "../types/error.type";
+import { StandardError } from "../types/error.type.js";
 export declare function errorManagement(error: unknown): StandardError;

@@ -1,7 +1,7 @@
-import { EmailPayload } from "../../types/email.type";
-import { ConfigEmailServiceViewer, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
-import { errorManagement } from "../../utils/error";
-import { ESP } from "../esp";
+import { EmailPayload } from "../../types/email.type.js";
+import { ConfigEmailServiceViewer, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
+import { errorManagement } from "../../utils/error.js";
+import { ESP } from "../esp.js";
 
 export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements IEmailService {
 

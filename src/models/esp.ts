@@ -1,5 +1,5 @@
-import { EmailPayload } from "../types/email.type"
-import type { Config, IEmailService, StandardResponse } from "../types/emailServiceSelector.type"
+import { EmailPayload } from "../types/email.type.js"
+import type { Config, IEmailService, StandardResponse } from "../types/emailServiceSelector.type.js"
 
 export class ESP<T extends Config> implements IEmailService {
 

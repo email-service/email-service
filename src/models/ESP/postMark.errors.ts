@@ -1,5 +1,5 @@
 
-import { ESPStandardizedError, StandardError } from "../../types/error.type";
+import { ESPStandardizedError, StandardError } from "../../types/error.type.js";
 export const errorCode: { [key: number]: ESPStandardizedError } = {
   // Authentication
   10: { name: 'UNAUTHORIZED', category: 'Authentification' },

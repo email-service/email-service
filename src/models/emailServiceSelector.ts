@@ -1,9 +1,9 @@
-import type { EmailPayload } from "../types/email.type";
-import type { Config, ConfigMinimal, ESP, IEmailService, StandardResponse } from "../types/emailServiceSelector.type";
-import { BrevoEmailService } from "./ESP/brevo";
-import { ViewerEmailService } from "./ESP/emailService";
-import { NodeMailerEmailService } from "./ESP/nodeMailer";
-import { PostMarkEmailService } from "./ESP/postMark";
+import type { EmailPayload } from "../types/email.type.js";
+import type { Config, ConfigMinimal, ESP, IEmailService, StandardResponse } from "../types/emailServiceSelector.type.js";
+import { BrevoEmailService } from "./ESP/brevo.js";
+import { ViewerEmailService } from "./ESP/emailService.js";
+import { NodeMailerEmailService } from "./ESP/nodeMailer.js";
+import { PostMarkEmailService } from "./ESP/postMark.js";
 
 export class EmailServiceSelector {
 	private emailService: IEmailService | undefined;

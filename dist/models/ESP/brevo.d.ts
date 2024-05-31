@@ -1,6 +1,6 @@
-import { EmailPayload } from "../../types/email.type";
-import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
-import { ESP } from "../esp";
+import { EmailPayload } from "../../types/email.type.js";
+import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
+import { ESP } from "../esp.js";
 export declare class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService {
     constructor(service: ConfigBrevo);
     sendMail(options: EmailPayload): Promise<StandardResponse>;

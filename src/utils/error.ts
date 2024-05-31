@@ -1,4 +1,4 @@
-import { StandardError } from "../types/error.type";
+import { StandardError } from "../types/error.type.js";
 
 export function errorManagement(error: unknown): StandardError {
 	console.warn('Error occurred', error);

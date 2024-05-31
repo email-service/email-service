@@ -1,9 +1,9 @@
-import { EmailPayload } from "../../types/email.type";
-import { ConfigMinimal, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
-import { ESPStandardizedError, StandardError } from "../../types/error.type";
-import { errorManagement } from "../../utils/error";
-import { ESP } from "../esp";
-import { errorCode } from "./postMark.errors";
+import { EmailPayload } from "../../types/email.type.js";
+import { ConfigMinimal, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
+import { ESPStandardizedError, StandardError } from "../../types/error.type.js";
+import { errorManagement } from "../../utils/error.js";
+import { ESP } from "../esp.js";
+import { errorCode } from "./postMark.errors.js";
 
 
 

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorCode = void 0;
-exports.errorCode = {
+export const errorCode = {
     // Authentication
     unauthorized: { name: 'UNAUTHORIZED', category: 'Authentification' },
     // Validation

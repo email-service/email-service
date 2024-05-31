@@ -1,6 +1,6 @@
-import { EmailPayload } from "../../types/email.type";
-import { ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type";
-import { ESP } from "../esp";
+import { EmailPayload } from "../../types/email.type.js";
+import { ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
+import { ESP } from "../esp.js";
 export declare class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailService {
     constructor(service: ConfigPostmark);
     sendMail(options: EmailPayload): Promise<StandardResponse>;

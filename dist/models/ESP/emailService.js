@@ -1,74 +1,57 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ViewerEmailService = void 0;
-const error_1 = require("../../utils/error");
-const esp_1 = require("../esp");
-class ViewerEmailService extends esp_1.ESP {
+import { errorManagement } from "../../utils/error.js";
+import { ESP } from "../esp.js";
+export class ViewerEmailService extends ESP {
     constructor(service) {
         super(service);
     }
-    sendMail(options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const body = {
-                    from: options.from,
-                    to: options.to,
-                    subject: options.subject,
-                    htmlBody: options.html,
-                    textBody: options.text,
-                    tag: 'email-test',
-                    // Tag: options.tag,
-                    replyTo: 'server@question.direct',
-                    //Headers: options.headers,
-                    metadata: options.meta,
-                    // TrackOpens: options.trackOpens,
-                    // TrackLinks: options.trackLinks,
-                    // Metadata: options.metadata,
-                    // Attachments: options.attachments
+    async sendMail(options) {
+        try {
+            const body = {
+                from: options.from,
+                to: options.to,
+                subject: options.subject,
+                htmlBody: options.html,
+                textBody: options.text,
+                tag: 'email-test',
+                // Tag: options.tag,
+                replyTo: 'server@question.direct',
+                //Headers: options.headers,
+                metadata: options.meta,
+                // TrackOpens: options.trackOpens,
+                // TrackLinks: options.trackLinks,
+                // Metadata: options.metadata,
+                // Attachments: options.attachments
+            };
+            const opts = {
+                method: 'POST', headers: {
+                    'Content-Type': 'application/json',
+                    'X-Mail-Service-Viewer-Token': this.transporter.apiToken,
+                    'X-Mail-Service-Web-Hook': this.transporter.webhook
+                },
+                body: JSON.stringify(body)
+            };
+            const response = await fetch(this.transporter.host, opts);
+            if (!response.ok)
+                return { success: false, status: response.status, error: { name: response.statusText, category: 'server', cause: { uri: this.transporter.host, options: opts } } };
+            const retour = await response.json();
+            console.log("******** ES ********  retour", retour);
+            if (retour.success)
+                return {
+                    success: true,
+                    status: 200,
+                    data: retour.data
                 };
-                const opts = {
-                    method: 'POST', headers: {
-                        'Content-Type': 'application/json',
-                        'X-Mail-Service-Viewer-Token': this.transporter.apiToken,
-                        'X-Mail-Service-Web-Hook': this.transporter.webhook
-                    },
-                    body: JSON.stringify(body)
-                };
-                const response = yield fetch(this.transporter.host, opts);
-                if (!response.ok)
-                    return { success: false, status: response.status, error: { name: response.statusText, category: 'server', cause: { uri: this.transporter.host, options: opts } } };
-                const retour = yield response.json();
-                console.log("******** ES ********  retour", retour);
-                if (retour.success)
-                    return {
-                        success: true,
-                        status: 200,
-                        data: retour.data
-                    };
-                else {
-                    console.log('******** ES ********  Error occurred');
-                    return { success: false, status: retour.status, error: retour.error };
-                }
+            else {
+                console.log('******** ES ********  Error occurred');
+                return { success: false, status: retour.status, error: retour.error };
             }
-            catch (error) {
-                return { success: false, status: 500, error: (0, error_1.errorManagement)(error) };
-            }
-        });
+        }
+        catch (error) {
+            return { success: false, status: 500, error: errorManagement(error) };
+        }
     }
-    webHookManagement(req) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return { success: false, status: 500, error: { name: 'TO_DEVELOP', message: 'WIP : Work in progress for email-service-viewer' } };
-        });
+    async webHookManagement(req) {
+        return { success: false, status: 500, error: { name: 'TO_DEVELOP', message: 'WIP : Work in progress for email-service-viewer' } };
     }
 }
-exports.ViewerEmailService = ViewerEmailService;
 //transporter.close();

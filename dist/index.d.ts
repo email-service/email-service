@@ -1,5 +1,5 @@
-import { getEmailService, EmailServiceSelector } from "./models/emailServiceSelector";
-import type { EmailPayload } from "./types/email.type";
-import type { StandardResponse } from "./types/emailServiceSelector.type";
+import { getEmailService, EmailServiceSelector } from "./models/emailServiceSelector.js";
+import type { EmailPayload } from "./types/email.type.js";
+import type { StandardResponse } from "./types/emailServiceSelector.type.js";
 export { getEmailService, EmailServiceSelector };
 export type { EmailPayload, StandardResponse };

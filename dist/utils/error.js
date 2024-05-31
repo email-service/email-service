@@ -1,11 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorManagement = void 0;
-function errorManagement(error) {
+export function errorManagement(error) {
     console.warn('Error occurred', error);
     if (error instanceof Error)
         return { name: error.name, message: error.message };
     else
         return { name: 'UNKNOW', message: 'Unknow error' };
 }
-exports.errorManagement = errorManagement;
