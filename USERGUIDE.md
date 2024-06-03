@@ -51,6 +51,26 @@ const emailResponse = await emailService.sendMail(emailPayload);
   
 emailService.close() 
 ```
+
+## Config by ESP
+
+
+<details><summary>Postmark</summary>
+
+```typescript
+const emailServiceConfig = {
+  host: 'localhost',
+  port: 1025,
+  auth: {
+    user: 'project.1',
+    pass: 'secret.1',
+  },
+};
+</details>
+	
+
+
+
 # Notes
 
 Ensure that the email server configuration (host, port, auth) matches your email service provider's requirements.
