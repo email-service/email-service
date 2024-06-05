@@ -1,8 +1,9 @@
 import { EmailPayload } from "../../types/email.type.js";
-import { ConfigMinimal, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
-import { ESPStandardizedError, StandardError } from "../../types/error.type.js";
+import { ConfigMinimal, ConfigPostmark, IEmailService, StandardResponse, WebHookResponse } from "../../types/emailServiceSelector.type.js";
+import { ESPStandardizedError, ESPStandardizedWebHook, StandardError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
+import { webHookStatus } from "./postMark.status.js";
 import { errorCode } from "./postMark.errors.js";
 
 
@@ -45,8 +46,11 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				},
 				body: JSON.stringify(body)
 			};
+			if (this.transporter.logger) console.log('******** ES ********  PostMarkEmailService.sendMail', opts)
 			const response = await fetch(this.transporter.host, opts)
+			if (this.transporter.logger) console.log('******** ES ********  PostMarkEmailService.sendMail - response from fetch', response)
 			const retour = await response.json()
+			if (this.transporter.logger) console.log('******** ES ********  PostMarkEmailService.sendMail - json', retour)
 			if (retour.ErrorCode === 0) {
 				return {
 					success: true,
@@ -59,7 +63,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				}
 			}
 
-			const errorResult: ESPStandardizedError = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', category : 'Account' }
+			const errorResult: ESPStandardizedError = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', category: 'Account' }
 			errorResult.cause = { code: retour.ErrorCode, message: retour.Message }
 
 			return {
@@ -72,15 +76,20 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		}
 	}
 
-	async webHookManagement(req: any): Promise<StandardResponse> {
-		return { success: false, status: 500, error: { name: 'TO_DEVELOP', message: 'WIP : Work in progress for postMark' } }
-
+	webHookManagement(req: any): WebHookResponse {
+		
+		const result : ESPStandardizedWebHook =  webHookStatus[req.RecordType]
+		
+		if (result) 
+			return { success: true, status: 200, data: result , epsData: req}
+		else return  { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
+		
 	}
 
-	async checkServer(name:string, apiKey : string) {
-// Rechercher si le serveur existe
+	async checkServer(name: string, apiKey: string) {
+		// Rechercher si le serveur existe
 
-// Le créer s'il n'existe pas
+		// Le créer s'il n'existe pas
 
 
 	}
