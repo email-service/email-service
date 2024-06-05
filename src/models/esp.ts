@@ -11,11 +11,11 @@ export class ESP<T extends Config> implements IEmailService {
 	}
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
-		return ({ success: false, status: 500, error: { name: 'NO_METHOD', message: 'This function do never to be call, contact the developper' } })
+		return ({ success: false, status: 500, error: { name: 'NO_METHOD_sendMail', message: 'This function do never to be call, contact the developper' } })
 	}
 
 	async webHookManagement(req: any): Promise<StandardResponse> {
-		return ({ success: false, status: 500, error: { name: 'NO_METHOD', message: 'This function do never to be call, contact the developper' } })
+		return ({ success: false, status: 500, error: { name: 'NO_METHOD_webHookManagement', message: 'This function do never to be call, contact the developper' } })
 	}
 
 }
