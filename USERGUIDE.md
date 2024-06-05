@@ -2,11 +2,11 @@
 
 ## Introduction
 
-The NodeMailerEmailService class provides an implementation of the IEmailService interface for sending emails using NodeMailer. This documentation will guide you through the setup and usage of the NodeMailerEmailService class.
+blabla
 
 ## Installation
 
-To use the NodeMailerEmailService, ensure you have nodemailer installed in your project:
+To use the email-service, ensure you have email-service package installed in your project:
 
 ```bash
 npm i @email-service/email-service
@@ -14,16 +14,15 @@ npm i @email-service/email-service
 
 ## Usage
 
-Here's an example of how to use the NodeMailerEmailService class.
+Here's an example of how to use the postmark class.
 
 ```typescript
 const emailServiceConfig = {
-  host: 'localhost',
-  port: 1025,
-  auth: {
-    user: 'project.1',
-    pass: 'secret.1',
-  },
+	esp : 'postmark',
+	name : 'myName',
+	host : 'https://api.postmarkapp.com/email',
+	stream : 'outbound'
+	apiKey: 'MY_POSTMARK_APIKEY',
 };
 
 const emailService = new NodeMailerEmailService(emailServiceConfig);
@@ -35,47 +34,94 @@ const htmlContent = `
 `;
 
 const emailPayload = {
-  from: 'test@example.com',
-  to: 'recipient@example.com',
-  subject: 'Your subect',
-  html: htmlContent,
+	from: 'test@example.com',
+	to: 'recipient@example.com',
+	subject: 'Your subect',
+	html: htmlContent
 };
 
 const emailResponse = await emailService.sendMail(emailPayload);
 
-  if (emailResponse.ok) {
-    console.log('******** ES ********  Email sent successfully!');
-  } else {
-    console.log('******** ES ********  Failed to send email:', emailResponse.error);
-  }
-  
-emailService.close() 
+if (emailResponse.ok) {
+	console.log('Email sent successfully!');
+} else {
+	console.log('Failed to send email:', emailResponse.error);
+}
+
+emailService.close();
 ```
 
 ## Config by ESP
 
+All ESP configurations share the following common parameters:
 
-<details><summary>Postmark</summary>
+    •	esp: The name of the ESP.
+    •	name: A descriptive name for your configuration.
+    •	host: The host URL of the ESP.
+
+### Postmark
+
+For Postmark, you need to provide the stream and apiKey in addition to the common parameters.
 
 ```typescript
-const emailServiceConfig = {
-  host: 'localhost',
-  port: 1025,
-  auth: {
-    user: 'project.1',
-    pass: 'secret.1',
-  },
+import type ConfigPostmark from '@email-service/email-service'
+
+const emailServiceConfig : ConfigPostmark = {
+	esp : 'postmark',
+	name : 'myName',
+	host : 'https://api.postmarkapp.com/email',
+	stream : 'outbound'
+	apiKey: 'MY_POSTMARK_APIKEY',
 };
-</details>
-	
+```
+
+### Brevo
+
+For Postmark, you need to provide the stream and apiKey in addition to the common parameters.
+
+```typescript
+import type ConfigBrevo from '@email-service/email-service';
+
+const emailServiceConfig: ConfigBrevo = {
+	esp: 'brevo',
+	name: 'Brevotest',
+	host: 'https://api.brevo.com/v3/smtp/email',
+	apiKey: process.env.BREVO_API_KEY || '',
+};
+```
+
+### email-service-viewer
+
+E-mail, Email-service-viewer ouvert est une application Web vous permettant de tester votre application sans avoir à envoyer de mail via des EPS. 
 
 
+```typescript
+import type ConfigBrevo from '@email-service/email-service';
+
+const emailServiceConfig: ConfigBrevo = {
+	esp: 'emailserviceviewer',
+	name: 'emailservicetest',
+	host: 'http://dev.email-service.dev/sendEmail',
+	apiToken: 'mytoken',
+	webhook: 'https://my-ngrok-url.ngrok-free.app 3000/webhook',
+};
+```
+
+### nodemailer
+
+```typescript
+const emailServiceConfig : ConfigNodeMailer= {
+	host: 'localhost',
+	port: 1025,
+	auth: {
+		user: 'project.1',
+		pass: 'secret.1',
+	},
+};
 
 # Notes
 
 Ensure that the email server configuration (host, port, auth) matches your email service provider's requirements.
 The secure option in the transporter configuration is set to false for non-SSL connections. Change this to true if SSL is required.
 Always call the close method to release resources when done sending emails.
-Conclusion
-
-The NodeMailerEmailService class provides a straightforward way to send emails using NodeMailer in a TypeScript environment. By following the configuration and usage examples provided, you can integrate email sending functionality into your applications efficiently.
+```
