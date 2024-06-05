@@ -1,13 +1,13 @@
 import type { EmailPayload } from "./email.type.js";
-import { ESPStandardizedError, StandardError } from "./error.type.js";
+import { ESPStandardizedError, ESPStandardizedWebHook, StandardError } from "./error.type.js";
 
 export type IEmailService = {
-	transporter : Config,
+	transporter: Config,
 	sendMail(options: EmailPayload): Promise<StandardResponse>,
-	webHookManagement(req: any): Promise<StandardResponse>,
+	webHookManagement(req: any): WebHookResponse,
 }
 
-export type ESP = 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer';
+export type ESP = 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer' | 'resend';
 
 export type StandardResponse = {
 	success: true,
@@ -25,13 +25,27 @@ export type StandardResponse = {
 	error: StandardError | ESPStandardizedError
 }
 
+export type WebHookResponse = {
+	success: true,
+	status: number,
+	data: ESPStandardizedWebHook,
+	epsData?: any
+}
+	|
+{
+	success: false,
+	status: number,
+	error: StandardError | ESPStandardizedError
+}
+
 
 export type ConfigPostmark = {
 	esp: 'postmark',
 	name: string,
 	host: string,
 	stream: string,
-	apiKey: string
+	apiKey: string,
+	logger?: boolean
 }
 
 
@@ -39,7 +53,8 @@ export type ConfigBrevo = {
 	esp: 'brevo',
 	name: string,
 	host: string,
-	apiKey: string
+	apiKey: string,
+	logger?: boolean
 }
 
 export type ConfigNodeMailer = {
@@ -47,6 +62,9 @@ export type ConfigNodeMailer = {
 	name: string,
 	host: string,
 	port: number,
+	secure?: boolean,
+	logger?: boolean,
+	debug?: boolean,
 	auth: {
 		user: string,
 		pass: string
@@ -59,12 +77,23 @@ export type ConfigEmailServiceViewer = {
 	name: string,
 	host: string,
 	apiToken: string,
-	webhook: string
+	webhook: string,
+	logger?: boolean
+}
+
+
+export type ConfigResend= {
+	esp: 'resend',
+	name: string,
+	host: string,
+	apiKey: string,
+	logger?: boolean
 }
 
 
 export type ConfigMinimal = {
-	esp: 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer',
+	esp: ESP,
+	logger?: boolean
 }
 
-export type Config = ConfigPostmark | ConfigBrevo | ConfigNodeMailer | ConfigEmailServiceViewer 
+export type Config = ConfigPostmark | ConfigBrevo | ConfigNodeMailer | ConfigEmailServiceViewer | ConfigResend;

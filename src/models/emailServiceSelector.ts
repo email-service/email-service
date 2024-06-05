@@ -1,9 +1,10 @@
 import type { EmailPayload } from "../types/email.type.js";
-import type { Config, ConfigMinimal, ESP, IEmailService, StandardResponse } from "../types/emailServiceSelector.type.js";
+import type { Config, ConfigMinimal, ESP, IEmailService, StandardResponse, WebHookResponse } from "../types/emailServiceSelector.type.js";
 import { BrevoEmailService } from "./ESP/brevo.js";
 import { ViewerEmailService } from "./ESP/emailService.js";
 import { NodeMailerEmailService } from "./ESP/nodeMailer.js";
 import { PostMarkEmailService } from "./ESP/postMark.js";
+import { ResendEmailService } from "./ESP/resend.js";
 
 export class EmailServiceSelector {
 	private emailService: IEmailService | undefined;
@@ -24,6 +25,10 @@ export class EmailServiceSelector {
 
 			case 'emailserviceviewer':
 				this.emailService = new ViewerEmailService(service);
+				break;
+
+			case 'resend':
+				this.emailService = new ResendEmailService(service);
 				break;
 
 			default:
@@ -48,9 +53,9 @@ export class EmailServiceSelector {
 		// Nothing, as we are  using only for nodemailer
 	}
 
-	static async webHook(esp: string, req: any): Promise<StandardResponse> {
+	static  webHook(esp: string, req: any): WebHookResponse {
 		if (esp) {
-			console.log("******** ES ********  esp", esp)
+			console.log("******** ES ********  webHook esp", esp)
 			const config: ConfigMinimal = { esp: 'emailserviceviewer' };
 			switch (esp) {
 				case 'Postmark':
@@ -73,9 +78,12 @@ export class EmailServiceSelector {
 					return ({ success: false, status: 500, error: { name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } })
 					break;
 			}
+			
+			console.log("******** ES ********  webHook config", config)
 			// @ts-ignore
 			const emailESP = new EmailServiceSelector(config);
-			if (emailESP.emailService) { return await emailESP.emailService.webHookManagement(req) }
+			console.log("******** ES ********  emailESP in webhook traitement", emailESP)
+			if (emailESP.emailService) { return  emailESP.emailService.webHookManagement(req) }
 			else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
 		}
 		else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
@@ -85,4 +93,8 @@ export class EmailServiceSelector {
 
 export function getEmailService(service: Config): EmailServiceSelector {
 	return new EmailServiceSelector(service)
+}
+
+export function getWebHook(userAgent: string, req: any): WebHookResponse {
+	return  EmailServiceSelector.webHook(userAgent, req)
 }
