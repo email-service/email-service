@@ -40,7 +40,6 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 			if (!response.ok) return  { success: false, status: response.status, error: {name : response.statusText, category : 'server', cause : {uri : this.transporter.host, options : opts}} }
 			const retour = await response.json()
 
-			console.log("******** ES ********  retour", retour)
 			if (retour.success)
 				return {
 					success: true,
@@ -48,7 +47,6 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 					data: retour.data
 				}
 			else {
-				console.log('******** ES ********  Error occurred');
 				return { success: false, status: retour.status, error: retour.error }
 			}
 

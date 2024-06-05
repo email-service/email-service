@@ -47,8 +47,6 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			};
 			const response = await fetch(this.transporter.host, opts)
 			const retour = await response.json()
-			console.log('******** ES ********  response', response)
-			console.log("******** ES ********  retour", retour)
 			if (retour.ErrorCode === 0) {
 				return {
 					success: true,

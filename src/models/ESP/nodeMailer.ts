@@ -8,17 +8,22 @@ export class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEm
 	private nodemailerTransporter: nodemailer.Transporter;
 	constructor(service: ConfigNodeMailer) {
 		super(service)
+		console.log ('########### NodeMailerEmailService.constructor')
 		this.nodemailerTransporter = nodemailer.createTransport(service)
+		console.log ('########### NodeMailerEmailService.constructor - this.nodemailerTransporter end')
 	}
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
+		
 		try {
+			console.log ('########### NodeMailerEmailService.sendMail')
 			const message = await this.nodemailerTransporter.sendMail(options);
 			if (message.error) {
 				return process.exit(1);
 			}
 			return { success: true, status: 200, data: message };
 		} catch (error) {
+			console.log ('########### NodeMailerEmailService.sendMail - error', error)
 			return { success: false, status: 500, error: errorManagement(error) };
 		}
 	}
