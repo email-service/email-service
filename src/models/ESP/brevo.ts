@@ -1,5 +1,5 @@
 import { EmailPayload } from "../../types/email.type.js";
-import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
+import { ConfigBrevo, IEmailService, StandardResponse, WebHookResponse } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
 import { errorCode } from "./brevo.errors.js";
@@ -42,11 +42,11 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				},
 				body: JSON.stringify(body)
 			};
-			console.log('******** ES ********  opts', opts)
+			if (this.transporter.logger) console.log('******** ES ********  BrevoEmailService.sendMail', opts)
 			const response = await fetch(this.transporter.host, opts)
-			console.log('******** ES ********  response', response)
+			if (this.transporter.logger) console.log('******** ES ********  BrevoEmailService.sendMail - response from fetch', response)
 			const retour = await response.json()
-			console.log("******** ES ********  retour", retour)
+			if (this.transporter.logger) console.log('******** ES ********  BrevoEmailService.sendMail - json', retour)
 			if (response.ok) {
 				return {
 					success: true,
@@ -60,7 +60,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 			}
 
 			else {
-				
+
 				return { success: false, status: response.status, error: errorCode[retour.code] || retour.message }
 			}
 
@@ -73,7 +73,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 	}
 
 
-	async webHookManagement(req: any): Promise<StandardResponse> {
+	webHookManagement(req: any): WebHookResponse {
 		return { success: false, status: 500, error: { name: 'TO_DEVELOP', message: 'WIP : Work in progress for brevo' } }
 
 	}
