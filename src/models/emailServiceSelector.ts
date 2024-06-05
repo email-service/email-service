@@ -33,8 +33,9 @@ export class EmailServiceSelector {
 	}
 
 	async sendEmail(email: EmailPayload): Promise<StandardResponse> {
-		if (this.emailService)
+		if (this.emailService) {
 			return await this.emailService.sendMail(email);
+		}
 		else return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } })
 	}
 
@@ -82,6 +83,6 @@ export class EmailServiceSelector {
 }
 
 
-export async function  getEmailService(service: Config) :Promise<EmailServiceSelector> {
+export function getEmailService(service: Config): EmailServiceSelector {
 	return new EmailServiceSelector(service)
 }
