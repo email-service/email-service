@@ -1,9 +1,9 @@
 
 // src/index.ts
 
-import { getEmailService , EmailServiceSelector} from "./models/emailServiceSelector.js";
+import { getEmailService ,getWebHook, EmailServiceSelector} from "./models/emailServiceSelector.js";
 import type { EmailPayload } from "./types/email.type.js";
 import type {StandardResponse} from "./types/emailServiceSelector.type.js"
 
-export { getEmailService, EmailServiceSelector } 
+export { getEmailService, getWebHook, EmailServiceSelector } 
 export type {EmailPayload, StandardResponse}
