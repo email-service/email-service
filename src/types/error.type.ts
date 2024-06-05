@@ -45,3 +45,4 @@ type Category =
 	| 'Permission'
 	| 'Account'
 	| 'server'
+	| 'SuppressionList'
