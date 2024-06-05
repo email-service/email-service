@@ -1,6 +1,5 @@
 import { EmailPayload } from "../../types/email.type.js";
 import { ConfigBrevo, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
-import { StandardError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
 import { errorCode } from "./brevo.errors.js";
