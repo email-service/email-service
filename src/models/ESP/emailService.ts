@@ -1,7 +1,9 @@
 import { EmailPayload } from "../../types/email.type.js";
-import { ConfigEmailServiceViewer, ConfigPostmark, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
+import { ConfigEmailServiceViewer, ConfigPostmark, IEmailService, StandardResponse, WebHookResponse } from "../../types/emailServiceSelector.type.js";
+import { ESPStandardizedWebHook } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
+import { webHookStatus } from "./emailService.status.js";
 
 export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements IEmailService {
 
@@ -36,9 +38,14 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 				},
 				body: JSON.stringify(body)
 			};
+			if (this.transporter.logger) console.log('******** ES ********  ViewerEmailService.sendMail', opts)
 			const response = await fetch(this.transporter.host, opts)
-			if (!response.ok) return  { success: false, status: response.status, error: {name : response.statusText, category : 'server', cause : {uri : this.transporter.host, options : opts}} }
+			if (!response.ok) {
+				if (this.transporter.logger) console.log('******** ES ********  ViewerEmailService.sendMail - response ko', response.status, response.statusText)
+				return { success: false, status: response.status, error: { name: response.statusText, category: 'SERVER_EXCEPTION', cause: { uri: this.transporter.host, options: opts } } }
+			}
 			const retour = await response.json()
+			if (this.transporter.logger) console.log('******** ES ********  ViewerEmailService.sendMail - data from fetch', retour)
 
 			if (retour.success)
 				return {
@@ -50,7 +57,6 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 				return { success: false, status: retour.status, error: retour.error }
 			}
 
-
 		} catch (error) {
 			return { success: false, status: 500, error: errorManagement(error) };
 		}
@@ -58,9 +64,14 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 
 
 
-	async webHookManagement(req: any): Promise<StandardResponse> {
-		return { success: false, status: 500,error: {  name: 'TO_DEVELOP', message: 'WIP : Work in progress for email-service-viewer' } }
+	webHookManagement(req: any): WebHookResponse {
+	
+		const result : ESPStandardizedWebHook =  webHookStatus[req.data.type]
 
+		if (result) 
+			return { success: true, status: 200, data: result , epsData: req.data}
+		else return  { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
+		
 	}
 
 }
