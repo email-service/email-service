@@ -3,27 +3,37 @@ import { ConfigNodeMailer, IEmailService, StandardResponse } from "../../types/e
 import nodemailer from 'nodemailer'
 import { ESP } from "../esp.js";
 import { errorManagement } from "../../utils/error.js";
+import { debug } from "console";
 
 export class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEmailService {
 	private nodemailerTransporter: nodemailer.Transporter;
 	constructor(service: ConfigNodeMailer) {
 		super(service)
-		console.log ('########### NodeMailerEmailService.constructor')
-		this.nodemailerTransporter = nodemailer.createTransport(service)
-		console.log ('########### NodeMailerEmailService.constructor - this.nodemailerTransporter end')
+
+		const configForNodeMailer = {
+			host: service.host,
+			port: service.port,
+			secure: service?.secure,
+			auth: service?.auth,
+			logger: service?.logger,
+			debug: service?.debug
+		}
+		this.nodemailerTransporter = nodemailer.createTransport(configForNodeMailer)
+		if (service?.logger) console.log('########### NodeMailerEmailService.constructor - configForNodeMailer', configForNodeMailer)
 	}
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
-		
+
 		try {
-			console.log ('########### NodeMailerEmailService.sendMail')
+			if (this.nodemailerTransporter?.logger) console.log('########### NodeMailerEmailService.sendMail - options', options)
 			const message = await this.nodemailerTransporter.sendMail(options);
+			if (this.nodemailerTransporter?.logger) console.log('########### NodeMailerEmailService.sendMail - message', message)
 			if (message.error) {
 				return process.exit(1);
 			}
 			return { success: true, status: 200, data: message };
 		} catch (error) {
-			console.log ('########### NodeMailerEmailService.sendMail - error', error)
+			if (this.nodemailerTransporter?.logger) console.log('########### NodeMailerEmailService.sendMail - error', error)
 			return { success: false, status: 500, error: errorManagement(error) };
 		}
 	}
@@ -33,7 +43,4 @@ export class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEm
 			this.nodemailerTransporter.close();
 	}
 
-	async webHook(req: any): Promise<StandardResponse> {
-		throw new Error("Method not implemented.");
-	}
 }
