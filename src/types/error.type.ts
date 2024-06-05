@@ -25,24 +25,27 @@ export type ESPStandardizedError = {
 
 
 type Category =
-	| 'Authentification'
-	| 'Service'
-	| 'Validation'
-	| 'SenderSignature'
-	| 'Domain'
-	| 'Account'
-	| 'Server'
-	| 'Message'
-	| 'Trigger'
-	| 'InboundRule'
-	| 'Stats'
-	| 'Bounce'
-	| 'Template'
-	| 'MessageStream'
-	| 'DataRemoval'
-	| 'Campaign'
-	| 'Document'
-	| 'Permission'
-	| 'Account'
-	| 'server'
-	| 'SuppressionList'
+	| 'UNAUTHORIZED'
+	| 'EMAIL_INVALID'
+	| 'PARAM_INVALID'
+	| 'ACCOUNT_INVALID'
+	| 'INACTIVE_RECIPIENT'
+	| 'SERVER_EXCEPTION'
+
+export type ESPStandardizedWebHook = {
+	status: webHookStatus
+	message: string
+}
+
+type webHookStatus = 
+	'SEND'
+	| 'OPEN'
+	| 'CLICK'
+	| 'BOUNCE'
+	| 'SPAM' 
+	| 'UNSUBSCRIBE' 
+	| 'REJECT' 
+	| 'INBOUND' 
+	| 'DELIVERY' 
+	| 'SPAM_COMPLAINT' 
+	| 'LINK_CLICK'
