@@ -118,5 +118,8 @@ export const errorCode: { [key: number]: ESPStandardizedError } = {
   // DataRemoval
   1300: { name: 'INVALID_DATA_REMOVAL_REQUEST', category: 'DataRemoval' },
   1301: { name: 'INVALID_ID', category: 'DataRemoval' },
-  1302: { name: 'NO_DATA_REMOVAL_ACCESS', category: 'DataRemoval' }
+  1302: { name: 'NO_DATA_REMOVAL_ACCESS', category: 'DataRemoval' },
+  
+  // SuppressionList
+  406 : { name: 'INACTIVE_RECIPIENT', category: 'SuppressionList' }
 };
