@@ -1,4 +1,4 @@
-import { EmailPayload } from "../../types/email.type.js";
+import { EmailPayLoadNodeMailer } from "../../types/email.type.js";
 import { ConfigNodeMailer, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
 import nodemailer from 'nodemailer'
 import { ESP } from "../esp.js";
@@ -22,7 +22,7 @@ export class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEm
 		if (service?.logger) console.log('########### NodeMailerEmailService.constructor - configForNodeMailer', configForNodeMailer)
 	}
 
-	async sendMail(options: EmailPayload): Promise<StandardResponse> {
+	async sendMail(options: EmailPayLoadNodeMailer): Promise<StandardResponse> {
 	
 		try {
 			// Verification du logger

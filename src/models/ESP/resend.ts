@@ -35,7 +35,7 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 
 
 				headers: {
-					name: 'X-QD-Meta', value: JSON.stringify(options.meta)
+					name: 'X-QD-Meta', value: JSON.stringify(options.metaData)
 				}
 			}
 

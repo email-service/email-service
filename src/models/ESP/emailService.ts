@@ -23,7 +23,7 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 				// Tag: options.tag,
 				replyTo: 'server@question.direct',
 				//Headers: options.headers,
-				metadata: options.meta,
+				metadata: options.metaData,
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
 				// Metadata: options.metadata,
