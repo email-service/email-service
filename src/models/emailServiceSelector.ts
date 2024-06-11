@@ -53,10 +53,11 @@ export class EmailServiceSelector {
 		// Nothing, as we are  using only for nodemailer
 	}
 
-	static  webHook(esp: string, req: any): WebHookResponse {
+	static webHook(esp: string, req: any, logger: boolean = false): WebHookResponse {
 		if (esp) {
-			console.log("******** ES ********  webHook esp", esp)
-			const config: ConfigMinimal = { esp: 'emailserviceviewer' };
+			if (logger) console.log("******** ES ********  webHook esp", esp)
+
+			const config: ConfigMinimal = { esp: 'emailserviceviewer', logger: logger };
 			switch (esp) {
 				case 'Postmark':
 					config.esp = 'postmark';
@@ -78,12 +79,13 @@ export class EmailServiceSelector {
 					return ({ success: false, status: 500, error: { name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } })
 					break;
 			}
-			
-			console.log("******** ES ********  webHook config", config)
+			if (logger) console.log("******** ES ********  webHook config", config)
+
 			// @ts-ignore
 			const emailESP = new EmailServiceSelector(config);
-			console.log("******** ES ********  emailESP in webhook traitement", emailESP)
-			if (emailESP.emailService) { return  emailESP.emailService.webHookManagement(req) }
+			if (logger) console.log("******** ES ********  emailESP in webhook traitement", emailESP)
+				
+			if (emailESP.emailService) { return emailESP.emailService.webHookManagement(req) }
 			else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
 		}
 		else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
@@ -95,6 +97,6 @@ export function getEmailService(service: Config): EmailServiceSelector {
 	return new EmailServiceSelector(service)
 }
 
-export function getWebHook(userAgent: string, req: any): WebHookResponse {
-	return  EmailServiceSelector.webHook(userAgent, req)
+export function getWebHook(userAgent: string, req: any, logger: boolean = false): WebHookResponse {
+	return EmailServiceSelector.webHook(userAgent, req, logger)
 }
