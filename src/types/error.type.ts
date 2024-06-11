@@ -33,7 +33,7 @@ type Category =
 	| 'SERVER_EXCEPTION'
 
 export type ESPStandardizedWebHook = {
-	status: webHookStatus
+	webHookType: webHookStatus
 	message: string
 }
 
