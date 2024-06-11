@@ -69,7 +69,7 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 		const result : ESPStandardizedWebHook =  webHookStatus[req.data.type]
 
 		if (result) 
-			return { success: true, status: 200, data: result , epsData: req.data}
+			return { success: true, status: 200, data: result , espData: req.data}
 		else return  { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
 		
 	}

@@ -29,7 +29,7 @@ export type WebHookResponse = {
 	success: true,
 	status: number,
 	data: ESPStandardizedWebHook,
-	epsData?: any
+	espData?: any
 }
 	|
 {
