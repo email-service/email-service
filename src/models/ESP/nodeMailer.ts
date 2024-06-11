@@ -23,17 +23,18 @@ export class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEm
 	}
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
-
+	
 		try {
-			if (this.nodemailerTransporter?.logger) console.log('########### NodeMailerEmailService.sendMail - options', options)
+			// Verification du logger
+			if (this.transporter?.logger) console.log('########### NodeMailerEmailService.sendMail - options', options)
 			const message = await this.nodemailerTransporter.sendMail(options);
-			if (this.nodemailerTransporter?.logger) console.log('########### NodeMailerEmailService.sendMail - message', message)
+			if (this.transporter?.logger) console.log('########### NodeMailerEmailService.sendMail - message', message)
 			if (message.error) {
 				return process.exit(1);
 			}
 			return { success: true, status: 200, data: message };
 		} catch (error) {
-			if (this.nodemailerTransporter?.logger) console.log('########### NodeMailerEmailService.sendMail - error', error)
+			if (this.transporter?.logger) console.log('########### NodeMailerEmailService.sendMail - error', error)
 			return { success: false, status: 500, error: errorManagement(error) };
 		}
 	}
