@@ -81,7 +81,7 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 		const result: ESPStandardizedWebHook = webHookStatus[req.RecordType]
 
 		if (result)
-			return { success: true, status: 200, data: result, epsData: req }
+			return { success: true, status: 200, data: result, espData: req }
 		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
 
 	}
