@@ -122,4 +122,12 @@ export const errorCode: { [key: number]: ESPStandardizedError } = {
   
   // SuppressionList
   406 : { name: 'INACTIVE_RECIPIENT', category: 'INACTIVE_RECIPIENT' }
+
+
+/* AJOUTER : 
+ HARD_BOUNCE
+ MANUAL_SUPPRESSION
+ SPAM_COMPLAINT
+*/
+
 };

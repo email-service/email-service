@@ -12,6 +12,11 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 	constructor(service: ConfigPostmark) {
 		super(service)
+		
+			if (this.transporter.stream === undefined) {
+				if(this.transporter.logger) console.log('******** ES ********  Stream for ', this.transporter.esp, ' is not defined in the configuration')
+				throw new Error('Stream is not defined in the configuration')
+			}
 	}
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
@@ -66,6 +71,13 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			const errorResult: ESPStandardizedError = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', category: 'Account' }
 			errorResult.cause = { code: retour.ErrorCode, message: retour.Message }
 
+			// Traitement du cas particlier de l'erreur 406
+
+			if (retour.ErrorCode === 406) {
+				const suppressionInfos = await this.getSuppressionInfos(options.to)
+				console.log('suppressionInfos', suppressionInfos)
+			}
+
 			return {
 				success: false, status: response.status,
 				error: errorResult
@@ -77,21 +89,37 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 	}
 
 	webHookManagement(req: any): WebHookResponse {
-		
-		const result : ESPStandardizedWebHook =  webHookStatus[req.RecordType]
-		
-		if (result) 
-			return { success: true, status: 200, data: result , epsData: req}
-		else return  { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
-		
+
+		const result: ESPStandardizedWebHook = webHookStatus[req.RecordType]
+
+		if (result)
+			return { success: true, status: 200, data: result, espData: req }
+		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
+
 	}
 
-	async checkServer(name: string, apiKey: string) {
-		// Rechercher si le serveur existe
-
-		// Le créer s'il n'existe pas
 
 
+	getSuppressionInfos = async (address: string) => {
+		const extractAddressFrom = (destination: string) => destination.match(/<.+@.+>/)?.[0].replace(/[<>]/g, "") || destination
+		try {
+			const response = await fetch(
+				'https://api.postmarkapp.com/message-streams/outbound/suppressions/dump',
+				{
+					headers: {
+						"Content-Type": "application/json",
+						"Accept": "application/json",
+						"X-Postmark-Server-Token": this.transporter.apiKey
+					}
+				}
+			);
+			const result = await response.json();
+			console.log('result of getSuppressionInfos', result)
+			return result.Suppressions.find((r) => r.EmailAddress === extractAddressFrom(address))
+		}
+		catch (error) {
+			console.log(error)
+		}
 	}
 
 }
