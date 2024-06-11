@@ -35,6 +35,7 @@ type Category =
 export type ESPStandardizedWebHook = {
 	webHookType: webHookStatus
 	message: string
+	metaData?:object
 }
 
 type webHookStatus = 
@@ -49,3 +50,4 @@ type webHookStatus =
 	| 'DELIVERY' 
 	| 'SPAM_COMPLAINT' 
 	| 'LINK_CLICK'
+	| 'DEFERED'

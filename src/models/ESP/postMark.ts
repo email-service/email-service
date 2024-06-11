@@ -1,19 +1,14 @@
 import { EmailPayload } from "../../types/email.type.js";
-import { ConfigMinimal, ConfigPostmark, IEmailService, StandardResponse, WebHookResponse } from "../../types/emailServiceSelector.type.js";
+import { ConfigPostmark, IEmailService, StandardResponse, WebHookResponse } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError, ESPStandardizedWebHook, StandardError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
-import { webHookStatus } from "./postMark.status.js";
+import { webHookStatus, bouncesTypes } from "./postMark.status.js";
 import { errorCode, supressionListStatus } from "./postMark.errors.js";
-
-
-
 export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailService {
 
 	constructor(service: ConfigPostmark) {
 		super(service)
-
-
 	}
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
@@ -31,20 +26,19 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				Subject: options.subject,
 				HtmlBody: options.html,
 				TextBody: options.text,
-				Tag: 'email-test',
-				// Tag: options.tag,
-				ReplyTo: 'server@question.direct',
+				Tag: options.tag,
+				ReplyTo: options.from,
 				//Headers: options.headers,
-				Metadata: options.meta,
-				// TrackOpens: options.trackOpens,
-				// TrackLinks: options.trackLinks,
+				Metadata: options.metaData,
+				TrackOpens: options.trackOpens,
+				TrackLinks: options.trackLinks,
 				// Metadata: options.metadata,
 				// Attachments: options.attachments
 
 
-				Headers: [{
-					name: 'X-QD-Meta', value: JSON.stringify(options.meta)
-				}]
+				// Headers: [{
+				// 	name: 'X-QD-Meta', value: JSON.stringify(options.metaData)
+				// }]
 			}
 
 			const opts = {
@@ -109,24 +103,6 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 	}
 
-	webHookManagement(req: any): WebHookResponse {
-		if (this.transporter.logger) {
-			console.log('******** ES ********  PostMarkEmailService.webHookManagement - transporter', this.transporter)
-			console.log('******** ES ********  PostMarkEmailService.webHookManagement - req.RecordType', req.RecordType)
-		}
-		const result: ESPStandardizedWebHook = webHookStatus[req.RecordType]
-
-		if (this.transporter.logger)
-			console.log('******** ES ********  PostMarkEmailService.webHookManagement - result', result)
-		if (result) {
-				return { success: true, status: 200, data: result, espData: req }
-		}
-		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
-
-	}
-
-
-
 	getSuppressionInfos = async (address: string) => {
 		const extractAddressFrom = (destination: string) => destination.match(/<.+@.+>/)?.[0].replace(/[<>]/g, "") || destination
 		try {
@@ -142,6 +118,13 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			);
 			const result = await response.json();
 
+			type PostMarkSuppression = {
+				EmailAddress: string,
+				SupressionReason: string,
+				Origin: string,
+				CreatedAt: Date
+			}
+
 			return result.Suppressions.find((r: PostMarkSuppression) => r.EmailAddress === extractAddressFrom(address))
 		}
 		catch (error) {
@@ -149,13 +132,38 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		}
 	}
 
+
+	webHookManagement(req: any): WebHookResponse {
+		if (this.transporter.logger) {
+			console.log('******** ES ********  PostMarkEmailService.webHookManagement - transporter', this.transporter)
+			console.log('******** ES ********  PostMarkEmailService.webHookManagement - req.RecordType', req.RecordType)
+		}
+		let result: ESPStandardizedWebHook = webHookStatus[req.RecordType]
+
+		if (req.RecordType === 'Bounce' && req.TypeCode) {
+			// @ts-ignore
+			const errorValue = bouncesTypes[req.TypeCode]
+			console.log('******** ES ********  PostMarkEmailService.webHookManagement - errorValue', errorValue)
+			if (errorValue)
+				result = { webHookType: errorValue.webHookEventType, message: errorValue.name }
+
+		}
+
+		// Manage the metaData
+		console.log('******** ES ********  PostMarkEmailService.webHookManagement - req', req)
+		if (req.Metadata)
+			result.metaData = req.Metadata
+
+		if (this.transporter.logger)
+			console.log('******** ES ********  PostMarkEmailService.webHookManagement - result', result)
+		if (result) {
+			return { success: true, status: 200, data: result, espData: req }
+		}
+		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
+
+	}
+
 }
 
 
-type PostMarkSuppression = {
-	EmailAddress: string,
-	SupressionReason: string,
-	Origin: string,
-	CreatedAt: Date
-}
 //transporter.close();

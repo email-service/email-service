@@ -5,5 +5,18 @@ export type EmailPayload = {
 	subject: string;
 	text: string;
 	html: string;
-	meta: object;
+	metaData: object;
+	tag?: string;
+	trackOpens?: boolean;
+	trackLinks?: 'HtmlAndText' | 'HtmlOnly' | 'TextOnly';
+	headers?: object;
+}
+
+
+export type EmailPayLoadNodeMailer = {
+	to: string;
+	from: string;
+	subject: string;
+	text: string;
+	html: string;
 }
