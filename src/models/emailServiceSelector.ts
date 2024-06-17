@@ -75,6 +75,10 @@ export class EmailServiceSelector {
 					config.esp = 'emailserviceviewer';
 					break;
 
+				case 'Svix-Webhooks/1.24.0':
+					config.esp = 'resend';
+					break;
+
 				default:
 					return ({ success: false, status: 500, error: { name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } })
 					break;
