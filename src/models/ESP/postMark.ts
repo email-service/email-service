@@ -50,7 +50,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			};
 			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ******** to ', body.To)
 
-			const response = await fetch(this.transporter.host, opts)
+			const response = await fetch('https://api.postmarkapp.com/email', opts)
 			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ******** response from fetch', response.status, response.statusText)
 
 			const retour = await response.json()
@@ -155,6 +155,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			...result,
 			messageId: req.MessageID,
 			to: req?.Recipient ? req.Recipient : req.Email,
+			espType: req?.Type ? req.Type : 'Default',
 			espRecordType: req.RecordType,
 			subject: req?.Subject ? req.Subject : undefined,
 			from: req?.From ? req.From : undefined,

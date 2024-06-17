@@ -38,7 +38,7 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 				body: JSON.stringify(body)
 			};
 			if (this.transporter.logger) console.log('******** ES-SendMail Email-service-viewer ******** opts', opts)
-			const response = await fetch(this.transporter.host, opts)
+			const response = await fetch('https://api.email-service.dev/sendEmail', opts)
 			if (!response.ok) {
 				if (this.transporter.logger) console.log('******** ES-SendMail Email-service-viewer ******** response ko', response.status, response.statusText)
 				return { success: false, status: response.status, error: { name: response.statusText, category: 'SERVER_EXCEPTION', cause: { uri: this.transporter.host, options: opts } } }
@@ -73,7 +73,7 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 		if (result) {
 
 			if (this.transporter.logger) console.log('******** ES-WebHook Email-service-viewer ******** result', result)
-			const data: WebHookResponseData = { ...result, messageId: req.data.messageId, to: req.data.to, espRecordType: req.data.type}
+			const data: WebHookResponseData = { ...result, messageId: req.data.messageId, to: req.data.to, espRecordType: req.data.type, espType : req.data.type}
 			return { success: true, status: 200, data, espData: req.data }
 		}
 		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }

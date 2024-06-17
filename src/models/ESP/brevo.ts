@@ -1,4 +1,4 @@
-import { ESPStandardizedWebHook, EmailPayload, IEmailService, StandardResponse, WebHookResponse } from "../../types/email.type.js";
+import { ESPStandardizedWebHook, EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData } from "../../types/email.type.js";
 import { ConfigBrevo } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
@@ -7,17 +7,17 @@ import { webHookStatus } from "./brevo.status.js";
 
 //const extractAddressFrom = (destination: string) => destination.match(/<.+@.+>/)?.[0].replace(/[<>]/g, "") || destination
 
-const convertToBrevoAddress = ( address:string ) => {
+const convertToBrevoAddress = (address: string) => {
 	const a = address.trim()
-	if(/.+<.+>$/.test(a)) {
-	  const tempo = a.match(/(.+)<(.+@.+)>/) || ['','']
-	  return {
-		name : tempo[1],
-		email : tempo[2]
-	  }
+	if (/.+<.+>$/.test(a)) {
+		const tempo = a.match(/(.+)<(.+@.+)>/) || ['', '']
+		return {
+			name: tempo[1],
+			email: tempo[2]
+		}
 	}
-	else return {email : a.replace(/[<>]/g,"")}
-  }
+	else return { email: a.replace(/[<>]/g, "") }
+}
 
 export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService {
 
@@ -69,7 +69,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				body: JSON.stringify(body)
 			};
 			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** sendMail', body)
-			const response = await fetch(this.transporter.host, opts)
+			const response = await fetch('https://api.brevo.com/v3/smtp/email', opts)
 			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** response from fetch', response)
 			const retour = await response.json()
 			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** json', retour)
@@ -104,22 +104,33 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 			console.log('******** ES-WebHook Brevo ******** req.event', req.event)
 		}
 		let result: ESPStandardizedWebHook = webHookStatus[req.event]
-
-		// MetaData is available in the request body
-
-		if (req['X-Mailin-custom']) {
-			try {
-				result.metaData = JSON.parse(req['X-Mailin-custom'])
-			}
-			catch (error) {
-				if (this.transporter.logger) console.log('******** ES-WebHook Brevo ******** error on parse metaData', error)
-			}
-		}
-
-		if (this.transporter.logger)
-			console.log('******** ES-WebHook Brevo ******** result', result)
 		if (result) {
-			return { success: true, status: 200, data: result, espData: req }
+
+			const nameOfMessageIfForBrevo = 'message-id'
+
+			const data: WebHookResponseData = {
+				...result,
+				messageId: req[nameOfMessageIfForBrevo],
+				to: req?.email,
+				espRecordType: req?.event,
+				espType: req?.event,
+				subject: req?.subject ? req.subject : undefined,
+				from: req?.From ? req.From : undefined,
+			}
+
+			if (req['X-Mailin-custom']) {
+				try {
+					data.metaData = JSON.parse(req['X-Mailin-custom'])
+				}
+				catch (error) {
+					if (this.transporter.logger) console.log('******** ES-WebHook Brevo ******** error on parse metaData', error)
+				}
+			}
+
+			if (this.transporter.logger)
+				console.log('******** ES-WebHook Brevo ******** result', data)
+
+			return { success: true, status: 200, data, espData: req }
 		}
 		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
 
