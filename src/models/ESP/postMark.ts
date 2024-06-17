@@ -133,7 +133,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 	}
 
 
-	webHookManagement(req: any): WebHookResponse {
+	async webHookManagement(req: any): Promise<WebHookResponse> {
 
 		if (this.transporter.logger) {
 			console.log('******** ES-WebHook Postmark ******** transporter', this.transporter)
@@ -149,6 +149,10 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			if (errorValue)
 				result = { webHookType: errorValue.webHookEventType, message: errorValue.name }
 
+			if (req?.DumpAvailable && req?.ID) {
+				const dump = await this.getBounceDump(req.ID)
+			}
+
 		}
 
 		const data: WebHookResponseData = {
@@ -161,6 +165,8 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			from: req?.From ? req.From : undefined,
 		}
 
+		
+
 		// Manage the metaData
 		if (req.Metadata)
 			data.metaData = req.Metadata
@@ -172,6 +178,28 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		}
 		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
 
+	}
+
+	getBounceDump = async (id: string) => {	
+		try {
+			const response = await fetch(
+				`https://api.postmarkapp.com/bounces/${id}/dump`,
+				{
+					headers: {
+						"Content-Type": "application/json",
+						"Accept": "application/json",
+						"X-Postmark-Server-Token": this.transporter.apiKey
+					}
+				}
+			);
+			const result = await response.json();
+
+
+			return result.Body
+		}
+		catch (error) {
+			return 'No dump available'
+		}
 	}
 
 }

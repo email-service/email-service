@@ -53,7 +53,7 @@ export class EmailServiceSelector {
 		// Nothing, as we are  using only for nodemailer
 	}
 
-	static webHook(esp: string, req: any, logger: boolean = false): WebHookResponse {
+	static async webHook(esp: string, req: any, logger: boolean = false): Promise<WebHookResponse> {
 		if (esp) {
 			if (logger) console.log("******** ES-WebHook ******** esp", esp)
 
@@ -89,7 +89,7 @@ export class EmailServiceSelector {
 			const emailESP = new EmailServiceSelector(config);
 			if (logger) console.log("******** ES-WebHook ********  emailESP", emailESP)
 
-			if (emailESP.emailService) { return emailESP.emailService.webHookManagement(req) }
+			if (emailESP.emailService) { return  await emailESP.emailService.webHookManagement(req) }
 			else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
 		}
 		else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
@@ -101,8 +101,8 @@ export function getEmailService(service: Config): EmailServiceSelector {
 	return new EmailServiceSelector(service)
 }
 
-export function getWebHook(userAgent: string, req: any, logger: boolean = false): WebHookResponse {
+export async function getWebHook(userAgent: string, req: any, logger: boolean = false): Promise<WebHookResponse> {
 	console.log('******** ES-WebHook ******** userAgent, logger', userAgent, logger)
 	console.log('******** ES-WebHook ******** req', req)
-	return EmailServiceSelector.webHook(userAgent, req, logger)
+	return await EmailServiceSelector.webHook(userAgent, req, logger)
 }

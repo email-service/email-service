@@ -4,7 +4,7 @@ import { ESPStandardizedError, StandardError } from "./error.type";
 export type IEmailService = {
 	transporter: Config,
 	sendMail(options: EmailPayload): Promise<StandardResponse>,
-	webHookManagement(req: any): WebHookResponse,
+	webHookManagement(req: any): Promise<WebHookResponse>,
 }
 
 

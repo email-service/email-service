@@ -98,7 +98,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 	}
 
 
-	webHookManagement(req: any): WebHookResponse {
+	async webHookManagement(req: any): Promise<WebHookResponse> {
 		if (this.transporter.logger) {
 			console.log('******** ES-WebHook Brevo ******** transporter', this.transporter)
 			console.log('******** ES-WebHook Brevo ******** req.event', req.event)

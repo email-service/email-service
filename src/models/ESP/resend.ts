@@ -78,7 +78,7 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 		}
 	}
 
-	webHookManagement(req: any): WebHookResponse {
+	async webHookManagement(req: any): Promise<WebHookResponse>  {
 
 		const result: ESPStandardizedWebHook = webHookStatus[req.RecordType]
 

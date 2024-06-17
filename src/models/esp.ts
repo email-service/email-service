@@ -14,7 +14,7 @@ export class ESP<T extends Config> implements IEmailService {
 		return ({ success: false, status: 500, error: { name: 'NO_METHOD_sendMail', message: 'This function do never to be call, contact the developper' } })
 	}
 
-	 webHookManagement(req: any): WebHookResponse {
+	 async webHookManagement(req: any): Promise<WebHookResponse> {
 		return ({ success: false, status: 500, error: { name: 'NO_METHOD_webHookManagement', message: 'This function do never to be call, contact the developper' } })
 	}
 
