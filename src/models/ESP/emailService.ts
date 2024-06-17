@@ -38,14 +38,14 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 				},
 				body: JSON.stringify(body)
 			};
-			if (this.transporter.logger) console.log('******** ES ********  ViewerEmailService.sendMail', opts)
+			if (this.transporter.logger) console.log('******** ES-SendMail Email-service-viewer ******** opts', opts)
 			const response = await fetch(this.transporter.host, opts)
 			if (!response.ok) {
-				if (this.transporter.logger) console.log('******** ES ********  ViewerEmailService.sendMail - response ko', response.status, response.statusText)
+				if (this.transporter.logger) console.log('******** ES-SendMail Email-service-viewer ******** response ko', response.status, response.statusText)
 				return { success: false, status: response.status, error: { name: response.statusText, category: 'SERVER_EXCEPTION', cause: { uri: this.transporter.host, options: opts } } }
 			}
 			const retour = await response.json()
-			if (this.transporter.logger) console.log('******** ES ********  ViewerEmailService.sendMail - data from fetch', retour)
+			if (this.transporter.logger) console.log('******** ES-SendMail Email-service-viewer ******** data from fetch', retour)
 
 			if (retour.success)
 				return {
@@ -66,7 +66,11 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 
 	webHookManagement(req: any): WebHookResponse {
 	
+		if (this.transporter.logger) console.log('******** ES-WebHook Email-service-viewer ******** req', req)
+
 		const result : ESPStandardizedWebHook =  webHookStatus[req.data.type]
+
+		if(this.transporter.logger) console.log('******** ES-WebHook Email-service-viewer ******** result', result)
 
 		if (result) 
 			return { success: true, status: 200, data: result , espData: req.data}

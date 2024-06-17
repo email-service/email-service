@@ -69,11 +69,11 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				},
 				body: JSON.stringify(body)
 			};
-			if (this.transporter.logger) console.log('******** ES ********  BrevoEmailService.sendMail', body)
+			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** sendMail', body)
 			const response = await fetch(this.transporter.host, opts)
-			if (this.transporter.logger) console.log('******** ES ********  BrevoEmailService.sendMail - response from fetch', response)
+			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** response from fetch', response)
 			const retour = await response.json()
-			if (this.transporter.logger) console.log('******** ES ********  BrevoEmailService.sendMail - json', retour)
+			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** json', retour)
 			if (response.ok) {
 				return {
 					success: true,
@@ -88,7 +88,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 
 			else {
 
-				if (this.transporter.logger) console.log('******** ES ********  BrevoEmailService.sendMail - errorCode', errorCode[retour.code] || retour.message)
+				if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** errorCode', errorCode[retour.code] || retour.message)
 				return { success: false, status: response.status, error: errorCode[retour.code] || retour.message }
 
 			}
@@ -101,8 +101,8 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 
 	webHookManagement(req: any): WebHookResponse {
 		if (this.transporter.logger) {
-			console.log('******** ES ********  BrevoEmailService.webHookManagement - transporter', this.transporter)
-			console.log('******** ES ********  BrevoEmailService.webHookManagement - req.event', req.event)
+			console.log('******** ES-WebHook Brevo ******** transporter', this.transporter)
+			console.log('******** ES-WebHook Brevo ******** req.event', req.event)
 		}
 		let result: ESPStandardizedWebHook = webHookStatus[req.event]
 
@@ -113,12 +113,12 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				result.metaData = JSON.parse(req['X-Mailin-custom'])
 			}
 			catch (error) {
-				if (this.transporter.logger) console.log('******** ES ********  BrevoEmailService.webHookManagement - error on parse metaData', error)
+				if (this.transporter.logger) console.log('******** ES-WebHook Brevo ******** error on parse metaData', error)
 			}
 		}
 
 		if (this.transporter.logger)
-			console.log('******** ES ********  BrevoEmailService.webHookManagement - result', result)
+			console.log('******** ES-WebHook Brevo ******** result', result)
 		if (result) {
 			return { success: true, status: 200, data: result, espData: req }
 		}

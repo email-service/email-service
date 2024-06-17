@@ -14,7 +14,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
 
 		if (this.transporter.stream === undefined) {
-			if (this.transporter.logger) console.log('******** ES ********  Stream for ', this.transporter.esp, ' is not defined in the configuration')
+			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ********  Stream for ', this.transporter.esp, ' is not defined in the configuration')
 			throw new Error('Stream is not defined in the configuration')
 		}
 
@@ -32,7 +32,6 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				Metadata: options.metaData,
 				TrackOpens: options.trackOpens,
 				TrackLinks: options.trackLinks,
-				// Metadata: options.metadata,
 				// Attachments: options.attachments
 
 
@@ -44,21 +43,22 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			const opts = {
 				method: 'POST', headers: {
 					'Content-Type': 'application/json',
-					'X-Postmark-Server-Token': this.transporter.apiKey
+					'X-Postmark-Server-Token': this.transporter.apiKey,
+					'X-ES-MetaData': JSON.stringify(options.metaData),
 				},
 				body: JSON.stringify(body)
 			};
-			if (this.transporter.logger) console.log('******** ES ********  PostMarkEmailService.sendMail - to ', body.To)
+			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ******** to ', body.To)
 
 			const response = await fetch(this.transporter.host, opts)
-			if (this.transporter.logger) console.log('******** ES ********  PostMarkEmailService.sendMail - response from fetch', response.status, response.statusText)
+			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ******** response from fetch', response.status, response.statusText)
 
 			const retour = await response.json()
-			if (this.transporter.logger) console.log('******** ES ********  PostMarkEmailService.sendMail - json', retour.ErrorCode, retour.Message)
+			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ******** json', retour.ErrorCode, retour.Message)
 
 			const returneValue = await this.sendMailResultManagement(retour, response, options)
 
-			if (this.transporter.logger) console.log('******** ES ********  PostMarkEmailService.sendMail - returneValue', returneValue)
+			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ******** returneValue', returneValue)
 			return returneValue
 
 		} catch (error) {
@@ -135,27 +135,27 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 	webHookManagement(req: any): WebHookResponse {
 		if (this.transporter.logger) {
-			console.log('******** ES ********  PostMarkEmailService.webHookManagement - transporter', this.transporter)
-			console.log('******** ES ********  PostMarkEmailService.webHookManagement - req.RecordType', req.RecordType)
+			console.log('******** ES-WebHook Postmark ******** transporter', this.transporter)
+			console.log('******** ES-WebHook Postmark ******** req.RecordType', req.RecordType)
 		}
 		let result: ESPStandardizedWebHook = webHookStatus[req.RecordType]
 
 		if (req.RecordType === 'Bounce' && req.TypeCode) {
 			// @ts-ignore
 			const errorValue = bouncesTypes[req.TypeCode]
-			console.log('******** ES ********  PostMarkEmailService.webHookManagement - errorValue', errorValue)
+			console.log('******** ES-WebHook Postmark ******** errorValue', errorValue)
 			if (errorValue)
 				result = { webHookType: errorValue.webHookEventType, message: errorValue.name }
 
 		}
 
 		// Manage the metaData
-		console.log('******** ES ********  PostMarkEmailService.webHookManagement - req', req)
+		console.log('******** ES-WebHook Postmark ******** req', req)
 		if (req.Metadata)
 			result.metaData = req.Metadata
 
 		if (this.transporter.logger)
-			console.log('******** ES ********  PostMarkEmailService.webHookManagement - result', result)
+			console.log('******** ES-WebHook Postmark ******** result', result)
 		if (result) {
 			return { success: true, status: 200, data: result, espData: req }
 		}

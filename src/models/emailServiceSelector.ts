@@ -55,7 +55,7 @@ export class EmailServiceSelector {
 
 	static webHook(esp: string, req: any, logger: boolean = false): WebHookResponse {
 		if (esp) {
-			if (logger) console.log("******** ES ********  webHook esp", esp)
+			if (logger) console.log("******** ES-WebHook ******** esp", esp)
 
 			const config: ConfigMinimal = { esp: 'emailserviceviewer', logger: logger };
 			switch (esp) {
@@ -79,12 +79,12 @@ export class EmailServiceSelector {
 					return ({ success: false, status: 500, error: { name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } })
 					break;
 			}
-			if (logger) console.log("******** ES ********  webHook config", config)
+			if (logger) console.log("******** ES-WebHook ******** config", config)
 
 			// @ts-ignore
 			const emailESP = new EmailServiceSelector(config);
-			if (logger) console.log("******** ES ********  emailESP in webhook traitement", emailESP)
-				
+			if (logger) console.log("******** ES-WebHook ********  emailESP", emailESP)
+
 			if (emailESP.emailService) { return emailESP.emailService.webHookManagement(req) }
 			else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
 		}
@@ -98,5 +98,7 @@ export function getEmailService(service: Config): EmailServiceSelector {
 }
 
 export function getWebHook(userAgent: string, req: any, logger: boolean = false): WebHookResponse {
+	console.log('******** ES-WebHook ******** userAgent, logger', userAgent, logger)
+	console.log('******** ES-WebHook ******** req', req)
 	return EmailServiceSelector.webHook(userAgent, req, logger)
 }
