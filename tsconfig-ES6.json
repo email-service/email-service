@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-	  "target": "ES6",                          // Cible de compilation ECMAScript
+	  "target": "ES2022",                          // Cible de compilation ECMAScript
 	  "module": "ES6",                          // Module ES6
 	  "declaration": true,                      // Générer des fichiers de déclaration .d.ts
 	  "outDir": "./dist",                       // Dossier de sortie
