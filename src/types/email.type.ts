@@ -66,6 +66,7 @@ export type WebHookResponseData = ESPStandardizedWebHook & {
 	from?: string,
 	subject?: string,
 	espRecordType: string,
+	espType?: string,
 	metaData?: object,
 
 }
