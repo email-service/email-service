@@ -64,17 +64,20 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 
 
 	webHookManagement(req: any): WebHookResponse {
-	
+
 		if (this.transporter.logger) console.log('******** ES-WebHook Email-service-viewer ******** req', req)
 
-		const result : ESPStandardizedWebHook =  webHookStatus[req.data.type]
+		const result: ESPStandardizedWebHook = webHookStatus[req.data.type]
 
-		if(this.transporter.logger) console.log('******** ES-WebHook Email-service-viewer ******** result', result)
 
-		if (result) 
-			return { success: true, status: 200, data: result , espData: req.data}
-		else return  { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
-		
+		if (result) {
+
+			if (this.transporter.logger) console.log('******** ES-WebHook Email-service-viewer ******** result', result)
+			const data: WebHookResponseData = { ...result, messageId: req.data.messageId, to: req.data.to, espRecordType: req.data.type}
+			return { success: true, status: 200, data, espData: req.data }
+		}
+		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
+
 	}
 
 }
