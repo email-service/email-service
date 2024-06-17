@@ -1,4 +1,4 @@
-import { ESPStandardizedWebHook, EmailPayload, IEmailService, StandardResponse, WebHookResponse } from "../../types/email.type.js";
+import { ESPStandardizedWebHook, EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData } from "../../types/email.type.js";
 import { ConfigPostmark } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
@@ -134,10 +134,12 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 
 	webHookManagement(req: any): WebHookResponse {
+
 		if (this.transporter.logger) {
 			console.log('******** ES-WebHook Postmark ******** transporter', this.transporter)
-			console.log('******** ES-WebHook Postmark ******** req.RecordType', req.RecordType)
+			console.log('******** ES-WebHook Postmark ******** req', req)
 		}
+
 		let result: ESPStandardizedWebHook = webHookStatus[req.RecordType]
 
 		if (req.RecordType === 'Bounce' && req.TypeCode) {
@@ -149,15 +151,23 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 		}
 
+		const data: WebHookResponseData = {
+			...result,
+			messageId: req.MessageID,
+			to: req?.Recipient ? req.Recipient : req.Email,
+			espRecordType: req.RecordType,
+			subject: req?.Subject ? req.Subject : undefined,
+			from: req?.From ? req.From : undefined,
+		}
+
 		// Manage the metaData
-		console.log('******** ES-WebHook Postmark ******** req', req)
 		if (req.Metadata)
-			result.metaData = req.Metadata
+			data.metaData = req.Metadata
 
 		if (this.transporter.logger)
-			console.log('******** ES-WebHook Postmark ******** result', result)
+			console.log('******** ES-WebHook Postmark ******** result', data)
 		if (result) {
-			return { success: true, status: 200, data: result, espData: req }
+			return { success: true, status: 200, data, espData: req }
 		}
 		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
 
