@@ -48,7 +48,7 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 
 			if (retour.success)
 				return {
-					success: true,
+					success: true,	
 					status: 200,
 					data: retour.data
 				}
