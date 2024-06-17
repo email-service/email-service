@@ -1,5 +1,5 @@
+import { ESPStandardizedWebHook } from "../../types/email.type";
 
-import { ESPStandardizedWebHook } from "../../types/error.type";
 
 export const webHookStatus: { [key: string]: ESPStandardizedWebHook } = {
 	request: { webHookType: 'INBOUND', message: 'Message requested' },

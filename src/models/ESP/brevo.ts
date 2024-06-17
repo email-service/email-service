@@ -1,6 +1,5 @@
-import { EmailPayload } from "../../types/email.type.js";
-import { ConfigBrevo, IEmailService, StandardResponse, WebHookResponse } from "../../types/emailServiceSelector.type.js";
-import { ESPStandardizedWebHook } from "../../types/error.type.js";
+import { ESPStandardizedWebHook, EmailPayload, IEmailService, StandardResponse, WebHookResponse } from "../../types/email.type.js";
+import { ConfigBrevo } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
 import { errorCode } from "./brevo.errors.js";

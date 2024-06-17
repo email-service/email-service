@@ -31,23 +31,3 @@ type Category =
 	| 'ACCOUNT_INVALID'
 	| 'INACTIVE_RECIPIENT'
 	| 'SERVER_EXCEPTION'
-
-export type ESPStandardizedWebHook = {
-	webHookType: webHookStatus
-	message: string
-	metaData?:object
-}
-
-type webHookStatus = 
-	'SEND'
-	| 'OPEN'
-	| 'CLICK'
-	| 'BOUNCE'
-	| 'SPAM' 
-	| 'UNSUBSCRIBE' 
-	| 'REJECT' 
-	| 'INBOUND' 
-	| 'DELIVERY' 
-	| 'SPAM_COMPLAINT' 
-	| 'LINK_CLICK'
-	| 'DEFERED'

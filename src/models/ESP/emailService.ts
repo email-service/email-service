@@ -1,6 +1,5 @@
-import { EmailPayload } from "../../types/email.type.js";
-import { ConfigEmailServiceViewer, ConfigPostmark, IEmailService, StandardResponse, WebHookResponse } from "../../types/emailServiceSelector.type.js";
-import { ESPStandardizedWebHook } from "../../types/error.type.js";
+import { ESPStandardizedWebHook, EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData } from "../../types/email.type.js";
+import { ConfigEmailServiceViewer } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
 import { webHookStatus } from "./emailService.status.js";

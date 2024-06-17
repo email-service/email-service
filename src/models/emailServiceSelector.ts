@@ -1,5 +1,5 @@
-import type { EmailPayload } from "../types/email.type.js";
-import type { Config, ConfigMinimal, ESP, IEmailService, StandardResponse, WebHookResponse } from "../types/emailServiceSelector.type.js";
+import type { EmailPayload, IEmailService, StandardResponse, WebHookResponse } from "../types/email.type.js";
+import type { Config, ConfigMinimal } from "../types/emailServiceSelector.type.js";
 import { BrevoEmailService } from "./ESP/brevo.js";
 import { ViewerEmailService } from "./ESP/emailService.js";
 import { NodeMailerEmailService } from "./ESP/nodeMailer.js";

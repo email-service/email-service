@@ -1,4 +1,4 @@
-import { ESPStandardizedWebHook } from "../../types/error.type";
+import { ESPStandardizedWebHook } from "../../types/email.type"
 
 export const webHookStatus: { [key: string]: ESPStandardizedWebHook } = {
 	Delivery: { webHookType: 'DELIVERY', message: 'Message delivred' },
@@ -7,7 +7,6 @@ export const webHookStatus: { [key: string]: ESPStandardizedWebHook } = {
 	Open: { webHookType: 'OPEN', message: 'Message opened' },
 	Click: { webHookType: 'LINK_CLICK', message: 'Link clicked' }
 }
-
 
 export const bouncesTypes = {
 	1 :{ type:"HardBounce",              code : 1,        name : "Hard bounce",                      webHookEventType : "BOUNCE",                emailStatus : "rejected-senderActionRequired",               action:"actionRequired / fix wrong email"  },  // The server was unable to deliver your message (ex: unknown user, mailbox not found).

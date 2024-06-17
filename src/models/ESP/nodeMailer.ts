@@ -1,5 +1,5 @@
-import { EmailPayLoadNodeMailer } from "../../types/email.type.js";
-import { ConfigNodeMailer, IEmailService, StandardResponse } from "../../types/emailServiceSelector.type.js";
+import { EmailPayLoadNodeMailer, IEmailService, StandardResponse } from "../../types/email.type.js";
+import { ConfigNodeMailer} from "../../types/emailServiceSelector.type.js";
 import nodemailer from 'nodemailer'
 import { ESP } from "../esp.js";
 import { errorManagement } from "../../utils/error.js";
