@@ -1,0 +1,3 @@
+- Passage des metaData pour resend (en utiliant les tag ?)
+- Installer les headers dans email-servie-viever
+- installer les webhooks dans email-service-viewer
