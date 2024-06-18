@@ -65,27 +65,29 @@ export type WebHookResponseData = ESPStandardizedWebHook & {
 	to: string,
 	from?: string,
 	subject?: string,
-	espRecordType: string,
-	espType?: string,
 	metaData?: object,
+	dump?: string
 
 }
 
-export type ESPStandardizedWebHook = {
-	webHookType: webHookStatus
+ type ESPStandardizedWebHook = {
+	webHookType: WebHookStatus
 	message: string
 }
 
-type webHookStatus =
-	'SEND'
-	| 'OPEN'
-	| 'CLICK'
-	| 'BOUNCE'
-	| 'SPAM'
-	| 'UNSUBSCRIBE'
-	| 'REJECT'
-	| 'INBOUND'
-	| 'DELIVERY'
+export type WebHookStatus =
+	'SENDED'
+	| 'DELAYED'
+	| 'DELIVERED'
+	| 'OPENED'
+	| 'CLICKED'
 	| 'SPAM_COMPLAINT'
-	| 'LINK_CLICK'
-	| 'DEFERED'
+	| 'SPAM'
+	| 'SOFT_BOUNCE'
+	| 'HARD_BOUNCE'
+	| 'SUBSCRIPTION_CHANGE'
+	| 'REJECTED'
+
+
+type MessageStatus =
+	'delivered' | 'accepted' | 'rejected'
