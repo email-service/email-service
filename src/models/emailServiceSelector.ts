@@ -89,7 +89,7 @@ export class EmailServiceSelector {
 			const emailESP = new EmailServiceSelector(config);
 			if (logger) console.log("******** ES-WebHook ********  emailESP", emailESP)
 
-			if (emailESP.emailService) { return  await emailESP.emailService.webHookManagement(req) }
+			if (emailESP.emailService) { return await emailESP.emailService.webHookManagement(req) }
 			else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
 		}
 		else { return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } }) }
@@ -102,7 +102,10 @@ export function getEmailService(service: Config): EmailServiceSelector {
 }
 
 export async function getWebHook(userAgent: string, req: any, logger: boolean = false): Promise<WebHookResponse> {
-	console.log('******** ES-WebHook ******** userAgent, logger', userAgent, logger)
-	console.log('******** ES-WebHook ******** req', req)
+	if (logger) {
+		console.log('******** ES-WebHook ******** userAgent, logger', userAgent, logger)
+		console.log('******** ES-WebHook ******** req', req)
+	}
 	return await EmailServiceSelector.webHook(userAgent, req, logger)
 }
+
