@@ -60,7 +60,9 @@ export type WebHookResponse = {
 	error: StandardError | ESPStandardizedError
 }
 
-export type WebHookResponseData = ESPStandardizedWebHook & {
+export type WebHookResponseData = {
+	webHookType: WebHookStatus,
+	message: string,
 	messageId: string,
 	to: string,
 	from?: string,
@@ -70,10 +72,6 @@ export type WebHookResponseData = ESPStandardizedWebHook & {
 
 }
 
- type ESPStandardizedWebHook = {
-	webHookType: WebHookStatus
-	message: string
-}
 
 export type WebHookStatus =
 	'SENDED'
