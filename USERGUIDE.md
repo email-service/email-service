@@ -19,8 +19,6 @@ Here's an example of how to use the postmark class.
 ```typescript
 const emailServiceConfig = {
 	esp : 'postmark',
-	name : 'myName',
-	host : 'https://api.postmarkapp.com/email',
 	stream : 'outbound'
 	apiKey: 'MY_POSTMARK_APIKEY',
 };
@@ -55,9 +53,8 @@ emailService.close();
 
 All ESP configurations share the following common parameters:
 
-    •	esp: The name of the ESP.
-    •	name: A descriptive name for your configuration.
-    •	host: The host URL of the ESP.
+    - esp: The name of the ESP.
+	- logger : boolean , trace mode (Facultatif)
 
 ### Postmark
 
@@ -68,25 +65,23 @@ import type ConfigPostmark from '@email-service/email-service'
 
 const emailServiceConfig : ConfigPostmark = {
 	esp : 'postmark',
-	name : 'myName',
-	host : 'https://api.postmarkapp.com/email',
 	stream : 'outbound'
 	apiKey: 'MY_POSTMARK_APIKEY',
+	logger: true
 };
 ```
 
 ### Brevo
 
-For Postmark, you need to provide the stream and apiKey in addition to the common parameters.
+For Postmark, you need to provide the apiKey in addition to the common parameters.
 
 ```typescript
 import type ConfigBrevo from '@email-service/email-service';
 
 const emailServiceConfig: ConfigBrevo = {
 	esp: 'brevo',
-	name: 'Brevotest',
-	host: 'https://api.brevo.com/v3/smtp/email',
 	apiKey: process.env.BREVO_API_KEY || '',
+	logger:false
 };
 ```
 
@@ -94,14 +89,13 @@ const emailServiceConfig: ConfigBrevo = {
 
 E-mail, Email-service-viewer ouvert est une application Web vous permettant de tester votre application sans avoir à envoyer de mail via des EPS. 
 
+Cette web application ne stock aucune données sur ces serveurs, vous devez donc passer à chaque appel votre configuration de WebHook
 
 ```typescript
 import type ConfigBrevo from '@email-service/email-service';
 
 const emailServiceConfig: ConfigBrevo = {
 	esp: 'emailserviceviewer',
-	name: 'emailservicetest',
-	host: 'http://dev.email-service.dev/sendEmail',
 	apiToken: 'mytoken',
 	webhook: 'https://my-ngrok-url.ngrok-free.app 3000/webhook',
 };
