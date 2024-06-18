@@ -31,7 +31,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				Metadata: options.metaData,
 				TrackOpens: options.trackOpens,
 				TrackLinks: options.trackLinks,
-				Headers : [{name : 'X-ES-MetaData', value: JSON.stringify(options.metaData)}]
+				Headers : options.headers
 
 			}
 

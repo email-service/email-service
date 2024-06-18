@@ -1,6 +1,7 @@
-import {  EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailPayload, HeadersPayLoad, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigBrevo } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
+import { transformHeaders } from "../../utils/transformeHeaders.js";
 import { ESP } from "../esp.js";
 import { errorCode } from "./brevo.errors.js";
 import { webHookStatus } from "./brevo.status.js";
@@ -48,7 +49,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				// Metadata: options.metadata,
 				// Attachments: options.attachments
 
-				// headers: {
+				headers: options.headers ? transformHeaders(options.headers) : {},
 				// 	'X-Mailin-custom': JSON.stringify(options.meta)
 				// }
 
@@ -56,9 +57,10 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 			}
 
 
+
 			if (options.metaData) {
 				// @ts-ignore
-				body.headers = { 'X-Mailin-custom': JSON.stringify(options.metaData) }
+				body.headers = { ...body.headers, 'X-Mailin-custom': JSON.stringify(options.metaData) }
 			}
 
 			const opts = {
@@ -129,9 +131,13 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 			if (this.transporter.logger)
 				console.log('******** ES-WebHook Brevo ******** result', data)
 
-			return { success: true, status: 200, data, espData: {...req,
-				espRecordType: req?.event,
-				espType: req?.event} }
+			return {
+				success: true, status: 200, data, espData: {
+					...req,
+					espRecordType: req?.event,
+					espType: req?.event
+				}
+			}
 		}
 		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
 

@@ -7,6 +7,11 @@ export type IEmailService = {
 	webHookManagement(req: any): Promise<WebHookResponse>,
 }
 
+export type HeadersPayLoad = [{
+	name: string,
+	value: string
+
+}]
 
 
 export type EmailPayload = {
@@ -19,7 +24,7 @@ export type EmailPayload = {
 	tag?: string;
 	trackOpens?: boolean;
 	trackLinks?: 'HtmlAndText' | 'HtmlOnly' | 'TextOnly';
-	headers?: object;
+	headers?: HeadersPayLoad;
 }
 
 

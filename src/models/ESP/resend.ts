@@ -1,10 +1,11 @@
 import { EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
-import { ConfigResend} from "../../types/emailServiceSelector.type.js";
+import { ConfigResend } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
 import { webHookStatus } from "./resend.status.js";
 import { errorCode } from "./postMark.errors.js";
+import { transformHeaders } from "../../utils/transformeHeaders.js";
 
 
 
@@ -17,26 +18,18 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
 		try {
 			const body = {
-				
+
 				from: 'romain@resend.demoustier.com', //options.from,
 				to: [options.to],
 				subject: options.subject,
 				html: options.html,
 				text: options.text,
-				// tags: [{name: 'tag', value:options?.tag ? options.tag : 'DefaultTag'}],
-				// Tag: options.tag,
+				tags: [{ name: 'tag', value: options?.tag ? options.tag : 'DefaultTag' }],
 				reply_to: options.from,
-				//Headers: options.headers,
-				//Metadata: options.meta,
-				// TrackOpens: options.trackOpens,
-				// TrackLinks: options.trackLinks,
-				// Metadata: options.metadata,
-				// Attachments: options.attachments
+
+				headers: options.headers ? transformHeaders(options.headers) : {},
 
 
-				headers: {
-					name: 'X-QD-Meta', value: JSON.stringify(options.metaData)
-				}
 			}
 
 			const opts = {
@@ -78,7 +71,7 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 		}
 	}
 
-	async webHookManagement(req: any): Promise<WebHookResponse>  {
+	async webHookManagement(req: any): Promise<WebHookResponse> {
 
 		const result: WebHookStatus = webHookStatus[req.type]
 
