@@ -1,9 +1,9 @@
-import { ESPStandardizedWebHook } from "../../types/email.type";
+import { WebHookStatus } from "../../types/email.type";
 
-export const webHookStatus : { [key: string]: ESPStandardizedWebHook } = {
-	DELIVERY: {webHookType : 'DELIVERY', message: 'Message sent'},
-	BOUNCE:{webHookType : 'BOUNCE', message: 'Message bounced'},
-	SPAM:{webHookType : 'SPAM', message: 'Message marked as spam'},
-	OPEN:{webHookType : 'OPEN', message: 'Message opened'},
-	LINK:{webHookType : 'LINK_CLICK', message: 'Link clicked'}
+export const webHookStatus: { [key: string]: WebHookStatus } = {
+	DELIVERY: 'DELIVERED',
+	BOUNCE: 'SOFT_BOUNCE',
+	SPAM: 'SPAM',
+	OPEN: 'OPENED',
+	LINK: 'CLICKED'
 }

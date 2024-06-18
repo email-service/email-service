@@ -1,4 +1,4 @@
-import { ESPStandardizedWebHook, EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData } from "../../types/email.type.js";
+import { EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigPostmark } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
@@ -28,16 +28,10 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				TextBody: options.text,
 				Tag: options.tag,
 				ReplyTo: options.from,
-				//Headers: options.headers,
 				Metadata: options.metaData,
 				TrackOpens: options.trackOpens,
 				TrackLinks: options.trackLinks,
-				// Attachments: options.attachments
 
-
-				// Headers: [{
-				// 	name: 'X-QD-Meta', value: JSON.stringify(options.metaData)
-				// }]
 			}
 
 			const opts = {
@@ -140,7 +134,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			console.log('******** ES-WebHook Postmark ******** req', req)
 		}
 
-		let result: ESPStandardizedWebHook = webHookStatus[req.RecordType]
+		let result: WebHookStatus = webHookStatus[req.RecordType]
 
 		let dump: string | undefined
 
@@ -149,7 +143,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			const errorValue = bouncesTypes[req.TypeCode]
 			console.log('******** ES-WebHook Postmark ******** errorValue', errorValue)
 			if (errorValue)
-				result = { webHookType: errorValue.webHookEventType, message: errorValue.name }
+				result = errorValue.webHookEventType
 
 			// Aller chercher le dump s'il existe
 			if (req?.DumpAvailable && req?.ID) {
@@ -158,7 +152,8 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		}
 
 		const data: WebHookResponseData = {
-			...result,
+			webHookType: result,
+			message: req?.Description || req?.Details || req?.FirstOpen.toSring() || req?.Plateform || req?.SuppressionReason,
 			messageId: req.MessageID,
 			to: req?.Recipient ? req.Recipient : req.Email,
 			subject: req?.Subject ? req.Subject : undefined,

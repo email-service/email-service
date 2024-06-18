@@ -88,6 +88,8 @@ export type WebHookStatus =
 	| 'SUBSCRIPTION_CHANGE'
 	| 'REJECTED'
 
+	| 'UNKNOWN'
+
 
 type MessageStatus =
 	'delivered' | 'accepted' | 'rejected'

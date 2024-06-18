@@ -1,9 +1,9 @@
-import { ESPStandardizedWebHook, EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData } from "../../types/email.type.js";
+import { EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigResend} from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
-import { webHookStatus } from "./postMark.status.js";
+import { webHookStatus } from "./resend.status.js";
 import { errorCode } from "./postMark.errors.js";
 
 
@@ -80,15 +80,16 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 
 	async webHookManagement(req: any): Promise<WebHookResponse>  {
 
-		const result: ESPStandardizedWebHook = webHookStatus[req.RecordType]
+		const result: WebHookStatus = webHookStatus[req.type]
 
 
 		const data: WebHookResponseData = {
-			...result,
-			messageId: req.MessageID,
-			to: req?.Recipient ? req.Recipient : req.Email,
-			subject: req?.Subject ? req.Subject : undefined,
-			from: req?.From ? req.From : undefined,
+			webHookType: result,
+			message: 'n/a',
+			messageId: req.data.email_id,
+			to: req.data.to[0],
+			subject: req.data.subject,
+			from: req.data.from,
 		}
 
 

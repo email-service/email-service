@@ -1,20 +1,20 @@
-import { ESPStandardizedWebHook } from "../../types/email.type";
+import { WebHookStatus } from "../../types/email.type";
 
 
-export const webHookStatus: { [key: string]: ESPStandardizedWebHook } = {
-	request: { webHookType: 'SENDED', message: 'Message requested' },
-	delivered: { webHookType: 'DELIVERED', message: 'Message delivred' },
-	soft_bounce: { webHookType: 'SOFT_BOUNCE', message: 'Soft bounce' },
-	hard_bounce: { webHookType: 'HARD_BOUNCE', message: 'Hard bounce' },
-	complaint: { webHookType: 'SPAM_COMPLAINT', message: 'Message marked as spam' },
-	click: { webHookType: 'CLICKED', message: 'Link clicked' },
-	defered: { webHookType: 'DELAYED', message: 'Link clicked' },
-	unique_opened: { webHookType: 'CLICKED', message: 'Message opened' },
-	opened : { webHookType: 'OPENED', message: 'Message opened' },
-	invalid_email : { webHookType: 'HARD_BOUNCE', message: 'Invalid email' },
-	blocked : { webHookType: 'REJECTED', message: 'Blocked' },
-	error : { webHookType: 'REJECTED', message: 'Error' },
-	unsubscribe : { webHookType: 'SUBSCRIPTION_CHANGE', message: 'Unsubscribed' },
-	proxy_open : { webHookType: 'REJECTED', message: 'Proxy opened' },
+export const webHookStatus: { [key: string]: WebHookStatus } = {
+	request: 'SENDED',
+	delivered: 'DELIVERED',
+	soft_bounce: 'SOFT_BOUNCE',
+	hard_bounce: 'HARD_BOUNCE',
+	complaint: 'SPAM_COMPLAINT',
+	click: 'CLICKED',
+	defered: 'DELAYED',
+	unique_opened: 'CLICKED',
+	opened: 'OPENED',
+	invalid_email: 'HARD_BOUNCE',
+	blocked: 'REJECTED',
+	error: 'REJECTED',
+	unsubscribe: 'SUBSCRIPTION_CHANGE',
+	proxy_open: 'REJECTED'
 }
 

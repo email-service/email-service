@@ -1,4 +1,4 @@
-import { ESPStandardizedWebHook, EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData } from "../../types/email.type.js";
+import {  EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigBrevo } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
@@ -103,13 +103,14 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 			console.log('******** ES-WebHook Brevo ******** transporter', this.transporter)
 			console.log('******** ES-WebHook Brevo ******** req.event', req.event)
 		}
-		let result: ESPStandardizedWebHook = webHookStatus[req.event]
+		let result: WebHookStatus = webHookStatus[req.event]
 		if (result) {
 
 			const nameOfMessageIfForBrevo = 'message-id'
 
 			const data: WebHookResponseData = {
-				...result,
+				webHookType: result,
+				message: req?.reason,
 				messageId: req[nameOfMessageIfForBrevo],
 				to: req?.email,
 				subject: req?.subject ? req.subject : undefined,
