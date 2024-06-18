@@ -31,14 +31,14 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				Metadata: options.metaData,
 				TrackOpens: options.trackOpens,
 				TrackLinks: options.trackLinks,
+				Headers : [{name : 'X-ES-MetaData', value: JSON.stringify(options.metaData)}]
 
 			}
 
 			const opts = {
 				method: 'POST', headers: {
 					'Content-Type': 'application/json',
-					'X-Postmark-Server-Token': this.transporter.apiKey,
-					'X-ES-MetaData': JSON.stringify(options.metaData),
+					'X-Postmark-Server-Token': this.transporter.apiKey
 				},
 				body: JSON.stringify(body)
 			};

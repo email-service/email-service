@@ -3,7 +3,6 @@ import { ConfigNodeMailer} from "../../types/emailServiceSelector.type.js";
 import nodemailer from 'nodemailer'
 import { ESP } from "../esp.js";
 import { errorManagement } from "../../utils/error.js";
-import { debug } from "console";
 
 export class NodeMailerEmailService extends ESP<ConfigNodeMailer> implements IEmailService {
 	private nodemailerTransporter: nodemailer.Transporter;
