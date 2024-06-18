@@ -87,8 +87,6 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 			...result,
 			messageId: req.MessageID,
 			to: req?.Recipient ? req.Recipient : req.Email,
-			espType: req?.Type ? req.Type : 'Default',
-			espRecordType: req.RecordType,
 			subject: req?.Subject ? req.Subject : undefined,
 			from: req?.From ? req.From : undefined,
 		}

@@ -142,6 +142,8 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 		let result: ESPStandardizedWebHook = webHookStatus[req.RecordType]
 
+		let dump: string | undefined
+
 		if (req.RecordType === 'Bounce' && req.TypeCode) {
 			// @ts-ignore
 			const errorValue = bouncesTypes[req.TypeCode]
@@ -149,23 +151,20 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			if (errorValue)
 				result = { webHookType: errorValue.webHookEventType, message: errorValue.name }
 
+			// Aller chercher le dump s'il existe
 			if (req?.DumpAvailable && req?.ID) {
-				const dump = await this.getBounceDump(req.ID)
+				dump = await this.getBounceDump(req.ID)
 			}
-
 		}
 
 		const data: WebHookResponseData = {
 			...result,
 			messageId: req.MessageID,
 			to: req?.Recipient ? req.Recipient : req.Email,
-			espType: req?.Type ? req.Type : 'Default',
-			espRecordType: req.RecordType,
 			subject: req?.Subject ? req.Subject : undefined,
 			from: req?.From ? req.From : undefined,
+			dump: dump
 		}
-
-		
 
 		// Manage the metaData
 		if (req.Metadata)
@@ -174,13 +173,19 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		if (this.transporter.logger)
 			console.log('******** ES-WebHook Postmark ******** result', data)
 		if (result) {
-			return { success: true, status: 200, data, espData: req }
+			return {
+				success: true, status: 200, data, espData: {
+					...req,
+					espType: req?.Type ? req.Type : 'Default',
+					espRecordType: req.RecordType,
+				}
+			}
 		}
 		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
 
 	}
 
-	getBounceDump = async (id: string) => {	
+	getBounceDump = async (id: string) => {
 		try {
 			const response = await fetch(
 				`https://api.postmarkapp.com/bounces/${id}/dump`,

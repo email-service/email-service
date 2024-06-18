@@ -112,8 +112,6 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				...result,
 				messageId: req[nameOfMessageIfForBrevo],
 				to: req?.email,
-				espRecordType: req?.event,
-				espType: req?.event,
 				subject: req?.subject ? req.subject : undefined,
 				from: req?.From ? req.From : undefined,
 			}
@@ -130,7 +128,9 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 			if (this.transporter.logger)
 				console.log('******** ES-WebHook Brevo ******** result', data)
 
-			return { success: true, status: 200, data, espData: req }
+			return { success: true, status: 200, data, espData: {...req,
+				espRecordType: req?.event,
+				espType: req?.event} }
 		}
 		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
 
