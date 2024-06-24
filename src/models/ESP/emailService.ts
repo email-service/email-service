@@ -22,7 +22,7 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 				// Tag: options.tag,
 				replyTo: 'server@question.direct',
 				//Headers: options.headers,
-				metadata: options.metaData,
+				metaData: options.metaData,
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
 				// Metadata: options.metadata,
@@ -73,7 +73,7 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 		if (result) {
 
 			if (this.transporter.logger) console.log('******** ES-WebHook Email-service-viewer ******** result', result)
-			const data: WebHookResponseData = {webHookType:result,message:'n/a', messageId: req.data.messageId, to: req.data.to }
+			const data: WebHookResponseData = { webHookType: result, message: 'n/a', messageId: req.data.messageId, to: req.data.to, metaData: req.data.metaData }
 			return { success: true, status: 200, data, espData: req.data }
 		}
 		else return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } }
