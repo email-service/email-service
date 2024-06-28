@@ -2,32 +2,88 @@
 
 >Please be advised that this npm package is currently under development (alpha). It is not yet ready for production use. We plan to release version 1.0 by the end of June. Until then, we recommend not using this package in any critical or production environments. Thank you for your understanding and patience.
 
-[Developer documentation](https://github.com/email-service/email-service/blob/main/USERGUIDE.md)
-
-# email-service
+## Motivation
 email-service is a versatile npm package designed to simplify the integration and standardization of email communications across multiple Email Service Providers (ESPs).
 
-## Motivations
-The development of Unified Email Sender is driven by the need to simplify and standardize the integration of email sending services in modern applications while remaining agnostic to Email Service Providers (ESPs). In a technological environment where businesses might switch providers based on cost, performance, or specific feature requirements, a flexible and well-integrated solution is essential.
+- **Simplified API:** Offers a single, consistent API that abstracts the complexities of individual ESPs, allowing for easy integration and fewer implementation errors.
+- **Robust Error Handling:** Gracefully handles errors and provides detailed logs, ensuring reliability and ease of debugging.
 
-## Benefits of ESP Agnosticism:
+## Installation
+To use the email-service, ensure you have email-service package installed in your project:
 
-**Flexibility**: Developers can switch ESPs without needing to rewrite the email integration code in their applications. This adaptability is crucial for quickly responding to market changes or operational requirements.
+```bash
+npm i @email-service/email-service
+```
+## Quick start
 
-**Cost Reduction**: By enabling the integration of multiple ESPs, businesses can compare services and choose the most cost-effective option without compromising functionality or service quality.
+```js
+import { getEmailService } from '@email-service/email-service';
 
-**Enhanced Security**: By standardizing ESP integrations, Unified Email Sender helps maintain consistent security and minimizes risks associated with incorrect configurations or ad hoc integrations.
+// Choose the service
+const config = {
+	esp: 'brevo', // or 'postmatk' or 'resend' or 'emailserviceviewer'
+	apiKey: 'my_API_KEY',
+};
 
-**Simplified Maintenance**: Centralized management of ESPs reduces the complexity of code maintenance and updates, allowing teams to focus on enhancing application functionalities rather than troubleshooting integration issues.
+// Get the service
+const emailESP = getEmailService(config);
 
-With email-service, enterprises and developers gain operational efficiency and agility, ensuring reliable and effective email communication tailored to their evolving needs. This package is designed for those looking to optimize their communication infrastructure without being tied to a single email service provider, thus embodying a truly agnostic and future-proof solution for email sending.
+if (emailESP) {
+	
+	// Create the email payload
+	let emailPayload = {
+		to: 'romain@exemple.com',
+		from: 'myserver@mysite.com',
+		subject: 'Test',
+		text: 'This is a test',
+		html: '<h1>Test</h1><p>This is a test</p>',
+		metaData: { testMetaData: 'my test' },
+	};
 
-## Features:
+	// Send the email
+	const emailSended = await emailESP.sendEmail(emailPayload);
 
-**Multi-ESP Support**: Compatible with major ESPs including SendGrid, Mailchimp, AWS SES, and more. Effortlessly switch between ESPs without changing your codebase.
+	// Check if the email is sended
+	if (emailSended.success) {
+		console.log('Email sended whith id:', emailSended.data.messageId);
+	} else {
+		console.log('Email not sended, error:', emailSended.error);
+	}
+}
+```
 
-**Simplified API**: Offers a single, consistent API that abstracts the complexities of individual ESPs, allowing for easy integration and fewer implementation errors.
+## Available ESPs
 
-**Robust Error Handling**: Gracefully handles errors and provides detailed logs, ensuring reliability and ease of debugging.
+- [Postmark](https://postmarkapp.com)
+```JS
+const conf = {
+	esp : 'postmark',
+	stream : 'outbound' // Default name stream for Postmark are outbound
+	apiKey : MY_TOKEN_API
+}
+```
+- [Brevo](https://www.brevo.com)
+```JS
+const conf = {
+	esp : 'brevo',
+	apiKey : MY_TOKEN_API
+}
+```
+- [Resend](https://www.resend.com)
+```JS
+const conf = {
+	esp : 'resend',
+	apiKey : MY_TOKEN_API
+}
+```
+- [Email-service-viewer](https://www.email-service.dev)
 
-**Scalability**: Designed to scale with your application, from small startups to large enterprises, ensuring efficient performance under varying loads.
+Email-service-viewer is a companion product that allows you to test your applications without having accounts with an ESP (Email Service Provider). It particularly enables you to test different 'Bounces' scenarios without impacting your reputation.
+```JS
+const conf = {
+	esp : 'emailserviceviewer',
+	apiToken : MY_TOKEN_API,
+	wehhook : 'https://my-ngrok-adresse.ngrok-free.app/api/my-weebhook-api'
+}
+```
+
