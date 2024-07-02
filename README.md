@@ -1,6 +1,6 @@
 **Warning: Package Under Development**
 
->Please be advised that this npm package is currently under development (alpha). It is not yet ready for production use. We plan to release version 1.0 by the end of June. Until then, we recommend not using this package in any critical or production environments. Thank you for your understanding and patience.
+>Please be advised that this npm package is currently under development (beta). It is not yet ready for production use. We plan to release version 1.0 by the end of July. Until then, we recommend not using this package in any critical or production environments. Thank you for your understanding and patience.
 
 ## Motivation
 email-service is a versatile npm package designed to simplify the integration and standardization of email communications across multiple Email Service Providers (ESPs).
