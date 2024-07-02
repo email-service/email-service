@@ -87,3 +87,16 @@ const conf = {
 }
 ```
 
+## Errors management
+
+Regardless of the ESP, the error codes returned by `sendMail` are always the same:
+
+```JS
+type sendEmailError =
+	| 'UNAUTHORIZED'
+	| 'EMAIL_INVALID'
+	| 'PARAM_INVALID'
+	| 'ACCOUNT_INVALID'
+	| 'INACTIVE_RECIPIENT'
+	| 'SERVER_EXCEPTION'
+```
