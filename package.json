@@ -12,6 +12,7 @@
 		"start": "node dist/index.js",
 		"link": "npm link",
 		"publishnpm": "npm publish --access public --tag=dev",
+		"publishnpmdev": "npm publish --access public",
 		"prepublish": "npm run build",
 		"clean": "rimraf ./node_modules ./.svelte-kit ./package-lock.json",
 		"installation": "npm run clean && npm install"
