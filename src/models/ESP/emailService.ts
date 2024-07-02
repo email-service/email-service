@@ -38,7 +38,10 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 				body: JSON.stringify(body)
 			};
 			if (this.transporter.logger) console.log('******** ES-SendMail Email-service-viewer ******** opts', opts)
-			const response = await fetch('https://api.email-service.dev/sendEmail', opts)
+
+			const uri = this.transporter.esp === 'emailserviceviewerlocal' ? 'http://localhost:3000/sendEmail' : 'https://api.email-service.dev/sendEmail'
+
+			const response = await fetch(uri, opts)
 			if (!response.ok) {
 				if (this.transporter.logger) console.log('******** ES-SendMail Email-service-viewer ******** response ko', response.status, response.statusText)
 				return { success: false, status: response.status, error: { name: response.statusText, category: 'SERVER_EXCEPTION', cause: opts } }

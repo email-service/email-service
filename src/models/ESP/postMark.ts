@@ -36,7 +36,9 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			}
 
 			const opts = {
-				method: 'POST', headers: {
+				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
 					'Content-Type': 'application/json',
 					'X-Postmark-Server-Token': this.transporter.apiKey
 				},

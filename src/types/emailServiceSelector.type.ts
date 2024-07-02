@@ -1,4 +1,4 @@
-type ESP = 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer' | 'resend';
+type ESP = 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer' |'emailserviceviewerlocal'| 'resend';
 
 export type ConfigPostmark = {
 	esp: 'postmark',
@@ -27,7 +27,7 @@ export type ConfigNodeMailer = {
 }
 
 export type ConfigEmailServiceViewer = {
-	esp: 'emailserviceviewer',
+	esp: 'emailserviceviewer' | 'emailserviceviewerlocal',
 	apiToken: string,
 	webhook: string,
 	logger?: boolean

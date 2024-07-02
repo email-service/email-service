@@ -26,7 +26,9 @@ export class EmailServiceSelector {
 			case 'emailserviceviewer':
 				this.emailService = new ViewerEmailService(service);
 				break;
-
+			case 'emailserviceviewerlocal':
+				this.emailService = new ViewerEmailService(service);
+				break
 			case 'resend':
 				this.emailService = new ResendEmailService(service);
 				break;
