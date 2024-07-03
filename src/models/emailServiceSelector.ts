@@ -2,7 +2,7 @@ import type { EmailPayload, IEmailService, StandardResponse, WebHookResponse } f
 import type { Config, ConfigMinimal } from "../types/emailServiceSelector.type.js";
 import { BrevoEmailService } from "./ESP/brevo.js";
 import { ViewerEmailService } from "./ESP/emailService.js";
-import { NodeMailerEmailService } from "./ESP/nodeMailer.js";
+//import { NodeMailerEmailService } from "./ESP/nodeMailer.js";
 import { PostMarkEmailService } from "./ESP/postMark.js";
 import { ResendEmailService } from "./ESP/resend.js";
 
@@ -16,7 +16,7 @@ export class EmailServiceSelector {
 				break;
 
 			case 'nodemailer':
-				this.emailService = new NodeMailerEmailService(service);
+				//this.emailService = new NodeMailerEmailService(service);
 				break;
 
 			case 'brevo':
