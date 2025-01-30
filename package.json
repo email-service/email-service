@@ -1,6 +1,6 @@
 {
 	"name": "@email-service/email-service",
-	"version": "0.1.7",
+	"version": "0.1.8",
 	"description": "email-service is a versatile npm package designed to simplify the integration and standardization of email communications across multiple Email Service Providers (ESPs).",
 	"main": "/dist/cjs/index.js",
 	"module": "/dist/esm/index.js",
@@ -12,7 +12,7 @@
 	  },
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"dev": "tsc --watch",
+		"dev": "tsc -p tsconfig.esm.json --watch",
 		"build": "npm run build:esm && npm run build:cjs",
 		"build:esm": "tsc -p tsconfig.esm.json",
 		"build:cjs": "tsc -p tsconfig.cjs.json",
