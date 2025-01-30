@@ -1,0 +1,21 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+	  // Générer du code CommonJS
+	  "module": "CommonJS",
+	  // Optionnel : définir la cible
+	  "target": "ES2020",
+  
+	  // On met les fichiers générés dans le dossier dist/cjs
+	  "outDir": "./qd",
+  
+	  // Générer les déclarations (.d.ts)
+	  "declaration": false,
+  
+	  "moduleResolution": "Node",
+	  
+	  // Important pour éviter les conflits
+	  "emitDeclarationOnly": false
+	},
+	"include": ["src"]
+  }

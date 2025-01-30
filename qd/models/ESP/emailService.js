@@ -1,0 +1,86 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ViewerEmailService = void 0;
+const error_js_1 = require("../../utils/error.js");
+const esp_js_1 = require("../esp.js");
+const emailService_status_js_1 = require("./emailService.status.js");
+class ViewerEmailService extends esp_js_1.ESP {
+    constructor(service) {
+        super(service);
+    }
+    async sendMail(options) {
+        try {
+            const body = {
+                from: options.from,
+                to: options.to,
+                subject: options.subject,
+                htmlBody: options.html,
+                textBody: options.text,
+                tag: 'email-test',
+                // Tag: options.tag,
+                replyTo: 'server@question.direct',
+                //Headers: options.headers,
+                metaData: options.metaData,
+                // TrackOpens: options.trackOpens,
+                // TrackLinks: options.trackLinks,
+                // Metadata: options.metadata,
+                // Attachments: options.attachments
+            };
+            const opts = {
+                method: 'POST', headers: {
+                    'Content-Type': 'application/json',
+                    'X-Mail-Service-Viewer-Token': this.transporter.apiToken,
+                    'X-Mail-Service-Web-Hook': this.transporter.webhook
+                },
+                body: JSON.stringify(body)
+            };
+            if (this.transporter.logger)
+                console.log('******** ES-SendMail Email-service-viewer ******** opts', opts);
+            const uri = this.transporter.esp === 'emailserviceviewerlocal' ? 'http://localhost:3000/sendEmail' : 'https://api.email-service.dev/sendEmail';
+            const response = await fetch(uri, opts);
+            if (!response.ok) {
+                if (this.transporter.logger)
+                    console.log('******** ES-SendMail Email-service-viewer ******** response ko', response.status, response.statusText);
+                return { success: false, status: response.status, error: { name: response.statusText, category: 'SERVER_EXCEPTION', cause: opts } };
+            }
+            const retour = await response.json();
+            if (this.transporter.logger)
+                console.log('******** ES-SendMail Email-service-viewer ******** data from fetch', retour);
+            if (retour.success)
+                return {
+                    success: true,
+                    status: 200,
+                    data: retour.data
+                };
+            else {
+                return { success: false, status: retour.status, error: retour.error };
+            }
+        }
+        catch (error) {
+            return { success: false, status: 500, error: (0, error_js_1.errorManagement)(error) };
+        }
+    }
+    async webHookManagement(req) {
+        if (this.transporter.logger)
+            console.log('******** ES-WebHook Email-service-viewer ******** req', req);
+        const result = emailService_status_js_1.webHookStatus[req.data.type];
+        if (result) {
+            if (this.transporter.logger)
+                console.log('******** ES-WebHook Email-service-viewer ******** result', result);
+            const data = {
+                webHookType: result,
+                message: 'n/a',
+                messageId: req.data.messageId,
+                subject: req.data.subject,
+                from: req.data.from,
+                to: req.data.to,
+                metaData: req.data.metaData
+            };
+            return { success: true, status: 200, data, espData: req.data };
+        }
+        else
+            return { success: false, status: 500, error: { name: 'NO_STATUS_FOR_WEBHOOK', message: 'No status aviable for webhook' } };
+    }
+}
+exports.ViewerEmailService = ViewerEmailService;
+//transporter.close();
