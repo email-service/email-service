@@ -1,0 +1,23 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+	  // Générer du code ESM
+	  "module": "ESNext",
+	  // Optionnel : définir la cible (ES2020, ES6, etc.)
+	  "target": "ES2020",
+  
+	  // On met les fichiers générés dans le dossier dist/esm
+	  "outDir": "./dist/esm",
+  
+	  // Générer les déclarations (.d.ts)
+	  "declaration": true,
+	  "declarationDir": "./dist/esm",
+  
+	  // Conserver les fichiers .js en modules ES
+	  "moduleResolution": "Node",
+	  
+	  // Important pour éviter les conflits
+	  "emitDeclarationOnly": false
+	},
+	"include": ["src"]
+  }
