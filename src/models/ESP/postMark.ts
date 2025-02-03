@@ -155,7 +155,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 		const data: WebHookResponseData = {
 			webHookType: result,
-			message: req?.Description || req?.Details || req?.FirstOpen.toSring() || req?.Plateform || req?.SuppressionReason,
+			message: req?.Description || req?.Details || req?.FirstOpen || req?.Plateform || req?.SuppressionReason,
 			messageId: req.MessageID,
 			to: req?.Recipient ? req.Recipient : req.Email,
 			subject: req?.Subject ? req.Subject : undefined,
