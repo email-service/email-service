@@ -13,7 +13,7 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "tsc -p tsconfig.esm.json --watch",
-		"build": "npm run build:esm && npm run build:cjs",
+		"build": "npm run build:esm && npm run build:cjs && npm run build:qd",
 		"build:esm": "tsc -p tsconfig.esm.json",
 		"build:cjs": "tsc -p tsconfig.cjs.json",
 		"build:qd": "tsc -p tsconfig.qd.json",
@@ -41,7 +41,7 @@
 		"type": "git",
 		"url": "https://github.com/email-service/email-service"
 	},
-	"homepage": "https://github.com/email-service/email-service",
+	"homepage": "https://email-service.dev",
 	"documentation": "https://github.com/email-service/email-service/blob/main/USERGUIDE.md",
 	"license": "ISC",
 	"devDependencies": {
