@@ -49,7 +49,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				// Metadata: options.metadata,
 				// Attachments: options.attachments
 
-				headers: options.headers ? transformHeaders(options.headers) : {},
+				// headers: options.headers ? transformHeaders(options.headers) : {},
 				// 	'X-Mailin-custom': JSON.stringify(options.meta)
 				// }
 
@@ -65,12 +65,13 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 
 			const opts = {
 				method: 'POST', headers: {
-					'Content-Type': 'application/json',
+					'accept': 'application/json',
+					'content-type': 'application/json',
 					'api-key': this.transporter.apiKey
 				},
 				body: JSON.stringify(body)
 			};
-			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** sendMail', body)
+			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** sendMail', body, opts)
 			const response = await fetch('https://api.brevo.com/v3/smtp/email', opts)
 			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** response from fetch', response)
 			const retour = await response.json()
