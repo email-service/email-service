@@ -1,6 +1,6 @@
 {
 	"name": "@email-service/email-service",
-	"version": "0.1.8",
+	"version": "0.2.0",
 	"description": "email-service is a versatile npm package designed to simplify the integration and standardization of email communications across multiple Email Service Providers (ESPs).",
 	"main": "/dist/cjs/index.js",
 	"module": "/dist/esm/index.js",
