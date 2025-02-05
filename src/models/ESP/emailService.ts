@@ -1,4 +1,4 @@
-import { EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigEmailServiceViewer } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
@@ -13,8 +13,10 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
 		try {
 			const body = {
-				from: options.from,
-				to: options.to,
+				from: formatFromForEmailService(options.from as Recipient),
+				to: formatForEmailService(options.to as Recipient[]),
+				cc: options.cc ? formatForEmailService(options.cc as Recipient[]) :undefined,
+				bcc: options.bcc ? formatForEmailService(options.bcc as Recipient[] ): undefined,
 				subject: options.subject,
 				htmlBody: options.html,
 				textBody: options.text,
@@ -95,4 +97,23 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 
 
 
-//transporter.close();
+
+/**
+ * Converts recipients to Emailservice format: "John Doe <john@example.com>, Jane Doe <jane@example.com>"
+ *
+ * @param recipients - Array of `{ name, email }` objects.
+ * @returns A string formatted for EmailService.
+ */
+function formatForEmailService(recipients: Recipient[]): string {
+	return recipients.map(r => r.name ? `${r.name} <${r.email}>` : r.email).join(", ");
+}
+
+/**
+ * Converts recipients to Emailservice format: "John Doe <john@example.com>, Jane Doe <jane@example.com>"
+ *
+ * @param recipients - Array of `{ name, email }` objects.
+ * @returns A string formatted for EmailService.
+ */
+function formatFromForEmailService(recipients: Recipient): string {
+	return recipients.name ? `${recipients.name} <${recipients.email}>` : recipients.email
+}

@@ -1,4 +1,4 @@
-import { EmailPayload, HeadersPayLoad, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailPayload, HeadersPayLoad, IEmailService, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigBrevo } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { transformHeaders } from "../../utils/transformeHeaders.js";
@@ -35,14 +35,16 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 
 			const body = {
 
-				sender: convertToBrevoAddress(options.from),
-				to: [convertToBrevoAddress(options.to)],
+				sender: options.from,
+				to: options.to,
+				cc: options.cc,
+				bcc: options.bcc,
 				subject: options.subject,
 				htmlContent: options.html,
 				textContent: options.text,
 
 				tags: [options.tag],
-				replyTo: convertToBrevoAddress(options.from),
+				replyTo: options.from,
 				// Headers: options.headers,
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
@@ -82,6 +84,8 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 					status: 200,
 					data: {
 						to: options.to,
+						cc: options.cc,
+						bcc: options.bcc,
 						submittedAt: new Date().toISOString(), //Pour acceepter les dates sous forme de string
 						messageId: retour.messageId
 					}
