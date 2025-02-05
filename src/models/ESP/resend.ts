@@ -1,4 +1,4 @@
-import { EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigResend } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
@@ -15,17 +15,22 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 		super(service)
 	}
 
+
+
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
+
 		try {
 			const body = {
 
-				from: 'romain@resend.demoustier.com', //options.from,
-				to: [options.to],
+				from: formatFromForResend(options.from as Recipient),
+				to: formatForResend(options.to as Recipient[]),
+				cc: options.cc ? formatForResend(options.cc as Recipient[]) : undefined,
+				bcc: options.bcc ? formatForResend(options.bcc as Recipient[]) : undefined,
 				subject: options.subject,
 				html: options.html,
 				text: options.text,
 				tags: [{ name: 'tag', value: options?.tag ? options.tag : 'DefaultTag' }],
-				reply_to: options.from,
+				reply_to: formatFromForResend(options.from as Recipient),
 
 				headers: options.headers ? transformHeaders(options.headers) : {},
 
@@ -41,6 +46,9 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 			};
 			if (this.transporter.logger) console.log('******** ES ********  ResendEmailService.sendMail', opts)
 			const response = await fetch('https://api.resend.com/emails', opts)
+			if (!(response.status === 200)) {
+				console.log('******** ES ********  ResendEmailService.sendMail - response ko', response.status, response.statusText)
+			}
 			if (this.transporter.logger) console.log('******** ES ********  ResendEmailService.sendMail - response from fetch', response)
 			const retour = await response.json()
 			if (this.transporter.logger) console.log('******** ES ********  ResendEmailService.sendMail - json', retour)
@@ -50,6 +58,8 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 					status: response.status,
 					data: {
 						to: options.to,
+						cc: options.cc,
+						bcc: options.bcc,
 						submittedAt: new Date().toISOString(), //Pour acceepter les dates sous forme de string
 						messageId: retour.id
 					}
@@ -103,5 +113,23 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 }
 
 
+/**
+ * Converts recipients to Resend format: ["John Doe <john@example.com>", "Jane Doe <jane@example.com>"]
+ *
+ * @param recipients - Array of `{ name, email }` objects.
+ * @returns An array of strings formatted for Resend.
+ */
+function formatForResend(recipients: Recipient[]): string[] {
+	return recipients.map(r => r.name ? `${r.name} <${r.email}>` : r.email);
+}
 
-//transporter.close();
+
+/**
+ * Converts recipients to PostMark format: "John Doe <john@example.com>, Jane Doe <jane@example.com>"
+ *
+ * @param recipients - Array of `{ name, email }` objects.
+ * @returns A string formatted for PostMark.
+ */
+function formatFromForResend(from: Recipient): string {
+	return (from.name ? `${from.name} <${from.email}>` : from.email)
+}

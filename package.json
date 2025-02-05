@@ -1,14 +1,22 @@
 {
 	"name": "@email-service/email-service",
-	"version": "0.1.2",
+	"version": "0.1.8",
 	"description": "email-service is a versatile npm package designed to simplify the integration and standardization of email communications across multiple Email Service Providers (ESPs).",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"source": "./src/index.ts",
+	"main": "/dist/cjs/index.js",
+	"module": "/dist/esm/index.js",
+	"types": "/dist/index.d.ts",
+	"source": "/src/esm/index.ts",
+	"exports": {
+		"require": "./dist/cjs/index.js",
+		"import": "./dist/esm/index.js"
+	  },
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"dev": "tsc --watch",
-		"build": "tsc",
+		"dev": "tsc -p tsconfig.esm.json --watch",
+		"build": "npm run build:esm && npm run build:cjs && npm run build:qd",
+		"build:esm": "tsc -p tsconfig.esm.json",
+		"build:cjs": "tsc -p tsconfig.cjs.json",
+		"build:qd": "tsc -p tsconfig.qd.json",
 		"start": "node dist/index.js",
 		"link": "npm link",
 		"publishnpmdev": "npm publish --access public --tag=dev",
@@ -33,7 +41,7 @@
 		"type": "git",
 		"url": "https://github.com/email-service/email-service"
 	},
-	"homepage": "https://github.com/email-service/email-service",
+	"homepage": "https://email-service.dev",
 	"documentation": "https://github.com/email-service/email-service/blob/main/USERGUIDE.md",
 	"license": "ISC",
 	"devDependencies": {
@@ -42,7 +50,5 @@
 		"typescript": "^5.4.5",
 		"rimraf": "^5.0.7"
 	},
-	"dependencies": {
-		"nodemailer": "^6.9.13"
-	}
+	"dependencies": {}
 }

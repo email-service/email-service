@@ -1,4 +1,4 @@
-import { EmailPayload, HeadersPayLoad, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailPayload, HeadersPayLoad, IEmailService, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigBrevo } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { transformHeaders } from "../../utils/transformeHeaders.js";
@@ -35,21 +35,23 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 
 			const body = {
 
-				sender: convertToBrevoAddress(options.from),
-				to: [convertToBrevoAddress(options.to)],
+				sender: options.from,
+				to: options.to,
+				cc: options.cc,
+				bcc: options.bcc,
 				subject: options.subject,
 				htmlContent: options.html,
 				textContent: options.text,
 
 				tags: [options.tag],
-				replyTo: convertToBrevoAddress(options.from),
+				replyTo: options.from,
 				// Headers: options.headers,
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
 				// Metadata: options.metadata,
 				// Attachments: options.attachments
 
-				headers: options.headers ? transformHeaders(options.headers) : {},
+				// headers: options.headers ? transformHeaders(options.headers) : {},
 				// 	'X-Mailin-custom': JSON.stringify(options.meta)
 				// }
 
@@ -65,12 +67,13 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 
 			const opts = {
 				method: 'POST', headers: {
-					'Content-Type': 'application/json',
+					'accept': 'application/json',
+					'content-type': 'application/json',
 					'api-key': this.transporter.apiKey
 				},
 				body: JSON.stringify(body)
 			};
-			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** sendMail', body)
+			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** sendMail', body, opts)
 			const response = await fetch('https://api.brevo.com/v3/smtp/email', opts)
 			if (this.transporter.logger) console.log('******** ES-SendMail Brevo ******** response from fetch', response)
 			const retour = await response.json()
@@ -81,6 +84,8 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 					status: 200,
 					data: {
 						to: options.to,
+						cc: options.cc,
+						bcc: options.bcc,
 						submittedAt: new Date().toISOString(), //Pour acceepter les dates sous forme de string
 						messageId: retour.messageId
 					}

@@ -1,3 +1,4 @@
+
 import { Config } from "./emailServiceSelector.type";
 import { ESPStandardizedError, StandardError } from "./error.type";
 
@@ -5,18 +6,26 @@ export type IEmailService = {
 	transporter: Config,
 	sendMail(options: EmailPayload): Promise<StandardResponse>,
 	webHookManagement(req: any): Promise<WebHookResponse>,
+	checkRecipients(to: RecipientInput): Recipient[],
+	checkFrom(from: FromInput): Recipient | undefined
 }
 
-export type HeadersPayLoad = [{
+export type HeadersPayLoad = {
 	name: string,
 	value: string
 
-}]
+}[]
 
+export type Recipient = { name?: string; email: string };
+export type RecipientInput = string | string[] | Recipient | (string | Recipient)[];
+
+export type FromInput = string | Recipient;
 
 export type EmailPayload = {
-	to: string;
-	from: string;
+	from: FromInput;
+	to: RecipientInput;
+	cc?: RecipientInput;
+	bcc?: RecipientInput;
 	subject: string;
 	text: string;
 	html: string;
@@ -40,7 +49,9 @@ export type StandardResponse = {
 	success: true,
 	status: number,
 	data: {
-		to: string,
+		to: RecipientInput,
+		cc?: RecipientInput,
+		bcc?: RecipientInput,
 		submittedAt: string,
 		messageId: string
 	}

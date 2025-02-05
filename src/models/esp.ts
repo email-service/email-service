@@ -1,5 +1,6 @@
-import { EmailPayload, IEmailService, StandardResponse, WebHookResponse } from "../types/email.type.js"
+import { EmailPayload, FromInput, IEmailService, Recipient, RecipientInput, StandardResponse, WebHookResponse } from "../types/email.type.js"
 import type { Config } from "../types/emailServiceSelector.type"
+import { normalizeFrom, normalizeRecipients } from "../utils/normalizeEmailRecipients.js"
 
 export class ESP<T extends Config> implements IEmailService {
 
@@ -8,6 +9,15 @@ export class ESP<T extends Config> implements IEmailService {
 	constructor(service: T) {
 		this.transporter = service
 		if(this.transporter.logger) console.log('******** ES ********  New Instance of ', this.transporter.esp)
+	}
+
+	checkRecipients(to: RecipientInput): Recipient[] {
+		return normalizeRecipients(to)
+	
+	}
+
+	checkFrom(from: FromInput): Recipient | undefined {
+		return normalizeFrom(from)
 	}
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {

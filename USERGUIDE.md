@@ -119,3 +119,67 @@ Ensure that the email server configuration (host, port, auth) matches your email
 The secure option in the transporter configuration is set to false for non-SSL connections. Change this to true if SSL is required.
 Always call the close method to release resources when done sending emails.
 ```
+
+## Supported Input Formats
+
+- The library allows flexible email input formats, including single email strings, comma-separated lists, and objects.
+
+### 1. Single Email Address (String)
+```ts
+normalizeRecipients("john@example.com");
+// Output: [{ email: "john@example.com" }]
+```
+
+### 2. Multiple Email Addresses (Comma-Separated String)
+```ts
+normalizeRecipients("john@example.com, jane@example.com");
+// Output: [
+//   { email: "john@example.com" },
+//   { email: "jane@example.com" }
+// ]
+```
+
+### 3. Name with Email (String)
+```ts
+normalizeRecipients("John Doe <john@example.com>");
+// Output: [{ name: "John Doe", email: "john@example.com" }]
+```
+
+### 4. Multiple Named Emails (Comma-Separated String)
+```ts
+normalizeRecipients("John Doe <john@example.com>, Jane Doe <jane@example.com>");
+// Output: [
+//   { name: "John Doe", email: "john@example.com" },
+//   { name: "Jane Doe", email: "jane@example.com" }
+// ]
+```
+
+### 5. Array of Email Strings
+```ts
+normalizeRecipients(["john@example.com", "jane@example.com"]);
+// Output: [
+//   { email: "john@example.com" },
+//   { email: "jane@example.com" }
+// ]
+```
+
+### 6. Object Format
+```ts
+normalizeRecipients({ name: "Alice", email: "alice@example.com" });
+// Output: [{ name: "Alice", email: "alice@example.com" }]
+```
+
+### 7. Array of Objects
+```ts
+normalizeRecipients([
+    { name: "Bob", email: "bob@example.com" },
+    "charlie@example.com",
+    "Charlie Brown <charlie@example.com>"
+]);
+// Output: [
+//   { name: "Bob", email: "bob@example.com" },
+//   { email: "charlie@example.com" },
+//   { name: "Charlie Brown", email: "charlie@example.com" }
+// ]
+```
+

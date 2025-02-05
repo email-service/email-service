@@ -1,4 +1,4 @@
-import { EmailPayload, IEmailService, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigPostmark } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
@@ -21,13 +21,15 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		try {
 			const body = {
 				MessageStream: this.transporter.stream,
-				From: options.from,
-				To: options.to,
+				From: formatFromForPostMark(options.from as Recipient),
+				To: formatForPostMark(options.to as Recipient[]),
+				Cc: options.cc ? formatForPostMark(options.cc as Recipient[]) : undefined,
+				Bcc: options.bcc ? formatForPostMark(options.bcc as Recipient[]) : undefined,
 				Subject: options.subject,
 				HtmlBody: options.html,
 				TextBody: options.text,
 				Tag: options.tag,
-				ReplyTo: options.from,
+				ReplyTo: formatFromForPostMark(options.from as Recipient),
 				Metadata: options.metaData,
 				TrackOpens: options.trackOpens,
 				TrackLinks: options.trackLinks,
@@ -64,13 +66,14 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 
 	async sendMailResultManagement(retour: any, response: any, options: EmailPayload): Promise<StandardResponse> {
-
 		if (retour.ErrorCode === 0) {
 			return {
 				success: true,
 				status: response.status,
 				data: {
 					to: retour.To,
+					cc: retour.Cc,
+					bcc: retour.Bcc,
 					submittedAt: retour.SubmittedAt, //Pour acceepter les dates sous forme de string
 					messageId: retour.MessageID
 				}
@@ -83,7 +86,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		// Traitement du cas particlier de l'erreur 406
 
 		if (retour.ErrorCode === 406) {
-			const suppressionInfos = await this.getSuppressionInfos(options.to)
+			const suppressionInfos = await this.getSuppressionInfos(formatForPostMark(options.to as Recipient[]))
 			const errorResult406: ESPStandardizedError = supressionListStatus[suppressionInfos.SuppressionReason] || { name: 'UNKNOWN', category: 'Account' }
 			return {
 				success: false,
@@ -155,7 +158,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 		const data: WebHookResponseData = {
 			webHookType: result,
-			message: req?.Description || req?.Details || req?.FirstOpen.toSring() || req?.Plateform || req?.SuppressionReason,
+			message: req?.Description || req?.Details || req?.FirstOpen || req?.Plateform || req?.SuppressionReason,
 			messageId: req.MessageID,
 			to: req?.Recipient ? req.Recipient : req.Email,
 			subject: req?.Subject ? req.Subject : undefined,
@@ -207,4 +210,23 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 }
 
 
-//transporter.close();
+/**
+ * Converts recipients to PostMark format: "John Doe <john@example.com>, Jane Doe <jane@example.com>"
+ *
+ * @param recipients - Array of `{ name, email }` objects.
+ * @returns A string formatted for PostMark.
+ */
+function formatForPostMark(recipients: Recipient[]): string {
+    return recipients.map(r => r.name ? `${r.name} <${r.email}>` : r.email).join(", ");
+}
+
+
+/**
+ * Converts recipients to PostMark format: "John Doe <john@example.com>, Jane Doe <jane@example.com>"
+ *
+ * @param recipients - Array of `{ name, email }` objects.
+ * @returns A string formatted for PostMark.
+ */
+function formatFromForPostMark(from: Recipient): string {
+    return (from.name ? `${from.name} <${from.email}>` : from.email)
+}
