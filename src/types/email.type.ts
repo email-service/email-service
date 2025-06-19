@@ -4,10 +4,12 @@ import { ESPStandardizedError, StandardError } from "./error.type";
 
 export type IEmailService = {
 	transporter: Config,
+	mailMultiple?: boolean,
 	sendMail(options: EmailPayload): Promise<StandardResponse>,
 	webHookManagement(req: any): Promise<WebHookResponse>,
 	checkRecipients(to: RecipientInput): Recipient[],
-	checkFrom(from: FromInput): Recipient | undefined
+	checkFrom(from: FromInput): Recipient | undefined,
+	sendMailMultiple?: (emails: EmailPayload[]) => Promise<StandardResponse[]>,
 }
 
 export type HeadersPayLoad = {

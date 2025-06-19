@@ -40,60 +40,111 @@ export class EmailServiceSelector {
 		}
 	}
 
-	async sendEmail(email: EmailPayload): Promise<StandardResponse> {
+	async sendEmail(email: EmailPayload | EmailPayload[]): Promise<StandardResponse | StandardResponse[]> {
+
+		if (!email) return ({ success: false, status: 400, error: { name: 'NO_EMAIL', message: 'No email provided' } })
+
+
+		const typeOfPayload: 'object' | 'array' | 'unknown' = Array.isArray(email) ? 'array' : (typeof email === 'object') ? 'object' : 'unknown';
+
+		if (typeOfPayload === 'unknown') {
+			return ({ success: false, status: 400, error: { name: 'INVALID_EMAIL_PAYLOAD', message: 'Invalid email payload type', cause: { type: typeof email } } })
+		}
+
+		// Unify email to an array if it is a single object
+		const emails: EmailPayload[] = (Array.isArray(email) ? email : (typeof email === 'object') ? [email] : []) as EmailPayload[];
+
+		
+		if (emails.length === 0) return ({ success: false, status: 400, error: { name: 'NO_EMAIL', message: 'No email provided' } })
+
+
 		if (this.emailService) {
+			// Verification of the emails
+			for (const email of emails) {
 
-			/* Verification of the sender */
+				/* Verification of the sender */
+				const from = this.emailService.checkFrom(email.from);
+				if (!from) return ({ success: false, status: 400, error: { name: 'INVALID_SENDER', message: 'Invalid sender in the email' } })
+				if (!isValidEmail(from.email)) return ({ success: false, status: 400, error: { name: 'INVALID_SENDER', message: 'Invalid sender in the email', cause: { from } } })
+				email.from = from
 
-			const from = this.emailService.checkFrom(email.from);
-			if (!from) return ({ success: false, status: 400, error: { name: 'INVALID_SENDER', message: 'Invalid sender in the email' } })
-			if (!isValidEmail(from.email)) return ({ success: false, status: 400, error: { name: 'INVALID_SENDER', message: 'Invalid sender in the email', cause : {from}} })
-			email.from = from
+				/* Verification of the recipients */
 
-			/* Verification of the recipients */
-
-			// Formatting recipient addresses
-			email.to = this.emailService.checkRecipients(email.to);
-			// Check that there is at least one recipient in the email
-			if (!email.to || !Array.isArray(email.to)) return ({ success: false, status: 400, error: { name: 'NO_RECIPIENT', message: 'No recipient in the email' } })
+				// Formatting recipient addresses
+				email.to = this.emailService.checkRecipients(email.to);
+				// Check that there is at least one recipient in the email
+				if (!email.to || !Array.isArray(email.to)) return ({ success: false, status: 400, error: { name: 'NO_RECIPIENT', message: 'No recipient in the email' } })
 				// Check that there is at least one sender in the email
-			if (email.to.length === 0) return ({ success: false, status: 400, error: { name: 'NO_RECIPIENT', message: 'No recipient in the email' } })
+				if (email.to.length === 0) return ({ success: false, status: 400, error: { name: 'NO_RECIPIENT', message: 'No recipient in the email' } })
 
 				// Email verification:
 
-			const invalidRecipients = checkValidityOfEmails(email.to as Recipient[]);
-			if (invalidRecipients.length > 0) return ({ success: false, status: 400, error: { name: 'INVALID_RECIPIENT', message: 'Invalid recipient in the email', cause: invalidRecipients } })
+				const invalidRecipients = checkValidityOfEmails(email.to as Recipient[]);
+				if (invalidRecipients.length > 0) return ({ success: false, status: 400, error: { name: 'INVALID_RECIPIENT', message: 'Invalid recipient in the email', cause: invalidRecipients } })
 
-			/* Verification of CC */
+				/* Verification of CC */
 
-			if (email.cc) {
-				email.cc = this.emailService.checkRecipients(email.cc);
-				const invalidRecipientsCC = checkValidityOfEmails(email.cc as Recipient[]);
-				if (invalidRecipientsCC.length > 0) return ({ success: false, status: 400, error: { name: 'INVALID_RECIPIENT', message: 'Invalid recipient in the email', cause: invalidRecipientsCC } })
+				if (email.cc) {
+					email.cc = this.emailService.checkRecipients(email.cc);
+					const invalidRecipientsCC = checkValidityOfEmails(email.cc as Recipient[]);
+					if (invalidRecipientsCC.length > 0) return ({ success: false, status: 400, error: { name: 'INVALID_RECIPIENT', message: 'Invalid recipient in the email', cause: invalidRecipientsCC } })
+				}
+
+				/* Verification of BCC */
+
+				if (email.bcc) {
+					email.bcc = this.emailService.checkRecipients(email.bcc);
+					const invalidRecipientsBCC = checkValidityOfEmails(email.bcc as Recipient[]);
+					if (invalidRecipientsBCC.length > 0) return ({ success: false, status: 400, error: { name: 'INVALID_RECIPIENT', message: 'Invalid recipient in the email', cause: invalidRecipientsBCC } })
+				}
+
+				const recipients = email.to.concat(email.cc ? email.cc : []).concat(email.bcc ? email.bcc : [])
+
+				// No more than 50 recipients
+				if (recipients.length > 50) return ({ success: false, status: 400, error: { name: 'TOO_MANY_RECIPIENTS', message: 'Too many recipients in the email (50 max)', cause: { number: recipients.length, emails: recipients } } })
+
+
+				// Check that there is a subject in the email
+				if (!email.subject) return ({ success: false, status: 400, error: { name: 'NO_SUBJECT', message: 'No subject in the email' } })
+				// Check that there is content in the email
+				if (!email.html || !email.text) return ({ success: false, status: 400, error: { name: 'NO_CONTENT', message: 'No content in the email' } })
+			
 			}
 
-			/* Verification of BCC */
+			// if one email 
+			if (emails.length === 1) {
+				const resultat = await this.emailService.sendMail(emails[0])
+				if (typeOfPayload === 'object') {
+					// If the payload is a single object, return the response directly
+					return resultat;
+				} else {
+					// If the payload is an array, return the response in an array
+					return [resultat];
+				}
+			}
+			// Multiple emails
+			else if (this.emailService.mailMultiple && this.emailService.mailMultiple === true) {
+				// If the email service supports sending multiple emails at by 500 once
+				console.log('******** ES-Email ********  Sending multiple emails at once')
+				return await this.emailService.sendMailMultiple(emails);
 
-			if (email.bcc) {
-				email.bcc = this.emailService.checkRecipients(email.bcc);
-				const invalidRecipientsBCC = checkValidityOfEmails(email.bcc as Recipient[]);
-				if (invalidRecipientsBCC.length > 0) return ({ success: false, status: 400, error: { name: 'INVALID_RECIPIENT', message: 'Invalid recipient in the email', cause: invalidRecipientsBCC } })
+			}
+			else {
+				// If the email service does not support sending multiple emails at once, send them one by one
+				console.log('******** ES-Email ********  Sending multiple emails one by one')
+				const responses: StandardResponse[] = [];
+				for (const email of emails) {
+					const response = await this.emailService.sendMail(email);
+					responses.push(response);
+				}
+				return responses;
 			}
 
-			const recipients = email.to.concat(email.cc ? email.cc : []).concat(email.bcc ? email.bcc : [])
-
-			// No more than 50 recipients
-			if (recipients.length > 50) return ({ success: false, status: 400, error: { name: 'TOO_MANY_RECIPIENTS', message: 'Too many recipients in the email (50 max)', cause: { number: recipients.length, emails: recipients } } })
-
-
-			// Check that there is a subject in the email
-			if (!email.subject) return ({ success: false, status: 400, error: { name: 'NO_SUBJECT', message: 'No subject in the email' } })
-			// Check that there is content in the email
-			if (!email.html || !email.text) return ({ success: false, status: 400, error: { name: 'NO_CONTENT', message: 'No content in the email' } })
 
 
 
-			return await this.emailService.sendMail(email);
+
+
 		}
 		else return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } })
 	}

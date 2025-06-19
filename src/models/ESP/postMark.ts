@@ -7,8 +7,10 @@ import { webHookStatus, bouncesTypes } from "./postMark.status.js";
 import { errorCode, supressionListStatus } from "./postMark.errors.js";
 export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailService {
 
+
 	constructor(service: ConfigPostmark) {
 		super(service)
+		this.mailMultiple = true; // Postmark does not support sending multiple emails in one request
 	}
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
@@ -33,7 +35,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				Metadata: options.metaData,
 				TrackOpens: options.trackOpens,
 				TrackLinks: options.trackLinks,
-				Headers : options.headers
+				Headers: options.headers
 
 			}
 
@@ -54,16 +56,118 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			const retour = await response.json()
 			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ******** json', retour.ErrorCode, retour.Message)
 
-			const returneValue = await this.sendMailResultManagement(retour, response, options)
+			const returnedValue = await this.sendMailResultManagement(retour, response, options)
 
-			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ******** returneValue', returneValue)
-			return returneValue
+			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ******** returneValue', returnedValue)
+			return returnedValue
 
 		} catch (error) {
 			return { success: false, status: 500, error: errorManagement(error) };
 		}
 	}
 
+	async sendMailMultiple(emails: EmailPayload[]): Promise<StandardResponse[]> {
+
+		const messageStream = this.transporter.stream;
+		const apiKey = this.transporter.apiKey;
+		const logger = this.transporter.logger;
+		const myClass = this
+
+		// Fonction principale qui traite par batchs et agrège les résultats
+		async function processInBatches<T, R>(
+			data: T[],
+			processBatch: (batch: T[], index: number) => Promise<R[]>,
+			batchSize = 499
+		): Promise<R[]> {
+			const results: R[] = [];
+
+			const totalBatches = Math.ceil(data.length / batchSize);
+
+			for (let i = 0; i < totalBatches; i++) {
+				const start = i * batchSize;
+				const end = start + batchSize;
+				const batch = data.slice(start, end);
+				console.log(`Processing batch ${batch.length} emails...`);
+				const batchResult = await processBatch(batch, i);
+				results.push(...batchResult);
+			}
+
+			return results;
+		}
+
+		async function processBatch(batch: EmailPayload[], index: number): Promise<StandardResponse[]> {
+			console.log(`Processing batch ${index + 1}...`);
+
+			const emailsToSend = []
+
+			for (const email of batch) {
+				const body = {
+					MessageStream: messageStream,
+					From: formatFromForPostMark(email.from as Recipient),
+					To: formatForPostMark(email.to as Recipient[]),
+					Cc: email.cc ? formatForPostMark(email.cc as Recipient[]) : undefined,
+					Bcc: email.bcc ? formatForPostMark(email.bcc as Recipient[]) : undefined,
+					Subject: email.subject,
+					HtmlBody: email.html,
+					TextBody: email.text,
+					Tag: email.tag,
+					ReplyTo: formatFromForPostMark(email.from as Recipient),
+					Metadata: email.metaData,
+					TrackOpens: email.trackOpens,
+					TrackLinks: email.trackLinks,
+					Headers: email.headers
+
+				}
+				emailsToSend.push(body)
+			}
+
+			const opts = {
+				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'X-Postmark-Server-Token': apiKey
+				},
+				body: JSON.stringify(emailsToSend)
+			};
+			if (logger) console.log('******** ES-SendMail Postmark ******** send batch #', index)
+			try {
+				const response = await fetch('https://api.postmarkapp.com/email/batch', opts)
+				if (logger) console.log('******** ES-SendMail Postmark ******** response from fetch', response.status, response.statusText)
+
+				const retours = await response.json()
+				if (logger) console.log('******** ES-SendMail Postmark ******** json', retours.ErrorCode, retours.Message)
+
+				let i = 0
+				const returnedValues: StandardResponse[] = []
+				for (const retour of retours) {
+					const returnedValue = await myClass.sendMailResultManagement(retour, response, emails[i]) as StandardResponse
+					returnedValues.push(returnedValue)
+					i++
+				}
+
+				return returnedValues
+
+			} catch (error) {
+				return [{ success: false, status: 500, error: errorManagement(error) } as StandardResponse];
+			}
+		}
+
+
+		if (this.transporter.stream === undefined) {
+			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ********  Stream for ', this.transporter.esp, ' is not defined in the configuration')
+			throw new Error('Stream is not defined in the configuration')
+		}
+
+		const resultats = processInBatches<EmailPayload, StandardResponse>(emails,
+			async (batch: EmailPayload[], index: number): Promise<StandardResponse[]> => {
+				return await processBatch<EmailPayload, StandardResponse>(batch, index)
+			},
+			499)
+
+		return resultats
+
+	}
 
 	async sendMailResultManagement(retour: any, response: any, options: EmailPayload): Promise<StandardResponse> {
 		if (retour.ErrorCode === 0) {
@@ -217,7 +321,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
  * @returns A string formatted for PostMark.
  */
 function formatForPostMark(recipients: Recipient[]): string {
-    return recipients.map(r => r.name ? `${r.name} <${r.email}>` : r.email).join(", ");
+	return recipients.map(r => r.name ? `${r.name} <${r.email}>` : r.email).join(", ");
 }
 
 
@@ -228,5 +332,5 @@ function formatForPostMark(recipients: Recipient[]): string {
  * @returns A string formatted for PostMark.
  */
 function formatFromForPostMark(from: Recipient): string {
-    return (from.name ? `${from.name} <${from.email}>` : from.email)
+	return (from.name ? `${from.name} <${from.email}>` : from.email)
 }
