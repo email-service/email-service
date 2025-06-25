@@ -72,6 +72,15 @@ const conf = {
 	apiKey : MY_TOKEN_API
 }
 ```
+- [Scaleway Transactional Email](https://www.scaleway.com/en/transactional-email/)
+```JS
+const conf = {
+	esp : 'scaleway',
+	apiKey : 'YOUR_SCALEWAY_API_KEY',
+	region : 'YOUR_SCALEWAY_REGION', // e.g., 'fr-par'
+	projectId: 'YOUR_SCALEWAY_PROJECT_ID' // Optional
+}
+```
 - [Email-service-viewer](https://www.email-service.dev)
 
 Email-service-viewer is a companion product that allows you to test your applications without having accounts with an ESP (Email Service Provider). It particularly enables you to test different 'Bounces' scenarios without impacting your reputation.

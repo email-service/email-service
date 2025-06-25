@@ -1,4 +1,4 @@
-type ESP = 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer' |'emailserviceviewerlocal'| 'resend';
+type ESP = 'postmark' | 'brevo' | 'nodemailer' | 'emailserviceviewer' |'emailserviceviewerlocal'| 'resend' | 'scaleway';
 
 export type ConfigPostmark = {
 	esp: 'postmark',
@@ -39,9 +39,17 @@ export type ConfigResend= {
 	logger?: boolean
 }
 
+export type ConfigScaleway = {
+	esp: 'scaleway',
+	apiKey: string,
+	region: string, // e.g., "fr-par"
+	projectId?: string, // Optional Scaleway Project ID
+	logger?: boolean
+}
+
 export type ConfigMinimal = {
 	esp: ESP,
 	logger?: boolean
 }
 
-export type Config = ConfigPostmark | ConfigBrevo | ConfigNodeMailer | ConfigEmailServiceViewer | ConfigResend;
+export type Config = ConfigPostmark | ConfigBrevo | ConfigNodeMailer | ConfigEmailServiceViewer | ConfigResend | ConfigScaleway;

@@ -6,6 +6,7 @@ import { ViewerEmailService } from "./ESP/emailService.js";
 //import { NodeMailerEmailService } from "./ESP/nodeMailer.js";
 import { PostMarkEmailService } from "./ESP/postMark.js";
 import { ResendEmailService } from "./ESP/resend.js";
+import { ScaleWayEmailService } from "./ESP/scaleway.js";
 
 export class EmailServiceSelector {
 	private emailService: IEmailService | undefined;
@@ -32,6 +33,10 @@ export class EmailServiceSelector {
 				break
 			case 'resend':
 				this.emailService = new ResendEmailService(service);
+				break;
+
+			case 'scaleway':
+				this.emailService = new ScaleWayEmailService(service);
 				break;
 
 			default:
