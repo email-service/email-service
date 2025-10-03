@@ -7,10 +7,23 @@ import { webHookStatus, bouncesTypes } from "./postMark.status.js";
 import { errorCode, supressionListStatus } from "./postMark.errors.js";
 export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailService {
 
+	private mailOutbound: [string, string][] = [];
 
 	constructor(service: ConfigPostmark) {
 		super(service)
 		this.mailMultiple = true; // Postmark does not support sending multiple emails in one request
+
+
+		// TODO HENRI 
+
+		/*
+		
+		 Recherche dans Postmark la liste des suppressions pour chaque email en erreur 406
+		
+		 Les mettre dans mailOutbound = [ { email, reason } ]
+		*/
+
+
 	}
 
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
@@ -19,6 +32,13 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ********  Stream for ', this.transporter.esp, ' is not defined in the configuration')
 			throw new Error('Stream is not defined in the configuration')
 		}
+
+
+// TODO HENRI : Tester si l'email est dans la liste des suppressions
+// Si oui, ne pas envoyer et retourner une erreur immédiate
+
+		// this.mailOutbound.find(m => m[0] === (options.to as Recipient[])[0].email)
+
 
 		try {
 			const body = {
@@ -191,7 +211,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 		if (retour.ErrorCode === 406) {
 			const suppressionInfos = await this.getSuppressionInfos(formatForPostMark(options.to as Recipient[]))
-			const errorResult406: ESPStandardizedError = supressionListStatus[suppressionInfos.SuppressionReason] || { name: 'UNKNOWN', category: 'Account' }
+			const errorResult406: ESPStandardizedError = supressionListStatus[suppressionInfos?.SuppressionReason] || { name: 'UNKNOWN', category: 'Account' }
 			return {
 				success: false,
 				status: response.status,
