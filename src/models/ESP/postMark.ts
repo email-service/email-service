@@ -34,8 +34,8 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		}
 
 
-// TODO HENRI : Tester si l'email est dans la liste des suppressions
-// Si oui, ne pas envoyer et retourner une erreur immédiate
+		// TODO HENRI : Tester si l'email est dans la liste des suppressions
+		// Si oui, ne pas envoyer et retourner une erreur immédiate
 
 		// this.mailOutbound.find(m => m[0] === (options.to as Recipient[])[0].email)
 

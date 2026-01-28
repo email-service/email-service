@@ -20,7 +20,7 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 				subject: options.subject,
 				htmlBody: options.html,
 				textBody: options.text,
-				tag: 'email-test',
+				tag: options.tag,
 				// Tag: options.tag,
 				replyTo: 'server@question.direct',
 				//Headers: options.headers,
