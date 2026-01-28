@@ -1,6 +1,6 @@
-import type { WebHookResponse, WebHookStatus } from "./types/email.type"
-import { ESPStandardizedError, StandardError } from "./types/error.type"
-import { getWebHook as getWebHookStandard } from "./models/emailServiceSelector"
+import type { WebHookResponse, WebHookStatus } from "./types/email.type.js"
+import type { ESPStandardizedError, StandardError } from "./types/error.type.js"
+import { getWebHook as getWebHookStandard } from "./models/emailServiceSelector.js"
 
 type WebHookResponseDataForQD = {
 	webHookType: WebHookStatus
