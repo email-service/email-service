@@ -31,10 +31,9 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "tsc -p tsconfig.esm.json --watch",
-		"build": "npm run build:esm && npm run build:cjs && npm run build:qd",
+		"build": "npm run build:esm && npm run build:cjs",
 		"build:esm": "tsc -p tsconfig.esm.json && node scripts/write-dist-package-json.js esm",
 		"build:cjs": "tsc -p tsconfig.cjs.json && node scripts/write-dist-package-json.js cjs",
-		"build:qd": "tsc -p tsconfig.qd.json",
 		"start": "node dist/index.js",
 		"link": "npm link",
 		"publishnpmdev": "npm publish --access public --tag=dev",
