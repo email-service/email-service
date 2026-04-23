@@ -4,7 +4,7 @@ import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP } from "../esp.js";
 import { webHookStatus } from "./resend.status.js";
-import { errorCode } from "./postMark.errors.js";
+import { errorCode } from "./resend.errors.js";
 import { transformHeaders } from "../../utils/transformeHeaders.js";
 
 
@@ -89,10 +89,13 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 				}
 			}
 
-			console.log('******** ES ********  ResendEmailService.sendMail - retour.ErrorCode', retour.name)
-
-			const errorResult: ESPStandardizedError = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', category: 'Account' }
-			errorResult.cause = { code: retour.ErrorCode, message: retour.Message }
+			// Resend renvoie { statusCode, name, message } — name est un slug snake_case
+			// (ex: validation_error, invalid_api_key). On mappe via resend.errors.ts,
+			// et en fallback on conserve le name brut pour ne jamais perdre l'info.
+			const mapped = errorCode[retour.name]
+			const errorResult: ESPStandardizedError = mapped
+				? { ...mapped, cause: { code: retour.name, message: retour.message, statusCode: retour.statusCode } }
+				: { name: retour.name || 'UNKNOWN', category: 'SERVER_EXCEPTION', cause: { code: retour.name, message: retour.message, statusCode: retour.statusCode } }
 
 			return {
 				success: false, status: response.status,
