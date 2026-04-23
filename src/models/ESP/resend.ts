@@ -46,12 +46,15 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 			};
 			if (this.transporter.logger) console.log('******** ES ********  ResendEmailService.sendMail', opts)
 			const response = await fetch('https://api.resend.com/emails', opts)
-			if (!(response.status === 200)) {
-				console.log('******** ES ********  ResendEmailService.sendMail - response ko', response.status, response.statusText)
-			}
 			if (this.transporter.logger) console.log('******** ES ********  ResendEmailService.sendMail - response from fetch', response)
 			const retour = await response.json()
 			if (this.transporter.logger) console.log('******** ES ********  ResendEmailService.sendMail - json', retour)
+			if (!(response.status === 200)) {
+				// Toujours logguer la réponse brute de Resend en cas d'erreur, même sans logger actif :
+				// le mapping d'erreur en aval masque sinon le message réel (domain_not_verified,
+				// invalid_api_key, testing_mode_restricted_from_domain…).
+				console.log('******** ES ********  ResendEmailService.sendMail - ERROR body from Resend:', response.status, response.statusText, JSON.stringify(retour))
+			}
 			if (response.status === 200) {
 				return {
 					success: true,
