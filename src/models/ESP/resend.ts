@@ -20,17 +20,37 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 	async sendMail(options: EmailPayload): Promise<StandardResponse> {
 
 		try {
+			// Normalisation des entrées : `from` et `to/cc/bcc` acceptent string | Recipient | Recipient[]
+			// via les types EmailPayload. Les formatters internes attendent Recipient/Recipient[] —
+			// sans cette étape, un `from: "foo@bar.com"` (string) donnait `undefined` dans le body.
+			const fromNormalized = this.checkFrom(options.from)
+			if (!fromNormalized) {
+				return {
+					success: false, status: 400,
+					error: { name: 'FROM_REQUIRED', category: 'PARAM_INVALID', cause: { reason: 'from is missing or invalid' } }
+				}
+			}
+			const toNormalized = this.checkRecipients(options.to)
+			if (toNormalized.length === 0) {
+				return {
+					success: false, status: 400,
+					error: { name: 'TO_REQUIRED', category: 'PARAM_INVALID', cause: { reason: 'to is missing or invalid' } }
+				}
+			}
+			const ccNormalized = options.cc ? this.checkRecipients(options.cc) : undefined
+			const bccNormalized = options.bcc ? this.checkRecipients(options.bcc) : undefined
+
 			const body = {
 
-				from: formatFromForResend(options.from as Recipient),
-				to: formatForResend(options.to as Recipient[]),
-				cc: options.cc ? formatForResend(options.cc as Recipient[]) : undefined,
-				bcc: options.bcc ? formatForResend(options.bcc as Recipient[]) : undefined,
+				from: formatFromForResend(fromNormalized),
+				to: formatForResend(toNormalized),
+				cc: ccNormalized ? formatForResend(ccNormalized) : undefined,
+				bcc: bccNormalized ? formatForResend(bccNormalized) : undefined,
 				subject: options.subject,
 				html: options.html,
 				text: options.text,
 				tags: [{ name: 'tag', value: options?.tag ? options.tag : 'DefaultTag' }],
-				reply_to: formatFromForResend(options.from as Recipient),
+				reply_to: formatFromForResend(fromNormalized),
 
 				headers: options.headers ? transformHeaders(options.headers) : {},
 
