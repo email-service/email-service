@@ -151,7 +151,9 @@ export class EmailServiceSelector {
 
 	static async sendEmail(esp: Config, email: EmailPayload): Promise<StandardResponse> {
 		const emailServiceSelector = new EmailServiceSelector(esp);
-		return await emailServiceSelector.sendEmail(email);
+		// Un EmailPayload unique → toujours une StandardResponse unique (pas un tableau).
+		// Le typage union de l'instance couvre aussi le cas tableau ; on cast pour la signature statique.
+		return await emailServiceSelector.sendEmail(email) as StandardResponse;
 	}
 
 	close() {

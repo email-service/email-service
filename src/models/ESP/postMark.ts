@@ -181,7 +181,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 		const resultats = processInBatches<EmailPayload, StandardResponse>(emails,
 			async (batch: EmailPayload[], index: number): Promise<StandardResponse[]> => {
-				return await processBatch<EmailPayload, StandardResponse>(batch, index)
+				return await processBatch(batch, index)
 			},
 			499)
 
@@ -204,14 +204,14 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 			}
 		}
 
-		const errorResult: ESPStandardizedError = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', category: 'Account' }
+		const errorResult: ESPStandardizedError = errorCode[retour.ErrorCode] || { name: 'UNKNOWN', category: 'ACCOUNT_INVALID' }
 		errorResult.cause = { code: retour.ErrorCode, message: retour.Message }
 
 		// Traitement du cas particlier de l'erreur 406
 
 		if (retour.ErrorCode === 406) {
 			const suppressionInfos = await this.getSuppressionInfos(formatForPostMark(options.to as Recipient[]))
-			const errorResult406: ESPStandardizedError = supressionListStatus[suppressionInfos?.SuppressionReason] || { name: 'UNKNOWN', category: 'Account' }
+			const errorResult406: ESPStandardizedError = supressionListStatus[suppressionInfos?.SuppressionReason] || { name: 'UNKNOWN', category: 'ACCOUNT_INVALID' }
 			return {
 				success: false,
 				status: response.status,

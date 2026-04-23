@@ -31,8 +31,15 @@ async function getWebHook(userAgent: string, req: any, logger: boolean = false):
 
 	const data: WebHookResponse = await getWebHookStandard(userAgent, req, logger)
 
-	const dataForQD: WebHookResponseForQD = data.success ? {
-		success: data.success,
+	if (!data.success) {
+		// Narrowing explicite via Extract : le tsconfig n'est pas en strict mode,
+		// ce qui empêche la discrimination automatique de l'union WebHookResponse.
+		const errorBranch = data as Extract<WebHookResponse, { success: false }>
+		return { success: false, status: errorBranch.status, error: errorBranch.error }
+	}
+
+	return {
+		success: true,
 		status: data.status,
 		data: {
 			webHookType: data.data.webHookType,
@@ -46,9 +53,7 @@ async function getWebHook(userAgent: string, req: any, logger: boolean = false):
 			espType: data.espData.espType
 		},
 		espData: data.espData
-	} : { success: false, status: data.status, error: data.error }
-
-	return dataForQD
+	}
 }
 
 
