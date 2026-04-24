@@ -164,31 +164,24 @@ export class EmailServiceSelector {
 		if (esp) {
 			if (logger) console.log("******** ES-WebHook ******** esp", esp)
 
+			// Prefix matching : les ESP envoient un User-Agent avec version
+			// (ex: "Postmark HTTPClient 1.2.3", "Svix-Webhooks/1.84.0 (sender-X...)",
+			// "SendinBlue Webhook/2.0"). Un match exact casse dès que le provider
+			// upgrade sa version, d'où le startsWith.
 			const config: ConfigMinimal = { esp: 'emailserviceviewer', logger: logger };
-			switch (esp) {
-				case 'Postmark':
-					config.esp = 'postmark';
-					break;
-
-				case 'nodemailer':
-					return ({ success: false, status: 500, error: { name: 'NO_NODEMAILER', message: 'No webhook traitement for nodemailer' } })
-					break;
-
-				case 'SendinBlue Webhook':
-					config.esp = 'brevo';
-					break;
-
-				case 'email-service-viewer':
-					config.esp = 'emailserviceviewer';
-					break;
-
-				case 'Svix-Webhooks/1.24.0':
-					config.esp = 'resend';
-					break;
-
-				default:
-					return ({ success: false, status: 500, error: { name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } })
-					break;
+			if (esp.startsWith('Postmark')) {
+				config.esp = 'postmark';
+			} else if (esp.startsWith('SendinBlue') || esp.startsWith('Brevo')) {
+				config.esp = 'brevo';
+			} else if (esp.startsWith('Svix-Webhooks')) {
+				// Svix est le provider de webhook utilisé par Resend.
+				config.esp = 'resend';
+			} else if (esp === 'email-service-viewer') {
+				config.esp = 'emailserviceviewer';
+			} else if (esp === 'nodemailer') {
+				return ({ success: false, status: 500, error: { name: 'NO_NODEMAILER', message: 'No webhook traitement for nodemailer' } })
+			} else {
+				return ({ success: false, status: 500, error: { name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } })
 			}
 			if (logger) console.log("******** ES-WebHook ******** config", config)
 
