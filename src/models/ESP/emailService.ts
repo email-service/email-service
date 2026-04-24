@@ -1,13 +1,13 @@
 import { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigEmailServiceViewer } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
-import { ESP } from "../esp.js";
+import { ESP, type ESPOptions } from "../esp.js";
 import { webHookStatus } from "./emailService.status.js";
 
 export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements IEmailService {
 
-	constructor(service: ConfigEmailServiceViewer) {
-		super(service)
+	constructor(service: ConfigEmailServiceViewer, opts?: ESPOptions) {
+		super(service, opts)
 	}
 
 	protected async doSendMail(options: EmailPayload): Promise<StandardResponse> {

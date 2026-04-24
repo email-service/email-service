@@ -2,7 +2,7 @@ import { EmailPayload, HeadersPayLoad, IEmailService, Recipient, StandardRespons
 import { ConfigBrevo } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { transformHeaders } from "../../utils/transformeHeaders.js";
-import { ESP } from "../esp.js";
+import { ESP, type ESPOptions } from "../esp.js";
 import { errorCode } from "./brevo.errors.js";
 import { webHookStatus } from "./brevo.status.js";
 
@@ -22,8 +22,8 @@ const convertToBrevoAddress = (address: string) => {
 
 export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService {
 
-	constructor(service: ConfigBrevo) {
-		super(service)
+	constructor(service: ConfigBrevo, opts?: ESPOptions) {
+		super(service, opts)
 	}
 
 	protected async doSendMail(options: EmailPayload): Promise<StandardResponse> {

@@ -2,15 +2,15 @@ import { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookRespon
 import { ConfigPostmark } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
-import { ESP } from "../esp.js";
+import { ESP, type ESPOptions } from "../esp.js";
 import { webHookStatus, bouncesTypes } from "./postMark.status.js";
 import { errorCode, supressionListStatus } from "./postMark.errors.js";
 export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailService {
 
 	private mailOutbound: [string, string][] = [];
 
-	constructor(service: ConfigPostmark) {
-		super(service)
+	constructor(service: ConfigPostmark, opts?: ESPOptions) {
+		super(service, opts)
 		this.mailMultiple = true; // Postmark does not support sending multiple emails in one request
 
 

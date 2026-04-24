@@ -1,5 +1,7 @@
 import type { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookResponse } from "../types/email.type.js";
 import type { Config, ConfigMinimal } from "../types/emailServiceSelector.type.js";
+import type { BulkPayload, BulkReport } from "../types/bulk.type.js";
+import type { ESPOptions } from "./esp.js";
 import { checkValidityOfEmails, isValidEmail } from "../utils/normalizeEmailRecipients.js";
 import { BrevoEmailService } from "./ESP/brevo.js";
 import { ViewerEmailService } from "./ESP/emailService.js";
@@ -10,34 +12,45 @@ import { ResendEmailService } from "./ESP/resend.js";
 export class EmailServiceSelector {
 	private emailService: IEmailService | undefined;
 
-	constructor(service: Config) {
+	constructor(service: Config, opts?: ESPOptions) {
 		switch (service.esp) {
 			case 'postmark':
-				this.emailService = new PostMarkEmailService(service);
+				this.emailService = new PostMarkEmailService(service, opts);
 				break;
 
 			case 'nodemailer':
-				//this.emailService = new NodeMailerEmailService(service);
+				//this.emailService = new NodeMailerEmailService(service, opts);
 				break;
 
 			case 'brevo':
-				this.emailService = new BrevoEmailService(service);
+				this.emailService = new BrevoEmailService(service, opts);
 				break;
 
 			case 'emailserviceviewer':
-				this.emailService = new ViewerEmailService(service);
+				this.emailService = new ViewerEmailService(service, opts);
 				break;
 			case 'emailserviceviewerlocal':
-				this.emailService = new ViewerEmailService(service);
+				this.emailService = new ViewerEmailService(service, opts);
 				break
 			case 'resend':
-				this.emailService = new ResendEmailService(service);
+				this.emailService = new ResendEmailService(service, opts);
 				break;
 
 			default:
 				throw new Error('Invalid ESP');
 				break;
 		}
+	}
+
+	/**
+	 * Envoi en lot — délègue à l'ESP sous-jacent (`ESP.sendBulk` de base).
+	 * Hooks + stream + rate limit appliqués automatiquement.
+	 */
+	async sendBulk(payload: BulkPayload): Promise<BulkReport> {
+		if (!this.emailService) {
+			throw new Error('[sendBulk] no ESP configured')
+		}
+		return this.emailService.sendBulk(payload)
 	}
 
 	async sendEmail(email: EmailPayload | EmailPayload[]): Promise<StandardResponse | StandardResponse[]> {
@@ -197,8 +210,8 @@ export class EmailServiceSelector {
 }
 
 
-export function getEmailService(service: Config): EmailServiceSelector {
-	return new EmailServiceSelector(service)
+export function getEmailService(service: Config, opts?: ESPOptions): EmailServiceSelector {
+	return new EmailServiceSelector(service, opts)
 }
 
 export async function getWebHook(userAgent: string, req: any, logger: boolean = false): Promise<WebHookResponse> {

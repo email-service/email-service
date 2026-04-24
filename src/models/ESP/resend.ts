@@ -2,7 +2,7 @@ import { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookRespon
 import { ConfigResend } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
-import { ESP } from "../esp.js";
+import { ESP, type ESPOptions } from "../esp.js";
 import { webHookStatus } from "./resend.status.js";
 import { errorCode } from "./resend.errors.js";
 import { transformHeaders } from "../../utils/transformeHeaders.js";
@@ -11,8 +11,8 @@ import { transformHeaders } from "../../utils/transformeHeaders.js";
 
 export class ResendEmailService extends ESP<ConfigResend> implements IEmailService {
 
-	constructor(service: ConfigResend) {
-		super(service)
+	constructor(service: ConfigResend, opts?: ESPOptions) {
+		super(service, opts)
 	}
 
 
