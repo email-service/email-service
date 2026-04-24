@@ -26,7 +26,7 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 		super(service)
 	}
 
-	async sendMail(options: EmailPayload): Promise<StandardResponse> {
+	protected async doSendMail(options: EmailPayload): Promise<StandardResponse> {
 		try {
 
 			// Brevo API does not support the "from" field, so we need to extract the email address from the string

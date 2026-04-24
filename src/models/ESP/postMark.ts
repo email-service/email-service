@@ -26,7 +26,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 	}
 
-	async sendMail(options: EmailPayload): Promise<StandardResponse> {
+	protected async doSendMail(options: EmailPayload): Promise<StandardResponse> {
 
 		if (this.transporter.stream === undefined) {
 			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ********  Stream for ', this.transporter.esp, ' is not defined in the configuration')

@@ -10,7 +10,7 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 		super(service)
 	}
 
-	async sendMail(options: EmailPayload): Promise<StandardResponse> {
+	protected async doSendMail(options: EmailPayload): Promise<StandardResponse> {
 		try {
 			const body = {
 				from: formatFromForEmailService(options.from as Recipient),

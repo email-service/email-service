@@ -17,7 +17,7 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 
 
 
-	async sendMail(options: EmailPayload): Promise<StandardResponse> {
+	protected async doSendMail(options: EmailPayload): Promise<StandardResponse> {
 
 		try {
 			// Normalisation des entrées : `from` et `to/cc/bcc` acceptent string | Recipient | Recipient[]
