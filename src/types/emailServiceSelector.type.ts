@@ -48,6 +48,13 @@ export type ConfigEmailServiceViewer = ConfigBase & {
 	esp: 'emailserviceviewer' | 'emailserviceviewerlocal',
 	apiToken: string,
 	webhook: string,
+	/**
+	 * Racine du viewer, sans `/sendEmail` (ex. `http://localhost:4001`).
+	 * Optionnel — défaut : `http://localhost:3000` en `emailserviceviewerlocal`,
+	 * `https://api.email-service.dev` sinon. À renseigner quand le port 3000 est
+	 * déjà pris par l'application en cours de développement.
+	 */
+	baseUrl?: string,
 }
 
 export type ConfigResend = ConfigBase & {

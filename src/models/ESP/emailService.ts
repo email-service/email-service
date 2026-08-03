@@ -41,7 +41,14 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 			};
 			if (this.transporter.logger) console.log('******** ES-SendMail Email-service-viewer ******** opts', opts)
 
-			const uri = this.transporter.esp === 'emailserviceviewerlocal' ? 'http://localhost:3000/sendEmail' : 'https://api.email-service.dev/sendEmail'
+			// `baseUrl` permet de déplacer le viewer local sur un port dédié. Sans lui,
+			// `emailserviceviewerlocal` imposait le port 3000 — celui qu'occupe déjà
+			// l'API de bien des projets, rendant les deux inconciliables sur une même
+			// machine. Défauts inchangés, donc rétro-compatible.
+			const defaultBaseUrl = this.transporter.esp === 'emailserviceviewerlocal'
+				? 'http://localhost:3000'
+				: 'https://api.email-service.dev'
+			const uri = `${(this.transporter.baseUrl ?? defaultBaseUrl).replace(/\/+$/, '')}/sendEmail`
 
 			const response = await fetch(uri, opts)
 			if (!response.ok) {
