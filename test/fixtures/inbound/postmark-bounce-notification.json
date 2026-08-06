@@ -1,0 +1,23 @@
+{
+	"_comment": "Non-remise ARRIVANT DANS LA BOÎTE (message d'erreur d'un serveur distant), à ne pas confondre avec un webhook d'événement `bounce`. Le consommateur doit pouvoir la reconnaître : expéditeur en MAILER-DAEMON, en-tête Auto-Submitted, et aucun In-Reply-To exploitable — le rattachement passera par References ou receivedFor.",
+	"FromName": "Mail Delivery System",
+	"MessageStream": "inbound",
+	"From": "MAILER-DAEMON@mail.exemple.fr",
+	"FromFull": { "Email": "MAILER-DAEMON@mail.exemple.fr", "Name": "Mail Delivery System", "MailboxHash": "" },
+	"To": "conseiller@agence.exemple.com",
+	"ToFull": [{ "Email": "conseiller@agence.exemple.com", "Name": "", "MailboxHash": "" }],
+	"OriginalRecipient": "conseiller@agence.exemple.com",
+	"Subject": "Undelivered Mail Returned to Sender",
+	"MessageID": "dead0000-1111-2222-3333-444455556666",
+	"Date": "Wed, 6 Aug 2026 12:00:00 +0200",
+	"TextBody": "This is the mail system at host mail.exemple.fr.\n\nI'm sorry to have to inform you that your message could not be delivered.\n\n<inconnu@exemple.fr>: host exemple.fr said: 550 5.1.1 User unknown",
+	"HtmlBody": "",
+	"StrippedTextReply": "",
+	"Headers": [
+		{ "Name": "Message-ID", "Value": "<bounce-dead@mail.exemple.fr>" },
+		{ "Name": "References", "Value": "<campaign-ev42@agence.exemple.com>" },
+		{ "Name": "Auto-Submitted", "Value": "auto-replied" },
+		{ "Name": "Content-Type", "Value": "multipart/report; report-type=delivery-status" }
+	],
+	"Attachments": []
+}

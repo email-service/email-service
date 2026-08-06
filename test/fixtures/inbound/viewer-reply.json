@@ -1,0 +1,20 @@
+{
+	"_comment": "Message simulé par le viewer local (POST /inbound/simulate, lot D). Le format est celui du contrat InboundMessage, pour que le consommateur exécute EXACTEMENT le même code qu'en production. C'est ce que produira le bouton « Répondre » du dashboard.",
+	"messageId": "<viewer-sim-1@email-service-viewer>",
+	"espMessageId": "sim-1",
+	"inReplyTo": "<campaign-ev42@agence.exemple.com>",
+	"references": ["<campaign-ev42@agence.exemple.com>"],
+	"receivedFor": ["conseiller@agence.exemple.com"],
+	"from": { "name": "Jean Client", "email": "jean.client@exemple.fr" },
+	"to": [{ "email": "conseiller@agence.exemple.com" }],
+	"subject": "Re: Votre projet d'achat",
+	"text": "Oui je suis intéressé, quand peut-on visiter ?",
+	"html": "<p>Oui je suis intéressé, quand peut-on visiter ?</p>",
+	"headers": {
+		"message-id": "<viewer-sim-1@email-service-viewer>",
+		"in-reply-to": "<campaign-ev42@agence.exemple.com>",
+		"references": "<campaign-ev42@agence.exemple.com>"
+	},
+	"attachments": [],
+	"receivedAt": "2026-08-06T08:12:33.000Z"
+}

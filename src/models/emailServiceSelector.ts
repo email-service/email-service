@@ -1,4 +1,5 @@
 import type { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookResponse } from "../types/email.type.js";
+import type { InboundResponse } from "../types/inbound.type.js";
 import type { Config, ConfigMinimal } from "../types/emailServiceSelector.type.js";
 import type { BulkPayload, BulkReport } from "../types/bulk.type.js";
 import type { ESPOptions } from "./esp.js";
@@ -173,6 +174,67 @@ export class EmailServiceSelector {
 		// Nothing, as we are  using only for nodemailer
 	}
 
+	/**
+	 * Reconnaissance de l'ESP par son `User-Agent`, en *prefix matching* : les
+	 * fournisseurs versionnent leur agent (`Postmark HTTPClient 1.2.3`,
+	 * `Svix-Webhooks/1.84.0`…), un match exact casserait à chaque montée de
+	 * version.
+	 *
+	 * Les deux natures (événement et réception) arrivent avec le MÊME agent chez
+	 * un même fournisseur : c'est l'endpoint appelé qui les distingue, jamais
+	 * l'agent. `webHook` garde sa propre copie de cette logique — l'unifier
+	 * toucherait un chemin en production sans nécessité.
+	 */
+	private static espFromUserAgent(esp: string): ConfigMinimal['esp'] | undefined {
+		if (esp.startsWith('Postmark')) return 'postmark'
+		if (esp.startsWith('SendinBlue') || esp.startsWith('Brevo')) return 'brevo'
+		// Svix est le provider de webhook utilisé par Resend.
+		if (esp.startsWith('Svix-Webhooks')) return 'resend'
+		if (esp === 'email-service-viewer') return 'emailserviceviewer'
+		return undefined
+	}
+
+	/**
+	 * Réception d'un message entrant (≠ webhook d'événement).
+	 *
+	 * `config` est requise pour les ESP dont le webhook ne porte que des
+	 * métadonnées (Resend) : sans elle, on retourne une erreur explicite plutôt
+	 * qu'un message tronqué en silence.
+	 */
+	static async inbound(esp: string, req: any, config?: Config, logger: boolean = false): Promise<InboundResponse> {
+		if (!esp) {
+			return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No user-agent provided to identify the ESP' } })
+		}
+		if (logger) console.log("******** ES-Inbound ******** esp", esp)
+
+		// La relève IMAP/POP est hors périmètre : la réception passe par les
+		// webhooks des ESP.
+		if (esp === 'nodemailer') {
+			return ({ success: false, status: 501, error: { name: 'INBOUND_NOT_SUPPORTED', message: 'Inbound reception goes through ESP webhooks, not IMAP/POP' } })
+		}
+
+		const espName = EmailServiceSelector.espFromUserAgent(esp)
+		if (!espName) {
+			return ({ success: false, status: 500, error: { name: 'INVALID_ESP', message: 'No ESP service configured for ' + esp } })
+		}
+
+		// La config fournie prime — elle porte la clé API dont Resend a besoin.
+		// À défaut, une config minimale suffit aux ESP qui livrent tout dans leur
+		// webhook (Postmark, Brevo, viewer).
+		const espConfig = (config && config.esp === espName)
+			? config
+			: { esp: espName, logger } as ConfigMinimal
+
+		// @ts-ignore — ConfigMinimal ne porte pas les champs requis par ESP,
+		// mais aucun n'est lu sur ce chemin (même usage que dans `webHook`).
+		const emailESP = new EmailServiceSelector(espConfig)
+		if (!emailESP.emailService) {
+			return ({ success: false, status: 500, error: { name: 'NO_ESP', message: 'No ESP service configured' } })
+		}
+
+		return await emailESP.emailService.inboundManagement(req, config)
+	}
+
 	static async webHook(esp: string, req: any, logger: boolean = false): Promise<WebHookResponse> {
 		if (esp) {
 			if (logger) console.log("******** ES-WebHook ******** esp", esp)
@@ -212,6 +274,18 @@ export class EmailServiceSelector {
 
 export function getEmailService(service: Config, opts?: ESPOptions): EmailServiceSelector {
 	return new EmailServiceSelector(service, opts)
+}
+
+/**
+ * Point d'entrée public de la réception. `userAgent` identifie l'ESP,
+ * `config` est requise pour ceux qui exigent un appel API (Resend).
+ */
+export async function getInboundEmail(userAgent: string, req: any, config?: Config, logger: boolean = false): Promise<InboundResponse> {
+	if (logger) {
+		console.log('******** ES-Inbound ******** userAgent', userAgent)
+		console.log('******** ES-Inbound ******** req', req)
+	}
+	return await EmailServiceSelector.inbound(userAgent, req, config, logger)
 }
 
 export async function getWebHook(userAgent: string, req: any, logger: boolean = false): Promise<WebHookResponse> {

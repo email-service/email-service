@@ -1,0 +1,30 @@
+{
+	"_comment": "Réponse de GET /emails/receiving/{id}. Le corps est là, mais REGARDER `headers` : from, return-path, mime-version — ni In-Reply-To, ni References. C'est pour ça que le repli sur `raw.download_url` est SYSTÉMATIQUE chez Resend et non exceptionnel : sans lui, le rattachement au fil de discussion est impossible.",
+	"object": "email",
+	"id": "56761188-7520-42d8-8898-ff6fc54ce618",
+	"to": ["conseiller@agence.exemple.com"],
+	"from": "jean.client@exemple.fr",
+	"subject": "Re: Votre projet d'achat",
+	"html": "<p>Oui je suis intéressé, quand peut-on visiter ?</p>",
+	"text": "Oui je suis intéressé, quand peut-on visiter ?\n\n> Voici les biens correspondant à votre recherche.",
+	"created_at": "2026-08-06T08:12:33.894Z",
+	"headers": {
+		"from": "Jean Client <jean.client@exemple.fr>",
+		"return-path": "jean.client@exemple.fr",
+		"mime-version": "1.0"
+	},
+	"attachments": [
+		{
+			"id": "2a0c9ce0-3112-4728-976e-47ddcd16a318",
+			"filename": "plan.pdf",
+			"content_type": "application/pdf",
+			"content_length": 18432,
+			"content_disposition": "attachment",
+			"content_id": null
+		}
+	],
+	"raw": {
+		"download_url": "https://resend-raw.exemple.cloudfront.net/56761188.eml?Signature=xxx",
+		"expires_at": "2026-08-06T09:12:33.000Z"
+	}
+}

@@ -1,5 +1,6 @@
 
 import type { EmailPayload, HeadersPayLoad } from '../types/email.type.js'
+import { stripHeaders } from './headers.js'
 
 /**
  * Injecte les headers RFC 8058 de désinscription dans un EmailPayload.
@@ -26,13 +27,11 @@ export function injectUnsubscribeHeader(
 	url: string,
 	mailto?: string,
 ): EmailPayload {
-	const existingHeaders: HeadersPayLoad = payload.headers ?? []
-	// Retire tout header de désinscription pré-existant (override).
-	const filtered = existingHeaders.filter(
-		(h) =>
-			h.name !== 'List-Unsubscribe' &&
-			h.name !== 'List-Unsubscribe-Post',
-	)
+	// Retire tout header de désinscription pré-existant (override). Comparaison
+	// insensible à la casse via `stripHeaders` — la RFC 5322 §2.2 rend les noms
+	// de champs insensibles à la casse, un filtre strict laissait passer un
+	// `list-unsubscribe` en minuscules et donc un doublon.
+	const filtered = stripHeaders(payload.headers, ['List-Unsubscribe', 'List-Unsubscribe-Post'])
 	const listUnsubValue = mailto
 		? `<mailto:${mailto}>, <${url}>`
 		: `<${url}>`

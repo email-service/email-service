@@ -1,0 +1,27 @@
+Return-Path: <jean.client@exemple.fr>
+Received: from mail.exemple.fr (mail.exemple.fr [203.0.113.10])
+	by inbound.resend.com with ESMTPS id abc123
+	for <conseiller@agence.exemple.com>; Wed, 6 Aug 2026 08:12:33 +0000 (UTC)
+Message-ID: <CAJ8s9x1@mail.exemple.fr>
+In-Reply-To: <campaign-ev42@agence.exemple.com>
+References: <campaign-ev41@agence.exemple.com>
+	<campaign-ev42@agence.exemple.com>
+From: Jean Client <jean.client@exemple.fr>
+To: conseiller@agence.exemple.com
+Reply-To: jean.perso@exemple.fr
+Subject: Re: Votre projet d'achat
+Date: Wed, 6 Aug 2026 10:12:33 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_Part_1_123456"
+
+------=_Part_1_123456
+Content-Type: text/plain; charset=UTF-8
+
+Oui je suis intéressé, quand peut-on visiter ?
+
+------=_Part_1_123456
+Content-Type: application/pdf; name="plan.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKJcOkw7zDtsOfCjIgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURl
+------=_Part_1_123456--

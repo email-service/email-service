@@ -2,6 +2,7 @@
 import { Config } from "./emailServiceSelector.type";
 import { ESPStandardizedError, StandardError } from "./error.type";
 import type { BulkPayload, BulkReport } from "./bulk.type.js";
+import type { InboundResponse } from "./inbound.type.js";
 
 export type IEmailService = {
 	transporter: Config,
@@ -9,6 +10,8 @@ export type IEmailService = {
 	sendMail(options: EmailPayload): Promise<StandardResponse>,
 	sendBulk(payload: BulkPayload): Promise<BulkReport>,
 	webHookManagement(req: any): Promise<WebHookResponse>,
+	/** Réception d'un message entrant (≠ webhook d'événement). */
+	inboundManagement(req: any, config?: Config): Promise<InboundResponse>,
 	checkRecipients(to: RecipientInput): Recipient[],
 	checkFrom(from: FromInput): Recipient | undefined,
 	sendMailMultiple?: (emails: EmailPayload[]) => Promise<StandardResponse[]>,
@@ -38,6 +41,33 @@ export type EmailPayload = {
 	trackOpens?: boolean;
 	trackLinks?: 'HtmlAndText' | 'HtmlOnly' | 'TextOnly';
 	headers?: HeadersPayLoad;
+	/**
+	 * Adresse de réponse. Absent → l'adresse d'expédition (comportement
+	 * historique). Accepte les mêmes formes que `from`, donc `"Prénom Nom
+	 * <adresse>"` est possible.
+	 *
+	 * ⚠️ Un en-tête `Reply-To` posé dans `headers` est TOUJOURS retiré au profit
+	 * de ce champ (RFC 5322 : le champ apparaît au plus une fois — deux sources
+	 * concurrentes laisseraient l'ESP arbitrer).
+	 */
+	replyTo?: FromInput;
+}
+
+/**
+ * Payload après passage par `normalizePayload` : toutes les adresses sont
+ * garanties sous forme d'objets `Recipient`, `replyTo` est résolu (jamais
+ * `undefined`) et les en-têtes sont nettoyés de ceux que la librairie porte
+ * elle-même.
+ *
+ * C'est ce que reçoit chaque `doSendMail` d'adaptateur — un adaptateur n'a donc
+ * plus à normaliser quoi que ce soit, ni à se demander si `from` est une chaîne.
+ */
+export type NormalizedEmailPayload = Omit<EmailPayload, 'from' | 'to' | 'cc' | 'bcc' | 'replyTo'> & {
+	from: Recipient;
+	replyTo: Recipient;
+	to: Recipient[];
+	cc?: Recipient[];
+	bcc?: Recipient[];
 }
 
 
