@@ -1,13 +1,30 @@
 name: Publish Package
 
+# Publication automatique au push sur `main`.
+#
+# Le déclencheur était `tags: v*` : il fallait poser un tag à la main, et rien
+# ne garantissait que le code publié avait été testé. Ici, tout push sur `main`
+# est candidat, mais la publication n'a lieu QUE si le numéro de version du
+# package.json diffère de celui déjà publié sur npm. Un push qui ne change pas
+# la version ne fait donc rien — sans échouer, ce qui éviterait de rendre le
+# pipeline rouge en permanence.
+#
+# Authentification : Trusted Publisher (OIDC). Aucun jeton npm à stocker en
+# secret, aucun jeton à renouveler.
+
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 permissions:
-  id-token: write  # Required for OIDC
+  id-token: write # requis pour OIDC
   contents: read
+
+concurrency:
+  # Deux push rapprochés ne doivent pas publier en parallèle.
+  group: publish-npm
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -19,8 +36,44 @@ jobs:
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
-      # Trusted Publisher (OIDC) nécessite npm ≥ 11.5.1. Node 24 ship une
-      # version antérieure — on force la mise à jour avant le publish.
+
+      # Trusted Publisher (OIDC) exige npm ≥ 11.5.1 ; Node 24 embarque une
+      # version antérieure.
       - run: npm install -g npm@latest
+
       - run: npm ci
-      - run: npm run publishnpm
+
+      # Rien ne part sans être vert : la publication étant automatique, c'est
+      # le seul filet avant une version définitive (npm interdit de republier
+      # un même numéro).
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: La version est-elle déjà publiée ?
+        id: version
+        run: |
+          LOCAL=$(node -p "require('./package.json').version")
+          NAME=$(node -p "require('./package.json').name")
+          PUBLISHED=$(npm view "$NAME" version 2>/dev/null || echo "none")
+          echo "local=$LOCAL"         >> "$GITHUB_OUTPUT"
+          echo "published=$PUBLISHED" >> "$GITHUB_OUTPUT"
+          if [ "$LOCAL" = "$PUBLISHED" ]; then
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Version $LOCAL déjà publiée — rien à faire."
+          else
+            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Publication de $LOCAL (npm est en $PUBLISHED)."
+          fi
+
+      # Contrôle de ce qui partira : la liste des fichiers apparaît dans les
+      # logs, ce qui rend visible tout élargissement involontaire du paquet.
+      - name: Contenu du paquet
+        if: steps.version.outputs.should_publish == 'true'
+        run: npm publish --dry-run
+
+      - name: Publication
+        if: steps.version.outputs.should_publish == 'true'
+        run: npm publish --access public
