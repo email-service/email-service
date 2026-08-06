@@ -1,11 +1,11 @@
-import { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailPayload, IEmailService, NormalizedEmailPayload, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigResend } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP, type ESPOptions } from "../esp.js";
 import { webHookStatus } from "./resend.status.js";
 import { errorCode } from "./resend.errors.js";
-import { transformHeaders } from "../../utils/transformeHeaders.js";
+import { toRecordHeaders } from "../../utils/headers.js";
 
 
 
@@ -17,42 +17,27 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 
 
 
-	protected async doSendMail(options: EmailPayload): Promise<StandardResponse> {
+	protected async doSendMail(options: NormalizedEmailPayload): Promise<StandardResponse> {
 
 		try {
-			// Normalisation des entrées : `from` et `to/cc/bcc` acceptent string | Recipient | Recipient[]
-			// via les types EmailPayload. Les formatters internes attendent Recipient/Recipient[] —
-			// sans cette étape, un `from: "foo@bar.com"` (string) donnait `undefined` dans le body.
-			const fromNormalized = this.checkFrom(options.from)
-			if (!fromNormalized) {
-				return {
-					success: false, status: 400,
-					error: { name: 'FROM_REQUIRED', category: 'PARAM_INVALID', cause: { reason: 'from is missing or invalid' } }
-				}
-			}
-			const toNormalized = this.checkRecipients(options.to)
-			if (toNormalized.length === 0) {
-				return {
-					success: false, status: 400,
-					error: { name: 'TO_REQUIRED', category: 'PARAM_INVALID', cause: { reason: 'to is missing or invalid' } }
-				}
-			}
-			const ccNormalized = options.cc ? this.checkRecipients(options.cc) : undefined
-			const bccNormalized = options.bcc ? this.checkRecipients(options.bcc) : undefined
-
+			// Les adresses sont déjà normalisées par `ESP.sendMail()` : `from` et
+			// `to/cc/bcc` sont garantis en Recipient/Recipient[], et `replyTo` est
+			// résolu. (Cette normalisation vivait ici jusqu'à la v0.6.2 — Resend
+			// était le seul adaptateur à la faire, d'où le `From: undefined` des
+			// autres sur une chaîne nue.)
 			const body = {
 
-				from: formatFromForResend(fromNormalized),
-				to: formatForResend(toNormalized),
-				cc: ccNormalized ? formatForResend(ccNormalized) : undefined,
-				bcc: bccNormalized ? formatForResend(bccNormalized) : undefined,
+				from: formatFromForResend(options.from),
+				to: formatForResend(options.to),
+				cc: options.cc ? formatForResend(options.cc) : undefined,
+				bcc: options.bcc ? formatForResend(options.bcc) : undefined,
 				subject: options.subject,
 				html: options.html,
 				text: options.text,
 				tags: [{ name: 'tag', value: options?.tag ? options.tag : 'DefaultTag' }],
-				reply_to: formatFromForResend(fromNormalized),
+				reply_to: formatFromForResend(options.replyTo),
 
-				headers: options.headers ? transformHeaders(options.headers) : {},
+				headers: toRecordHeaders(options.headers),
 
 
 			}

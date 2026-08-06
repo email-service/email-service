@@ -1,24 +1,14 @@
-import { EmailPayload, HeadersPayLoad, IEmailService, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailPayload, HeadersPayLoad, IEmailService, NormalizedEmailPayload, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigBrevo } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
-import { transformHeaders } from "../../utils/transformeHeaders.js";
+import { toRecordHeaders } from "../../utils/headers.js";
 import { ESP, type ESPOptions } from "../esp.js";
 import { errorCode } from "./brevo.errors.js";
 import { webHookStatus } from "./brevo.status.js";
 
-//const extractAddressFrom = (destination: string) => destination.match(/<.+@.+>/)?.[0].replace(/[<>]/g, "") || destination
-
-const convertToBrevoAddress = (address: string) => {
-	const a = address.trim()
-	if (/.+<.+>$/.test(a)) {
-		const tempo = a.match(/(.+)<(.+@.+)>/) || ['', '']
-		return {
-			name: tempo[1],
-			email: tempo[2]
-		}
-	}
-	else return { email: a.replace(/[<>]/g, "") }
-}
+// `convertToBrevoAddress` a été retiré en v0.6.2 : il n'était appelé nulle part
+// (le payload brut partait tel quel) et la conversion vers `{ email, name }` est
+// désormais faite en amont par `normalizePayload`.
 
 export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService {
 
@@ -26,14 +16,15 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 		super(service, opts)
 	}
 
-	protected async doSendMail(options: EmailPayload): Promise<StandardResponse> {
+	protected async doSendMail(options: NormalizedEmailPayload): Promise<StandardResponse> {
 		try {
 
-			// Brevo API does not support the "from" field, so we need to extract the email address from the string
-			// const toEmail = extractAddressFrom(options.to)
-			// const fromEmail = extractAddressFrom(options.from)
-
-			const body = {
+			// L'API Brevo attend des OBJETS `{ email, name? }` pour `sender` et
+			// `replyTo`, et des tableaux d'objets pour `to`/`cc`/`bcc`. Le payload
+			// normalisé par `ESP.sendMail()` fournit exactement cette forme —
+			// jusqu'à la v0.6.2 la valeur brute du payload était transmise, donc
+			// une chaîne dès que l'appelant en fournissait une.
+			const body: Record<string, unknown> = {
 
 				sender: options.from,
 				to: options.to,
@@ -44,25 +35,23 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				textContent: options.text,
 
 				tags: [options.tag],
-				replyTo: options.from,
-				// Headers: options.headers,
+				replyTo: options.replyTo,
+				// En-têtes personnalisés : objet clé/valeur côté Brevo. Ils étaient
+				// commentés jusqu'à la v0.6.2 — aucun en-tête n'atteignait Brevo,
+				// `List-Unsubscribe` compris.
+				headers: toRecordHeaders(options.headers),
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
-				// Metadata: options.metadata,
 				// Attachments: options.attachments
-
-				// headers: options.headers ? transformHeaders(options.headers) : {},
-				// 	'X-Mailin-custom': JSON.stringify(options.meta)
-				// }
-
 
 			}
 
 
 
 			if (options.metaData) {
-				// @ts-ignore
-				body.headers = { ...body.headers, 'X-Mailin-custom': JSON.stringify(options.metaData) }
+				// Fusion, jamais écrasement : les en-têtes personnalisés ci-dessus
+				// doivent survivre à l'ajout de X-Mailin-custom.
+				body.headers = { ...(body.headers as Record<string, string>), 'X-Mailin-custom': JSON.stringify(options.metaData) }
 			}
 
 			const opts = {

@@ -1,7 +1,9 @@
-import { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailPayload, IEmailService, NormalizedEmailPayload, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigPostmark } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
+import { toPostmarkHeaders } from "../../utils/headers.js";
+import { normalizePayload } from "../../utils/normalizePayload.js";
 import { ESP, type ESPOptions } from "../esp.js";
 import { webHookStatus, bouncesTypes } from "./postMark.status.js";
 import { errorCode, supressionListStatus } from "./postMark.errors.js";
@@ -26,7 +28,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 	}
 
-	protected async doSendMail(options: EmailPayload): Promise<StandardResponse> {
+	protected async doSendMail(options: NormalizedEmailPayload): Promise<StandardResponse> {
 
 		if (this.transporter.stream === undefined) {
 			if (this.transporter.logger) console.log('******** ES-SendMail Postmark ********  Stream for ', this.transporter.esp, ' is not defined in the configuration')
@@ -43,19 +45,19 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		try {
 			const body = {
 				MessageStream: this.transporter.stream,
-				From: formatFromForPostMark(options.from as Recipient),
-				To: formatForPostMark(options.to as Recipient[]),
-				Cc: options.cc ? formatForPostMark(options.cc as Recipient[]) : undefined,
-				Bcc: options.bcc ? formatForPostMark(options.bcc as Recipient[]) : undefined,
+				From: formatFromForPostMark(options.from),
+				To: formatForPostMark(options.to),
+				Cc: options.cc ? formatForPostMark(options.cc) : undefined,
+				Bcc: options.bcc ? formatForPostMark(options.bcc) : undefined,
 				Subject: options.subject,
 				HtmlBody: options.html,
 				TextBody: options.text,
 				Tag: options.tag,
-				ReplyTo: formatFromForPostMark(options.from as Recipient),
+				ReplyTo: formatFromForPostMark(options.replyTo),
 				Metadata: options.metaData,
 				TrackOpens: options.trackOpens,
 				TrackLinks: options.trackLinks,
-				Headers: options.headers
+				Headers: toPostmarkHeaders(options.headers)
 
 			}
 
@@ -118,28 +120,46 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		async function processBatch(batch: EmailPayload[], index: number): Promise<StandardResponse[]> {
 			console.log(`Processing batch ${index + 1}...`);
 
+			// Ce chemin d'envoi ne traverse PAS `ESP.sendMail()` : la normalisation
+			// (adresses, `replyTo`, en-têtes) doit donc être demandée explicitement,
+			// e-mail par e-mail. Un payload invalide n'est pas envoyé et reçoit son
+			// erreur à SA position dans le résultat — d'où `sentPositions`, qui garde
+			// la correspondance entre les réponses de Postmark et le lot d'origine.
+			const results: StandardResponse[] = new Array(batch.length)
 			const emailsToSend = []
+			const sentPositions: number[] = []
+			const normalizedByPosition: NormalizedEmailPayload[] = new Array(batch.length)
 
-			for (const email of batch) {
+			for (let position = 0; position < batch.length; position++) {
+				const normalized = normalizePayload(batch[position])
+				if (normalized.error) {
+					results[position] = normalized.error
+					continue
+				}
+				const email = normalized.payload!
+				normalizedByPosition[position] = email
 				const body = {
 					MessageStream: messageStream,
-					From: formatFromForPostMark(email.from as Recipient),
-					To: formatForPostMark(email.to as Recipient[]),
-					Cc: email.cc ? formatForPostMark(email.cc as Recipient[]) : undefined,
-					Bcc: email.bcc ? formatForPostMark(email.bcc as Recipient[]) : undefined,
+					From: formatFromForPostMark(email.from),
+					To: formatForPostMark(email.to),
+					Cc: email.cc ? formatForPostMark(email.cc) : undefined,
+					Bcc: email.bcc ? formatForPostMark(email.bcc) : undefined,
 					Subject: email.subject,
 					HtmlBody: email.html,
 					TextBody: email.text,
 					Tag: email.tag,
-					ReplyTo: formatFromForPostMark(email.from as Recipient),
+					ReplyTo: formatFromForPostMark(email.replyTo),
 					Metadata: email.metaData,
 					TrackOpens: email.trackOpens,
 					TrackLinks: email.trackLinks,
-					Headers: email.headers
+					Headers: toPostmarkHeaders(email.headers)
 
 				}
 				emailsToSend.push(body)
+				sentPositions.push(position)
 			}
+
+			if (emailsToSend.length === 0) return results
 
 			const opts = {
 				method: 'POST',
@@ -158,18 +178,23 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				const retours = await response.json()
 				if (logger) console.log('******** ES-SendMail Postmark ******** json', retours.ErrorCode, retours.Message)
 
-				let i = 0
-				const returnedValues: StandardResponse[] = []
-				for (const retour of retours) {
-					const returnedValue = await myClass.sendMailResultManagement(retour, response, emails[i]) as StandardResponse
-					returnedValues.push(returnedValue)
-					i++
+				// Postmark répond dans l'ordre du tableau envoyé : la réponse k
+				// correspond donc à `batch[sentPositions[k]]`. (Auparavant l'index
+				// était pris dans `emails`, la liste COMPLÈTE : à partir du second
+				// lot, chaque résultat était rapproché du mauvais e-mail.)
+				for (let k = 0; k < retours.length; k++) {
+					const position = sentPositions[k]
+					results[position] = await myClass.sendMailResultManagement(retours[k], response, normalizedByPosition[position]) as StandardResponse
 				}
 
-				return returnedValues
+				return results
 
 			} catch (error) {
-				return [{ success: false, status: 500, error: errorManagement(error) } as StandardResponse];
+				// L'échec porte sur la requête entière : chaque e-mail réellement
+				// soumis reçoit l'erreur, les invalides gardent la leur.
+				const failure = { success: false, status: 500, error: errorManagement(error) } as StandardResponse
+				for (const position of sentPositions) results[position] = failure
+				return results
 			}
 		}
 
@@ -189,7 +214,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 	}
 
-	async sendMailResultManagement(retour: any, response: any, options: EmailPayload): Promise<StandardResponse> {
+	async sendMailResultManagement(retour: any, response: any, options: NormalizedEmailPayload): Promise<StandardResponse> {
 		if (retour.ErrorCode === 0) {
 			return {
 				success: true,
@@ -210,7 +235,7 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		// Traitement du cas particlier de l'erreur 406
 
 		if (retour.ErrorCode === 406) {
-			const suppressionInfos = await this.getSuppressionInfos(formatForPostMark(options.to as Recipient[]))
+			const suppressionInfos = await this.getSuppressionInfos(formatForPostMark(options.to))
 			const errorResult406: ESPStandardizedError = supressionListStatus[suppressionInfos?.SuppressionReason] || { name: 'UNKNOWN', category: 'ACCOUNT_INVALID' }
 			return {
 				success: false,

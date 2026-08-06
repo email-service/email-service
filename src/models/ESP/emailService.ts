@@ -1,4 +1,4 @@
-import { EmailPayload, IEmailService, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailPayload, IEmailService, NormalizedEmailPayload, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigEmailServiceViewer } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP, type ESPOptions } from "../esp.js";
@@ -10,24 +10,28 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 		super(service, opts)
 	}
 
-	protected async doSendMail(options: EmailPayload): Promise<StandardResponse> {
+	protected async doSendMail(options: NormalizedEmailPayload): Promise<StandardResponse> {
 		try {
 			const body = {
-				from: formatFromForEmailService(options.from as Recipient),
-				to: formatForEmailService(options.to as Recipient[]),
-				cc: options.cc ? formatForEmailService(options.cc as Recipient[]) :undefined,
-				bcc: options.bcc ? formatForEmailService(options.bcc as Recipient[] ): undefined,
+				from: formatFromForEmailService(options.from),
+				to: formatForEmailService(options.to),
+				cc: options.cc ? formatForEmailService(options.cc) :undefined,
+				bcc: options.bcc ? formatForEmailService(options.bcc) : undefined,
 				subject: options.subject,
 				htmlBody: options.html,
 				textBody: options.text,
 				tag: options.tag,
-				// Tag: options.tag,
-				replyTo: 'server@question.direct',
-				//Headers: options.headers,
+				// Le viewer reflète ce qu'on lui donne : la valeur en dur
+				// 'server@question.direct' qui vivait ici jusqu'à la v0.6.2 mentait
+				// au développeur sur l'adresse de réponse réellement demandée.
+				replyTo: formatFromForEmailService(options.replyTo),
+				// Service interne : on transmet le tableau `{ name, value }` tel
+				// quel, c'est la forme la plus lisible pour l'affichage. Sans lui,
+				// aucun en-tête n'était vérifiable sans envoi réel.
+				headers: options.headers,
 				metaData: options.metaData,
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
-				// Metadata: options.metadata,
 				// Attachments: options.attachments
 			}
 
