@@ -49,6 +49,43 @@ if (emailResponse.ok) {
 emailService.close();
 ```
 
+## Reply-To address (`replyTo`) — since 0.6.2
+
+`replyTo` sets the address recipients answer to, when it must differ from the
+sender. Typical case: a campaign sent on behalf of an agency whose replies must
+reach the advisor following the client.
+
+```typescript
+const emailPayload = {
+	from: 'Agency <agency@example.com>',
+	to: 'client@example.com',
+	replyTo: 'Jane Advisor <jane@example.com>',   // string or { name, email }
+	subject: 'Your subject',
+	text: '…',
+	html: htmlContent,
+};
+```
+
+Omit it and the sender address is used — the behaviour of every previous
+version, so existing callers are unaffected.
+
+> **Breaking change in 0.6.2.** A `Reply-To` entry placed in `headers` is now
+> **removed** before sending: this field is carried by `replyTo`. RFC 5322
+> allows `Reply-To` at most once, and letting a custom header compete with the
+> ESP's own field left the outcome to the mail client. Callers who used that
+> workaround must move the address to `replyTo` — note that the workaround never
+> actually worked: the ESP's native field won.
+
+### Custom headers
+
+Custom `headers` now reach **every** provider, each in the shape its API
+requires. Before 0.6.2 only Resend received them: Brevo's were commented out,
+Postmark's were sent in a shape its API rejects, and the viewer dropped them —
+which is why the `Reply-To` conflict above could go unnoticed for so long.
+
+The `emailserviceviewer` dashboard displays the reply address and the headers
+it received, so both can be checked without sending a real message.
+
 ## Config by ESP
 
 All ESP configurations share the following common parameters:

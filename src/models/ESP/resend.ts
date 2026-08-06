@@ -9,6 +9,35 @@ import { toRecordHeaders } from "../../utils/headers.js";
 
 
 
+/**
+ * Resend n'accepte dans ses tags que des lettres ASCII, des chiffres, `_` et
+ * `-` : toute autre valeur fait échouer l'envoi entier (400). On remplace donc
+ * les caractères refusés plutôt que de laisser passer une requête vouée à
+ * l'échec — la valeur transmise peut donc différer de l'originale (un `@` ou un
+ * `.` deviennent `-`), ce qui convient à un identifiant mais pas à une adresse
+ * qu'on voudrait relire telle quelle.
+ */
+function sanitizeTagValue(value: string): string {
+	return String(value).replace(/[^A-Za-z0-9_-]/g, '-')
+}
+
+/**
+ * Convertit `metaData` en tags Resend — seul canal par lequel une information
+ * de l'appelant revient dans les webhooks (`data.tags`), les en-têtes
+ * personnalisés n'y figurant pas.
+ *
+ * Les valeurs non scalaires sont ignorées : elles ne survivraient pas à
+ * l'assainissement, et un JSON aplati serait illisible au retour. Resend
+ * plafonne à 75 tags, dont un est déjà pris par `tag`.
+ */
+function metaDataToTags(metaData: object | undefined): { name: string, value: string }[] {
+	if (!metaData) return []
+	return Object.entries(metaData)
+		.filter(([, value]) => value !== undefined && value !== null && typeof value !== 'object')
+		.slice(0, 74)
+		.map(([name, value]) => ({ name: sanitizeTagValue(name), value: sanitizeTagValue(String(value)) }))
+}
+
 export class ResendEmailService extends ESP<ConfigResend> implements IEmailService {
 
 	constructor(service: ConfigResend, opts?: ESPOptions) {
@@ -34,7 +63,10 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 				subject: options.subject,
 				html: options.html,
 				text: options.text,
-				tags: [{ name: 'tag', value: options?.tag ? options.tag : 'DefaultTag' }],
+				tags: [
+					{ name: 'tag', value: sanitizeTagValue(options?.tag ? options.tag : 'DefaultTag') },
+					...metaDataToTags(options.metaData),
+				],
 				reply_to: formatFromForResend(options.replyTo),
 
 				headers: toRecordHeaders(options.headers),
@@ -104,6 +136,15 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 			to: req.data.to[0],
 			subject: req.data.subject,
 			from: req.data.from,
+		}
+
+		// Resend renvoie les tags dans ses webhooks (`Record<string,string>`) —
+		// c'est le seul canal disponible pour retrouver les métadonnées de l'envoi,
+		// les en-têtes personnalisés n'y figurant PAS. Le tag technique `tag` est
+		// écarté : il porte `options.tag`, pas une métadonnée.
+		if (req.data.tags) {
+			const { tag, ...meta } = req.data.tags
+			if (Object.keys(meta).length > 0) data.metaData = meta
 		}
 
 
