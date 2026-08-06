@@ -35,3 +35,19 @@
       Message-ID du mail, sujet `Re: `) — le scénario métier réel en un clic
 - [ ] viewer-front : formulaire libre (PJ, absence du bureau, sans inReplyTo)
 - [ ] viewer : afficher les headers reçus (déjà attendu par v0.6.2)
+
+## Viewer — simulateur de client mail (spec : email-service-documentation/cdc-viewer-simulateur-client-mail.md)
+
+- [ ] Boutons d'événement SUR le message (délivré/ouvert/cliqué/rebond doux/dur/
+      plainte/rejeté/différé/abonnement) → POST au webhook, état courant affiché,
+      enchaînable sans renvoyer le message ; le déclenchement par adresse RESTE
+      (seul utilisable en test automatisé)
+- [ ] Bascule « images bloquées » (Outlook / Gmail / Apple Mail par défaut) :
+      textes alternatifs visibles, pixel de mesure NON déclenché, liste des
+      ressources distantes bloquées (repère un pixel dans un transactionnel)
+- [ ] Bouton « Se désabonner » affiché SI ET SEULEMENT SI List-Unsubscribe est
+      présent (campagne = oui / transactionnel = non), distinction One-Click
+- [ ] Le clic exécute le VRAI POST `List-Unsubscribe=One-Click` → la
+      désinscription en un clic devient testable en dev (impossible avec Gmail :
+      l'URL locale n'est pas joignable depuis internet)
+- ⚠️ Dépend de v0.6.2 : la lib doit transmettre les headers au viewer
