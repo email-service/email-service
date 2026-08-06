@@ -2,6 +2,7 @@
 import { Config } from "./emailServiceSelector.type";
 import { ESPStandardizedError, StandardError } from "./error.type";
 import type { BulkPayload, BulkReport } from "./bulk.type.js";
+import type { InboundResponse } from "./inbound.type.js";
 
 export type IEmailService = {
 	transporter: Config,
@@ -9,6 +10,8 @@ export type IEmailService = {
 	sendMail(options: EmailPayload): Promise<StandardResponse>,
 	sendBulk(payload: BulkPayload): Promise<BulkReport>,
 	webHookManagement(req: any): Promise<WebHookResponse>,
+	/** Réception d'un message entrant (≠ webhook d'événement). */
+	inboundManagement(req: any, config?: Config): Promise<InboundResponse>,
 	checkRecipients(to: RecipientInput): Recipient[],
 	checkFrom(from: FromInput): Recipient | undefined,
 	sendMailMultiple?: (emails: EmailPayload[]) => Promise<StandardResponse[]>,

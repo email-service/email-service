@@ -3,6 +3,8 @@ import { ConfigEmailServiceViewer } from "../../types/emailServiceSelector.type.
 import { errorManagement } from "../../utils/error.js";
 import { ESP, type ESPOptions } from "../esp.js";
 import { webHookStatus } from "./emailService.status.js";
+import { extractThreading, normalizeInboundHeaders, toRecipient, toRecipients } from "../../utils/inboundNormalize.js";
+import type { InboundMessage, InboundResponse } from "../../types/inbound.type.js";
 
 export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements IEmailService {
 
@@ -78,6 +80,48 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 	}
 
 
+
+	/**
+	 * Réception simulée par le viewer local. Le viewer poste déjà un objet au
+	 * format `InboundMessage` : la normalisation se réduit à combler les champs
+	 * absents et à garantir les invariants (`messageId` toujours renseigné,
+	 * `headers` en minuscules).
+	 *
+	 * Objectif : que le consommateur exécute **exactement le même code** en
+	 * développement qu'en production.
+	 */
+	async inboundManagement(req: any): Promise<InboundResponse> {
+		if (!req || (!req.messageId && !req.from)) {
+			return { success: false, status: 400, error: { name: 'NOT_AN_INBOUND_PAYLOAD', message: 'Payload does not look like a viewer inbound message' } }
+		}
+
+		const headers = normalizeInboundHeaders(req.headers)
+		const threading = extractThreading(headers)
+
+		const message: InboundMessage = {
+			messageId: req.messageId || headers['message-id'] || '',
+			espMessageId: req.espMessageId,
+			inReplyTo: req.inReplyTo || threading.inReplyTo,
+			references: req.references ?? threading.references,
+			receivedFor: req.receivedFor
+				? (Array.isArray(req.receivedFor) ? req.receivedFor : [req.receivedFor])
+				: undefined,
+			from: toRecipient(req.from) as Recipient,
+			to: toRecipients(req.to),
+			cc: req.cc ? toRecipients(req.cc) : undefined,
+			replyTo: req.replyTo ? toRecipient(req.replyTo) : undefined,
+			subject: req.subject ?? '',
+			html: req.html || undefined,
+			text: req.text || undefined,
+			strippedTextReply: req.strippedTextReply || undefined,
+			headers,
+			attachments: req.attachments ?? [],
+			receivedAt: req.receivedAt ?? new Date().toISOString(),
+			spam: req.spam,
+		}
+
+		return { success: true, status: 200, data: [message], espData: req }
+	}
 
 	async webHookManagement(req: any): Promise<WebHookResponse> {
 

@@ -1,0 +1,24 @@
+{
+	"_comment": "Webhook Resend : MÉTADONNÉES SEULES. Ni corps, ni en-têtes, ni pièces jointes — d'où les appels API. Noter received_for : un TABLEAU, extrait de la clause `for` des en-têtes Received.",
+	"type": "email.received",
+	"created_at": "2026-08-06T08:12:33.126Z",
+	"data": {
+		"email_id": "56761188-7520-42d8-8898-ff6fc54ce618",
+		"created_at": "2026-08-06T08:12:33.894Z",
+		"from": "jean.client@exemple.fr",
+		"to": ["conseiller@agence.exemple.com"],
+		"cc": [],
+		"bcc": [],
+		"received_for": ["conseiller@agence.exemple.com"],
+		"message_id": "<CAJ8s9x1@mail.exemple.fr>",
+		"subject": "Re: Votre projet d'achat",
+		"attachments": [
+			{
+				"id": "2a0c9ce0-3112-4728-976e-47ddcd16a318",
+				"filename": "plan.pdf",
+				"content_type": "application/pdf",
+				"content_length": 18432
+			}
+		]
+	}
+}

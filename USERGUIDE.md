@@ -86,6 +86,61 @@ which is why the `Reply-To` conflict above could go unnoticed for so long.
 The `emailserviceviewer` dashboard displays the reply address and the headers
 it received, so both can be checked without sending a real message.
 
+## Receiving emails (Inbound) — since 0.7.0
+
+Optional. It only does anything if you expose an endpoint and point your
+domain's MX records at the provider.
+
+```typescript
+import { getInboundEmail, verifyInboundSignature } from '@email-service/email-service'
+
+app.post('/inbound', async (c) => {
+	// The RAW body, before any parsing — see the warning below.
+	const rawBody = await c.req.text()
+
+	const signature = verifyInboundSignature('resend', c.req.header(), rawBody, MY_SECRET)
+	if (!signature.valid) return c.json({ error: signature.reason }, 401)
+
+	const result = await getInboundEmail(
+		c.req.header('user-agent') ?? '',
+		JSON.parse(rawBody),
+		myEspConfig,          // required for Resend, ignored by the others
+	)
+
+	if (!result.success) return c.json(result.error, result.status)
+
+	for (const message of result.data) {
+		// message.inReplyTo / message.references → which email this answers
+		// message.receivedFor                   → who it was addressed to
+	}
+	return c.json({ ok: true })
+})
+```
+
+### Things worth knowing
+
+- **`data` is an array.** Brevo groups several messages in one webhook; the
+  other providers always send one. Reach for `data[0]` if you only expect one.
+- **Signature checking needs the raw body.** Once your framework has parsed the
+  request, `JSON.stringify` will not reproduce the original bytes and the
+  signature will never match. Read the text first, parse second. Note that only
+  Resend signs its inbound webhooks (via Svix) — Postmark and Brevo protect the
+  endpoint with a URL token or basic auth instead, and `verifyInboundSignature`
+  reports that rather than pretending the message was verified.
+- **Events and inbound messages arrive with the same `User-Agent`.** A provider
+  does not distinguish them: your two endpoints do — one calling `getWebHook`,
+  the other `getInboundEmail`. Send one the other's payload and you get an
+  explicit error, never an empty message.
+- **Attachments are never downloaded.** You get their metadata plus whatever
+  handle the provider offers (`content` in base64 for Postmark, `espAttachmentId`
+  for Resend and Brevo). Fetching a 25 MB file is your call, not the library's.
+- **Header names are lowercased**, and repeated headers are joined with `, `.
+  For threading, prefer the dedicated `references` field — it is already an array.
+- **Resend costs three network calls per message** (webhook → message API → raw
+  message), because its webhook carries no body and its API returns only a
+  handful of headers. Postmark and Brevo cost none. Worth knowing before making
+  it your production provider.
+
 ## Config by ESP
 
 All ESP configurations share the following common parameters:

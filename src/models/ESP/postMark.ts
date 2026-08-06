@@ -4,6 +4,8 @@ import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { toPostmarkHeaders } from "../../utils/headers.js";
 import { normalizePayload } from "../../utils/normalizePayload.js";
+import { extractThreading, normalizeInboundHeaders, toRecipient, toRecipients } from "../../utils/inboundNormalize.js";
+import type { InboundMessage, InboundResponse } from "../../types/inbound.type.js";
 import { ESP, type ESPOptions } from "../esp.js";
 import { webHookStatus, bouncesTypes } from "./postMark.status.js";
 import { errorCode, supressionListStatus } from "./postMark.errors.js";
@@ -212,6 +214,52 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 
 		return resultats
 
+	}
+
+	/**
+	 * Réception Postmark — le cas le plus simple : **tout** est dans le payload
+	 * (corps, en-têtes complets, pièces jointes en base64), aucun appel API.
+	 */
+	async inboundManagement(req: any): Promise<InboundResponse> {
+		if (!req || (!req.MessageID && !req.Headers)) {
+			return { success: false, status: 400, error: { name: 'NOT_AN_INBOUND_PAYLOAD', message: 'Payload does not look like a Postmark inbound message' } }
+		}
+
+		const headers = normalizeInboundHeaders(req.Headers)
+		const { inReplyTo, references } = extractThreading(headers)
+
+		const message: InboundMessage = {
+			// Le Message-ID RFC vient des en-têtes ; `MessageID` est l'identifiant
+			// Postmark, conservé à part pour ses API.
+			messageId: headers['message-id'] || req.MessageID,
+			espMessageId: req.MessageID,
+			inReplyTo,
+			references,
+			// `OriginalRecipient` porte l'adresse réellement destinataire, y compris
+			// la partie « plus » (MailboxHash) où le consommateur encode son routage.
+			receivedFor: req.OriginalRecipient ? [req.OriginalRecipient] : undefined,
+			from: toRecipient(req.FromFull ?? req.From) as Recipient,
+			to: toRecipients(req.ToFull ?? req.To),
+			cc: req.CcFull?.length ? toRecipients(req.CcFull) : undefined,
+			replyTo: req.ReplyTo ? toRecipient(req.ReplyTo) : undefined,
+			subject: req.Subject ?? '',
+			html: req.HtmlBody || undefined,
+			text: req.TextBody || undefined,
+			strippedTextReply: req.StrippedTextReply || undefined,
+			headers,
+			attachments: (req.Attachments ?? []).map((a: any) => ({
+				name: a.Name,
+				contentType: a.ContentType,
+				contentLength: a.ContentLength,
+				content: a.Content,
+			})),
+			receivedAt: req.Date ? new Date(req.Date).toISOString() : new Date().toISOString(),
+			spam: headers['x-spam-status'] || headers['x-spam-score']
+				? { status: headers['x-spam-status'], score: headers['x-spam-score'] ? Number(headers['x-spam-score']) : undefined }
+				: undefined,
+		}
+
+		return { success: true, status: 200, data: [message], espData: req }
 	}
 
 	async sendMailResultManagement(retour: any, response: any, options: NormalizedEmailPayload): Promise<StandardResponse> {

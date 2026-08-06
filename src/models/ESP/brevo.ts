@@ -2,6 +2,8 @@ import { EmailPayload, HeadersPayLoad, IEmailService, NormalizedEmailPayload, Re
 import { ConfigBrevo } from "../../types/emailServiceSelector.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { toRecordHeaders } from "../../utils/headers.js";
+import { extractThreading, normalizeInboundHeaders, toRecipient, toRecipients } from "../../utils/inboundNormalize.js";
+import type { InboundMessage, InboundResponse } from "../../types/inbound.type.js";
 import { ESP, type ESPOptions } from "../esp.js";
 import { errorCode } from "./brevo.errors.js";
 import { webHookStatus } from "./brevo.status.js";
@@ -93,6 +95,66 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 		}
 	}
 
+
+	/**
+	 * Réception Brevo — corps et en-têtes complets sont dans le webhook, donc
+	 * **aucun appel API** dans le flux nominal : seules les pièces jointes
+	 * exigent un `DownloadToken`, remonté tel quel sans être consommé.
+	 *
+	 * Particularité : Brevo est le SEUL ESP à grouper plusieurs messages dans un
+	 * même webhook (`items[]`) — c'est la raison d'être du tableau retourné par
+	 * `getInboundEmail`.
+	 */
+	async inboundManagement(req: any): Promise<InboundResponse> {
+		const items = Array.isArray(req?.items) ? req.items : (req ? [req] : [])
+		if (items.length === 0) {
+			return { success: false, status: 400, error: { name: 'NOT_AN_INBOUND_PAYLOAD', message: 'Payload does not look like a Brevo inbound message' } }
+		}
+
+		const data: InboundMessage[] = items.map((item: any) => {
+			// Les valeurs peuvent être des tableaux quand un en-tête se répète
+			// (References, typiquement) — `normalizeInboundHeaders` les joint.
+			const headers = normalizeInboundHeaders(item.Headers)
+			const threading = extractThreading(headers)
+
+			// Brevo expose aussi InReplyTo hors des en-têtes : on garde la valeur
+			// des en-têtes en priorité, elle est la source RFC.
+			const inReplyTo = threading.inReplyTo || item.InReplyTo || undefined
+			const references = threading.references
+				?? (inReplyTo ? [inReplyTo] : undefined)
+
+			return {
+				messageId: headers['message-id'] || item.MessageId,
+				espMessageId: Array.isArray(item.Uuid) ? item.Uuid[0] : item.Uuid,
+				inReplyTo,
+				references,
+				// Brevo n'expose pas d'équivalent direct de `received_for` :
+				// `Delivered-To` en tient lieu quand il est présent.
+				receivedFor: headers['delivered-to'] ? [headers['delivered-to']] : undefined,
+				from: toRecipient(item.From) as Recipient,
+				to: toRecipients(item.To),
+				cc: item.Cc?.length ? toRecipients(item.Cc) : undefined,
+				replyTo: item.ReplyTo ? toRecipient(item.ReplyTo) : undefined,
+				subject: item.Subject ?? '',
+				html: item.RawHtmlBody || undefined,
+				text: item.RawTextBody || undefined,
+				// Équivalent du StrippedTextReply de Postmark : le message isolé
+				// de la citation et de la signature.
+				strippedTextReply: item.ExtractedMarkdownMessage || undefined,
+				headers,
+				attachments: (item.Attachments ?? []).map((a: any) => ({
+					name: a.Name,
+					contentType: a.ContentType,
+					contentLength: a.ContentLength,
+					espAttachmentId: a.DownloadToken,
+				})),
+				receivedAt: item.SentAtDate ? new Date(item.SentAtDate).toISOString() : new Date().toISOString(),
+				spam: item.Spam ? { score: item.Spam.Score } : undefined,
+			}
+		})
+
+		return { success: true, status: 200, data, espData: req }
+	}
 
 	async webHookManagement(req: any): Promise<WebHookResponse> {
 		if (this.transporter.logger) {

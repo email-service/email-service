@@ -1,5 +1,6 @@
 import { EmailPayload, FromInput, IEmailService, NormalizedEmailPayload, Recipient, RecipientInput, StandardResponse, WebHookResponse } from "../types/email.type.js"
 import type { Config } from "../types/emailServiceSelector.type.js"
+import type { InboundResponse } from "../types/inbound.type.js"
 import type { BulkPayload, BulkReport, EmailServiceHooks } from "../types/bulk.type.js"
 import { normalizeFrom, normalizeRecipients } from "../utils/normalizeEmailRecipients.js"
 import { createRateLimiter, TokenBucket, CompositeBucket } from "../utils/rateLimit.js"
@@ -101,6 +102,18 @@ export class ESP<T extends Config> implements IEmailService {
 
 	async webHookManagement(req: any): Promise<WebHookResponse> {
 		return ({ success: false, status: 500, error: { name: 'NO_METHOD_webHookManagement', message: 'This function do never to be call, contact the developper' } })
+	}
+
+	/**
+	 * Réception d'un message entrant. Défaut : non supporté — un ESP sans
+	 * réception le déclare ainsi, et en ajouter un ne casse rien (même motif que
+	 * `webHookManagement`).
+	 *
+	 * `config` n'est utile qu'aux ESP en deux temps (Resend), dont le webhook ne
+	 * porte que des métadonnées et qui exigent une clé API pour le reste.
+	 */
+	async inboundManagement(req: any, config?: Config): Promise<InboundResponse> {
+		return ({ success: false, status: 501, error: { name: 'INBOUND_NOT_SUPPORTED', message: `Inbound reception is not supported for ${this.transporter?.esp ?? 'this ESP'}` } })
 	}
 
 	async sendMailMultiple(options: EmailPayload[]): Promise<StandardResponse[]> {

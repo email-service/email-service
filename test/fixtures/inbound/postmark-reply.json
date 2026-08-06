@@ -1,0 +1,43 @@
+{
+	"FromName": "Jean Client",
+	"MessageStream": "inbound",
+	"From": "jean.client@exemple.fr",
+	"FromFull": {
+		"Email": "jean.client@exemple.fr",
+		"Name": "Jean Client",
+		"MailboxHash": ""
+	},
+	"To": "conseiller@agence.exemple.com",
+	"ToFull": [
+		{
+			"Email": "conseiller@agence.exemple.com",
+			"Name": "",
+			"MailboxHash": ""
+		}
+	],
+	"Cc": "",
+	"CcFull": [],
+	"Bcc": "",
+	"BccFull": [],
+	"OriginalRecipient": "conseiller@agence.exemple.com",
+	"Subject": "Re: Votre projet d'achat",
+	"MessageID": "22c74902-a0c1-4511-804f-341342852c90",
+	"ReplyTo": "",
+	"MailboxHash": "",
+	"Date": "Wed, 6 Aug 2026 10:12:33 +0200",
+	"_comment": "MÊME message que resend-received.json / resend-api-message.json / resend-raw-headers.eml, arrivé par un autre ESP. Le test d'acceptation n°1 du CDC vérifie que les deux produisent le même InboundMessage : les deux jeux doivent donc rester cohérents entre eux.",
+	"TextBody": "Oui je suis intéressé, quand peut-on visiter ?\n\n> Voici les biens correspondant à votre recherche.",
+	"HtmlBody": "<p>Oui je suis intéressé, quand peut-on visiter ?</p>",
+	"StrippedTextReply": "Oui je suis intéressé, quand peut-on visiter ?",
+	"Tag": "",
+	"Headers": [
+		{ "Name": "Return-Path", "Value": "<jean.client@exemple.fr>" },
+		{ "Name": "Message-ID", "Value": "<CAJ8s9x1@mail.exemple.fr>" },
+		{ "Name": "In-Reply-To", "Value": "<campaign-ev42@agence.exemple.com>" },
+		{ "Name": "References", "Value": "<campaign-ev41@agence.exemple.com> <campaign-ev42@agence.exemple.com>" },
+		{ "Name": "MIME-Version", "Value": "1.0" },
+		{ "Name": "X-Spam-Status", "Value": "No" },
+		{ "Name": "X-Spam-Score", "Value": "-0.1" }
+	],
+	"Attachments": []
+}

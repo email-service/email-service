@@ -1,0 +1,36 @@
+{
+	"_comment": "Réponse automatique d'absence AVEC pièce jointe. Deux cas limites en un : le consommateur doit pouvoir écarter un auto-répondeur (en-tête Auto-Submitted) sans le confondre avec une vraie réponse, et la pièce jointe arrive en base64 DANS le payload — c'est le seul ESP qui fait ça.",
+	"FromName": "Marie Client",
+	"MessageStream": "inbound",
+	"From": "marie@exemple.fr",
+	"FromFull": { "Email": "marie@exemple.fr", "Name": "Marie Client", "MailboxHash": "" },
+	"To": "conseiller@agence.exemple.com",
+	"ToFull": [{ "Email": "conseiller@agence.exemple.com", "Name": "", "MailboxHash": "" }],
+	"Cc": "collegue@agence.exemple.com",
+	"CcFull": [{ "Email": "collegue@agence.exemple.com", "Name": "", "MailboxHash": "" }],
+	"OriginalRecipient": "conseiller+ev42@agence.exemple.com",
+	"Subject": "Absence du bureau : Re: Votre projet d'achat",
+	"MessageID": "9a1b2c3d-0000-4444-8888-aaaabbbbcccc",
+	"ReplyTo": "assistante@exemple.fr",
+	"MailboxHash": "ev42",
+	"Date": "Wed, 6 Aug 2026 11:00:00 +0200",
+	"TextBody": "Je suis absente jusqu'au 20 août.",
+	"HtmlBody": "<p>Je suis absente jusqu'au 20 août.</p>",
+	"StrippedTextReply": "",
+	"Headers": [
+		{ "Name": "Message-ID", "Value": "<auto-9a1b@mail.exemple.fr>" },
+		{ "Name": "In-Reply-To", "Value": "<campaign-ev42@agence.exemple.com>" },
+		{ "Name": "References", "Value": "<campaign-ev41@agence.exemple.com>" },
+		{ "Name": "References", "Value": "<campaign-ev42@agence.exemple.com>" },
+		{ "Name": "Auto-Submitted", "Value": "auto-replied" },
+		{ "Name": "X-Spam-Status", "Value": "No" }
+	],
+	"Attachments": [
+		{
+			"Name": "carte-visite.png",
+			"Content": "iVBORw0KGgoAAAANSUhEUg==",
+			"ContentType": "image/png",
+			"ContentLength": 24
+		}
+	]
+}

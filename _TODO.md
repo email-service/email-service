@@ -39,19 +39,36 @@
       (Resend : à confirmer sur un envoi réel — son webhook expose de toute
       façon `message_id`, donc le rapprochement reste possible)
 
-## v0.7.0 — Réception (Inbound) — spec : email-service-documentation/cdc-reception-inbound.md
+## v0.7.0 — Réception (Inbound) — LOT A FAIT (spec : email-service-documentation/cdc-reception-inbound.md)
 
-- [ ] `getInboundEmail(userAgent, req, config?, logger?)` + types `InboundResponse` / `InboundMessage`
-- [ ] Reconnaissance ESP par User-Agent (même prefix matching que `webHook`)
-- [ ] Méthode `inboundManagement` sur `ESP` (défaut : non supporté)
-- [ ] postMark : payload complet (corps + headers + PJ base64), aucun appel API
-- [ ] resend : webhook = métadonnées → appel API message + PJ ; headers limités
-      → repli sur le message brut pour Message-ID / In-Reply-To / References
-- [ ] brevo : à qualifier
-- [ ] nodemailer : non supporté (explicite)
-- [ ] viewer : reconnaissance `email-service-viewer` + normalisation
-- [ ] `verifyInboundSignature(esp, headers, rawBody, secret)` (corps BRUT)
-- [ ] fixtures `test/fixtures/inbound/` : 1 exemple réel par ESP + cas limites
+- [x] `getInboundEmail(userAgent, req, config?, logger?)` + types `InboundResponse` / `InboundMessage`
+      → **`data` est un TABLEAU** : Brevo groupe plusieurs messages par webhook
+- [x] Reconnaissance ESP par User-Agent (même prefix matching que `webHook`)
+- [x] Méthode `inboundManagement` sur `ESP` (défaut : non supporté)
+- [x] postMark : payload complet (corps + headers + PJ base64), aucun appel API
+- [x] resend : webhook = métadonnées → appel API message ; headers limités
+      → repli **systématique** (et non exceptionnel) sur le message brut, lu en
+      requête partielle `Range: bytes=0-65535` pour ne pas rapatrier les PJ
+- [x] brevo : **qualifié** — corps ET headers complets (In-Reply-To/References)
+      dans le webhook, `ExtractedMarkdownMessage` ≈ StrippedTextReply, PJ via
+      `DownloadToken` remonté sans être consommé → aucun appel API nominal
+- [x] nodemailer : non supporté (explicite)
+- [x] viewer : reconnaissance `email-service-viewer` + normalisation
+- [x] `verifyInboundSignature(esp, headers, rawBody, secret)` (corps BRUT)
+      → seul Resend signe (Svix) ; Postmark/Brevo répondent « non applicable »
+      plutôt que « valide », pour ne pas laisser croire à une vérification
+- [x] fixtures `test/fixtures/inbound/` : 7 fichiers, 1 exemple par ESP + cas
+      limites (PJ, absence du bureau, non-remise, sans inReplyTo, lot Brevo,
+      en-têtes incomplets Resend + message brut)
+- [x] `Recipient`, `FromInput`, `RecipientInput`, `HeadersPayLoad` exportés —
+      ils ne l'étaient pas, le consommateur ne pouvait pas typer ce qu'il reçoit
+- [x] 78 tests verts (dont les 8 tests d'acceptation du CDC)
+
+### Reste sur v0.7.0
+
+- [ ] Essai réel Brevo (compte utilisateur) — éprouver `items[]` en conditions
+- [ ] Vérifier que CloudFront honore bien `Range` sur l'URL signée de Resend
+      (repli sur téléchargement complet déjà en place si ce n'est pas le cas)
 
 ### Viewer (test en dev)
 - [ ] viewer-back : `POST /inbound/simulate` → poste vers le webhook inbound
