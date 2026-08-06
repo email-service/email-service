@@ -13,3 +13,25 @@
       même mécanique que `injectUnsubscribeHeader` pour `List-Unsubscribe*`)
 - [ ] Viewer : afficher les headers reçus (sinon rien n'est vérifiable en dev)
 - [ ] Vérifier ESP par ESP si le `Message-ID` fourni est préservé ou réécrit
+
+## v0.7.0 — Réception (Inbound) — spec : email-service-documentation/cdc-reception-inbound.md
+
+- [ ] `getInboundEmail(userAgent, req, config?, logger?)` + types `InboundResponse` / `InboundMessage`
+- [ ] Reconnaissance ESP par User-Agent (même prefix matching que `webHook`)
+- [ ] Méthode `inboundManagement` sur `ESP` (défaut : non supporté)
+- [ ] postMark : payload complet (corps + headers + PJ base64), aucun appel API
+- [ ] resend : webhook = métadonnées → appel API message + PJ ; headers limités
+      → repli sur le message brut pour Message-ID / In-Reply-To / References
+- [ ] brevo : à qualifier
+- [ ] nodemailer : non supporté (explicite)
+- [ ] viewer : reconnaissance `email-service-viewer` + normalisation
+- [ ] `verifyInboundSignature(esp, headers, rawBody, secret)` (corps BRUT)
+- [ ] fixtures `test/fixtures/inbound/` : 1 exemple réel par ESP + cas limites
+
+### Viewer (test en dev)
+- [ ] viewer-back : `POST /inbound/simulate` → poste vers le webhook inbound
+      configuré, User-Agent `email-service-viewer`
+- [ ] viewer-front : bouton **« Répondre »** sur un mail affiché (inReplyTo =
+      Message-ID du mail, sujet `Re: `) — le scénario métier réel en un clic
+- [ ] viewer-front : formulaire libre (PJ, absence du bureau, sans inReplyTo)
+- [ ] viewer : afficher les headers reçus (déjà attendu par v0.6.2)
