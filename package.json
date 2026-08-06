@@ -29,7 +29,7 @@
 		"./package.json": "./package.json"
 	},
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test": "vitest run",
 		"dev": "tsc -p tsconfig.esm.json --watch",
 		"build": "npm run build:esm && npm run build:cjs",
 		"build:esm": "tsc -p tsconfig.esm.json && node scripts/write-dist-package-json.js esm",
@@ -64,8 +64,8 @@
 	"devDependencies": {
 		"@types/node": "^20.12.12",
 		"@types/nodemailer": "^6.4.15",
+		"rimraf": "^5.0.7",
 		"typescript": "^5.4.5",
-		"rimraf": "^5.0.7"
-	},
-	"dependencies": {}
+		"vitest": "^4.1.10"
+	}
 }
