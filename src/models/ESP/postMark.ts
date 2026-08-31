@@ -367,6 +367,20 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 		if (req.Metadata)
 			data.metaData = req.Metadata
 
+		// Postmark tranche la nature via `TypeCode` (résolu ci-dessus en
+		// `webHookEventType`) : on reporte le libellé de son catalogue dans le
+		// bloc normalisé, avec la réponse SMTP quand elle est fournie.
+		if (result === 'SOFT_BOUNCE' || result === 'HARD_BOUNCE') {
+			// @ts-ignore — catalogue indexé par TypeCode numérique
+			const bounceType = req.TypeCode ? bouncesTypes[req.TypeCode]?.type : undefined
+			data.bounce = {
+				kind: result === 'HARD_BOUNCE' ? 'hard' : 'soft',
+				type: bounceType ?? req?.Type,
+				diagnosticCode: req?.Details || undefined,
+				message: req?.Description || undefined,
+			}
+		}
+
 		if (this.transporter.logger)
 			console.log('******** ES-WebHook Postmark ******** result', data)
 		if (result) {

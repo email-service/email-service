@@ -118,8 +118,33 @@ export type WebHookResponseData = {
 	from?: string,
 	subject?: string,
 	metaData?: object,
-	dump?: string
+	dump?: string,
+	/** Détail du rebond, renseigné pour SOFT_BOUNCE et HARD_BOUNCE quand l'ESP
+	 *  le fournit. Le consommateur y trouve le motif à afficher sans avoir à
+	 *  rouvrir la charge utile brute. */
+	bounce?: WebHookBounceInfo
 
+}
+
+/**
+ * Détail normalisé d'un rebond.
+ *
+ * `kind` est la nature retenue par la librairie ; elle correspond au
+ * `webHookType` (`hard` ↔ HARD_BOUNCE, `soft` ↔ SOFT_BOUNCE) et n'existe ici que
+ * pour rendre l'objet auto-porteur.
+ *
+ * `type` / `subType` sont les valeurs BRUTES du fournisseur, conservées telles
+ * quelles : elles varient d'un ESP à l'autre (Resend : `Permanent` /
+ * `Transient` + `MailboxFull`, `General`… ; Postmark : `HardBounce`,
+ * `SoftBounce`… ; Brevo : pas de sous-type). Ne jamais brancher de logique
+ * dessus côté consommateur — c'est le rôle de `kind`.
+ */
+export type WebHookBounceInfo = {
+	kind: 'hard' | 'soft',
+	type?: string,
+	subType?: string,
+	diagnosticCode?: string,
+	message?: string
 }
 
 
