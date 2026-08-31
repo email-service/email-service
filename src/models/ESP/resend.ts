@@ -3,7 +3,7 @@ import { ConfigResend } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
 import { ESP, type ESPOptions } from "../esp.js";
-import { webHookStatus } from "./resend.status.js";
+import { resolveBounce, webHookStatus } from "./resend.status.js";
 import { errorCode } from "./resend.errors.js";
 import { toRecordHeaders } from "../../utils/headers.js";
 import { extractThreading, normalizeInboundHeaders, toRecipient, toRecipients } from "../../utils/inboundNormalize.js";
@@ -250,8 +250,15 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 
 	async webHookManagement(req: any): Promise<WebHookResponse> {
 
-		const result: WebHookStatus = webHookStatus[req.type]
+		let result: WebHookStatus = webHookStatus[req.type]
 
+		// Un seul événement `email.bounced` couvre les deux natures de rebond :
+		// c'est `data.bounce.type` qui tranche, et lui seul. Sans cette lecture,
+		// une adresse définitivement morte passait pour un incident passager —
+		// elle n'entrait donc jamais en suppression list et restait ciblée par
+		// tous les envois suivants (constaté en production le 2026-08-31).
+		const bounce = result === 'SOFT_BOUNCE' ? resolveBounce(req.data?.bounce) : null
+		if (bounce) result = bounce.kind === 'hard' ? 'HARD_BOUNCE' : 'SOFT_BOUNCE'
 
 		const data: WebHookResponseData = {
 			webHookType: result,
@@ -260,6 +267,7 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 			to: req.data.to[0],
 			subject: req.data.subject,
 			from: req.data.from,
+			...(bounce ? { bounce } : {}),
 		}
 
 		// Resend renvoie les tags dans ses webhooks (`Record<string,string>`) —

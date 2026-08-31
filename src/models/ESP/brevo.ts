@@ -175,6 +175,18 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				from: req?.From ? req.From : undefined,
 			}
 
+			// Brevo tranche déjà la nature dans le nom de l'événement
+			// (`soft_bounce` / `hard_bounce` / `invalid_email`) : on ne fait que
+			// la reporter dans le bloc normalisé, sans sous-type (il n'en fournit
+			// pas). `reason` porte le motif lisible.
+			if (result === 'SOFT_BOUNCE' || result === 'HARD_BOUNCE') {
+				data.bounce = {
+					kind: result === 'HARD_BOUNCE' ? 'hard' : 'soft',
+					type: req?.event,
+					message: req?.reason,
+				}
+			}
+
 			if (req['X-Mailin-custom']) {
 				try {
 					data.metaData = JSON.parse(req['X-Mailin-custom'])
