@@ -34,7 +34,10 @@ export class ViewerEmailService extends ESP<ConfigEmailServiceViewer> implements
 				metaData: options.metaData,
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
-				// Attachments: options.attachments
+				// Service interne : les pièces jointes sont transmises telles quelles
+				// (`{ filename, content (base64), contentType }`), pour que le viewer
+				// puisse montrer ce qui serait parti.
+				attachments: options.attachments?.length ? options.attachments : undefined,
 			}
 
 			const opts = {

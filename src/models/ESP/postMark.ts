@@ -1,4 +1,4 @@
-import { EmailPayload, IEmailService, NormalizedEmailPayload, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
+import { EmailAttachment, EmailPayload, IEmailService, NormalizedEmailPayload, Recipient, StandardResponse, WebHookResponse, WebHookResponseData, WebHookStatus } from "../../types/email.type.js";
 import { ConfigPostmark } from "../../types/emailServiceSelector.type.js";
 import { ESPStandardizedError } from "../../types/error.type.js";
 import { errorManagement } from "../../utils/error.js";
@@ -59,7 +59,8 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 				Metadata: options.metaData,
 				TrackOpens: options.trackOpens,
 				TrackLinks: options.trackLinks,
-				Headers: toPostmarkHeaders(options.headers)
+				Headers: toPostmarkHeaders(options.headers),
+				Attachments: toPostmarkAttachments(options.attachments)
 
 			}
 
@@ -154,7 +155,8 @@ export class PostMarkEmailService extends ESP<ConfigPostmark> implements IEmailS
 					Metadata: email.metaData,
 					TrackOpens: email.trackOpens,
 					TrackLinks: email.trackLinks,
-					Headers: toPostmarkHeaders(email.headers)
+					Headers: toPostmarkHeaders(email.headers),
+					Attachments: toPostmarkAttachments(email.attachments)
 
 				}
 				emailsToSend.push(body)
@@ -440,4 +442,8 @@ function formatForPostMark(recipients: Recipient[]): string {
  */
 function formatFromForPostMark(from: Recipient): string {
 	return (from.name ? `${from.name} <${from.email}>` : from.email)
+}
+/** Pièces jointes au format Postmark : `{ Name, Content (base64), ContentType }`. Rien si aucune. */
+function toPostmarkAttachments(attachments?: EmailAttachment[]) {
+	return attachments?.length ? attachments.map((file) => ({ Name: file.filename, Content: file.content, ContentType: file.contentType })) : undefined
 }

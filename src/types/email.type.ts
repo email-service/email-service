@@ -28,6 +28,16 @@ export type RecipientInput = string | string[] | Recipient | (string | Recipient
 
 export type FromInput = string | Recipient;
 
+/**
+ * Pièce jointe d'un e-mail sortant. `content` est le fichier encodé en base64
+ * (sans préfixe `data:`), forme commune à Postmark, Resend et Brevo.
+ */
+export type EmailAttachment = {
+	filename: string;
+	content: string;
+	contentType: string;
+}
+
 export type EmailPayload = {
 	from: FromInput;
 	to: RecipientInput;
@@ -51,6 +61,12 @@ export type EmailPayload = {
 	 * concurrentes laisseraient l'ESP arbitrer).
 	 */
 	replyTo?: FromInput;
+	/**
+	 * Pièces jointes. Absent ou vide → le champ n'est pas transmis à l'ESP
+	 * (comportement historique). Chaque adaptateur le traduit dans la forme
+	 * de son API ; le viewer le reçoit tel quel.
+	 */
+	attachments?: EmailAttachment[];
 }
 
 /**

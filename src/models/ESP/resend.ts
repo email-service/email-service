@@ -74,6 +74,10 @@ export class ResendEmailService extends ESP<ConfigResend> implements IEmailServi
 				reply_to: formatFromForResend(options.replyTo),
 
 				headers: toRecordHeaders(options.headers),
+				// Resend : `{ filename, content (base64), content_type }`. Rien si aucune.
+				attachments: options.attachments?.length
+					? options.attachments.map((file) => ({ filename: file.filename, content: file.content, content_type: file.contentType }))
+					: undefined,
 
 
 			}
