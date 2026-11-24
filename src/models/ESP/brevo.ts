@@ -44,7 +44,11 @@ export class BrevoEmailService extends ESP<ConfigBrevo> implements IEmailService
 				headers: toRecordHeaders(options.headers),
 				// TrackOpens: options.trackOpens,
 				// TrackLinks: options.trackLinks,
-				// Attachments: options.attachments
+				// Brevo : `attachment` (au singulier), `{ name, content (base64) }` ; le type
+				// se déduit de l'extension du nom. Rien si aucune.
+				attachment: options.attachments?.length
+					? options.attachments.map((file) => ({ name: file.filename, content: file.content }))
+					: undefined,
 
 			}
 
